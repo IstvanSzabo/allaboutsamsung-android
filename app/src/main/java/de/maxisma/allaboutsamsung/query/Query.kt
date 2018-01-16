@@ -10,6 +10,7 @@ import de.maxisma.allaboutsamsung.db.PostId
 import de.maxisma.allaboutsamsung.db.Tag
 import de.maxisma.allaboutsamsung.db.TagId
 import de.maxisma.allaboutsamsung.db.findMissingMeta
+import de.maxisma.allaboutsamsung.db.firstImageUrlFromHtml
 import de.maxisma.allaboutsamsung.db.importCategoryDtos
 import de.maxisma.allaboutsamsung.db.importPostDtos
 import de.maxisma.allaboutsamsung.db.importTagDtos
@@ -101,9 +102,8 @@ private class EmptyQueryExecutor(private val wordpressApi: WordpressApi, private
 
 private class FilterQueryExecutor(val query: Query.Filter, private val wordpressApi: WordpressApi, private val db: Db) : QueryExecutor {
 
+    private val postIds = mutableSetOf<PostId>()
     private val _data = MutableLiveData<List<Post>>()
-    private val postTags = mutableMapOf<PostId, List<TagId>>()
-    private val postCategories = mutableMapOf<PostId, List<CategoryId>>()
 
     override val data: LiveData<List<Post>> = _data
 
@@ -116,11 +116,11 @@ private class FilterQueryExecutor(val query: Query.Filter, private val wordpress
     }
 
     override fun tagsForPost(postId: PostId): Deferred<List<Tag>> = async(IOPool) {
-        (postTags[postId]?.let { db.tagDao.tags(it) } ?: emptyList()).distinctBy { it.id }
+        db.postTagDao.tags(postId)
     }
 
     override fun categoriesForPost(postId: PostId): Deferred<List<Category>> = async(IOPool) {
-        (postCategories[postId]?.let { db.categoryDao.categories(it) } ?: emptyList()).distinctBy { it.id }
+        db.postCategoryDao.categories(postId)
     }
 
     private suspend fun fetchPosts(beforeGmt: Date? = null) {
@@ -141,24 +141,11 @@ private class FilterQueryExecutor(val query: Query.Filter, private val wordpress
 
         db.importCategoryDtos(categories)
         db.importTagDtos(tags)
+        db.importPostDtos(posts)
 
-        for (post in posts) {
-            postCategories[post.id] = post.categories
-            postTags[post.id] = post.tags
-        }
+        postIds += posts.map { it.id }
 
-        // TODO Deduplicate this DTO -> entity code
-        _data.postValue((_data.value ?: emptyList<Post>() + posts.map {
-            Post(
-                    id = it.id,
-                    slug = it.slug,
-                    title = it.title.rendered,
-                    link = it.link,
-                    dateUtc = it.date_gmt,
-                    content = it.content.rendered,
-                    author = it.author
-            )
-        }).sortedByDescending { it.dateUtc })
+        _data.postValue(db.postDao.posts(postIds))
     }
 
     override fun requestNewerPosts() = launch {

@@ -5,6 +5,8 @@ import de.maxisma.allaboutsamsung.rest.CategoryIdDto
 import de.maxisma.allaboutsamsung.rest.PostDto
 import de.maxisma.allaboutsamsung.rest.TagDto
 import de.maxisma.allaboutsamsung.rest.TagIdDto
+import de.maxisma.allaboutsamsung.utils.urlDecode
+import org.jsoup.Jsoup
 
 data class MissingMeta(val missingCategoryIds: Set<CategoryIdDto>, val missingTagIds: Set<TagIdDto>)
 
@@ -55,7 +57,8 @@ fun Db.importPostDtos(postDtos: List<PostDto>) {
                         dateUtc = postDto.date_gmt,
                         link = postDto.link,
                         slug = postDto.slug,
-                        title = postDto.title.rendered
+                        title = postDto.title.rendered.urlDecode(),
+                        imageUrl = postDto.content.rendered.firstImageUrlFromHtml()
                 )
                 val usedCategories = postDto.categories.map { category ->
                     PostCategory(postDto.id, category)
@@ -67,3 +70,9 @@ fun Db.importPostDtos(postDtos: List<PostDto>) {
             }
     postMetaDao.insertPostsWithMeta(postsWithMeta, postDao, postCategoryDao, postTagDao)
 }
+
+fun String.firstImageUrlFromHtml(): String? = Jsoup.parse(this)
+        .body()
+        .getElementsByTag("img")
+        .first()
+        ?.attr("src")

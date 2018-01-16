@@ -1,14 +1,8 @@
 package de.maxisma.allaboutsamsung
 
-import android.arch.persistence.room.Room
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import de.maxisma.allaboutsamsung.db.Db
-import de.maxisma.allaboutsamsung.query.Query
-import de.maxisma.allaboutsamsung.query.newExecutor
-import de.maxisma.allaboutsamsung.rest.wordpressApi
-import de.maxisma.allaboutsamsung.utils.IOPool
-import kotlinx.coroutines.experimental.launch
+import de.maxisma.allaboutsamsung.articles.PostsFragment
 
 class MainActivity : AppCompatActivity() {
 
@@ -28,6 +22,8 @@ class MainActivity : AppCompatActivity() {
      * - Offline posts?
      * - Give stable IDs to list items
      * - Error handling
+     * - Sharing
+     * - Glide preload
      *
      * - Keep posts, tags, categories in an observable DB, observe that in ViewModels
      *
@@ -38,19 +34,8 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        launch(IOPool) {
-            // TODO Inject this
-            val db = Room.databaseBuilder(applicationContext, Db::class.java, "db").build()
-            val query = Query.Filter("HTC", null, null)
-            val queryExecutor = query.newExecutor(wordpressApi, db)
-
-            val data = queryExecutor.data.observeForever {
-                queryExecutor.let {
-                    Unit
-                }
-                println(it)
-            }
-            queryExecutor.requestNewerPosts()
-        }
+        supportFragmentManager.beginTransaction()
+                .add(R.id.fragmentContainer, PostsFragment(), "posts")
+                .commitNow()
     }
 }

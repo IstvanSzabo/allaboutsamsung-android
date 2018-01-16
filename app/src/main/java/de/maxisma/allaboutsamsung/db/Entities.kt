@@ -18,7 +18,8 @@ data class Post(
         val link: String,
         val title: String,
         val content: String,
-        val author: Int
+        val author: Int,
+        val imageUrl: String?
 )
 
 @Entity(

@@ -39,6 +39,9 @@ abstract class PostDao {
     @Query("SELECT * FROM Post WHERE dateUtc >= datetime(:oldestThresholdUtc) ORDER BY datetime(dateUtc) DESC")
     abstract fun posts(oldestThresholdUtc: Date): LiveData<List<Post>>
 
+    @Query("SELECT * FROM Post WHERE id IN (:ids) ORDER BY datetime(dateUtc) DESC")
+    abstract fun posts(ids: Set<PostId>): List<Post>
+
     @Query("SELECT dateUtc FROM Post ORDER BY datetime(dateUtc) ASC LIMIT 1")
     abstract fun oldestDate(): Date
 }
