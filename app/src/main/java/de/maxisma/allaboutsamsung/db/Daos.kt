@@ -43,7 +43,7 @@ abstract class PostDao {
     abstract fun posts(ids: Set<PostId>): List<Post>
 
     @Query("SELECT * FROM Post WHERE id = :id")
-    abstract fun post(id: PostId): Post
+    abstract fun post(id: PostId): LiveData<Post>
 
     @Query("SELECT dateUtc FROM Post ORDER BY datetime(dateUtc) ASC LIMIT 1")
     abstract fun oldestDate(): Date

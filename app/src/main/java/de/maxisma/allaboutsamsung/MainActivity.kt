@@ -2,9 +2,11 @@ package de.maxisma.allaboutsamsung
 
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import de.maxisma.allaboutsamsung.articles.PostsFragment
+import de.maxisma.allaboutsamsung.db.PostId
+import de.maxisma.allaboutsamsung.post.PostFragment
+import de.maxisma.allaboutsamsung.posts.PostsFragment
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), PostsFragment.InteractionListener {
 
     /*
      * Features TODO:
@@ -24,6 +26,9 @@ class MainActivity : AppCompatActivity() {
      * - Error handling
      * - Sharing
      * - Glide preload
+     * - Loading indicators
+     * - Transitions
+     * - Ads
      *
      * - Keep posts, tags, categories in an observable DB, observe that in ViewModels
      *
@@ -36,6 +41,14 @@ class MainActivity : AppCompatActivity() {
 
         supportFragmentManager.beginTransaction()
                 .add(R.id.fragmentContainer, PostsFragment(), "posts")
-                .commitNow()
+                .addToBackStack("posts")
+                .commit()
+    }
+
+    override fun displayPost(postId: PostId) {
+        supportFragmentManager.beginTransaction()
+                .add(R.id.fragmentContainer, PostFragment(postId), "post: $postId")
+                .addToBackStack("post: $postId")
+                .commit()
     }
 }

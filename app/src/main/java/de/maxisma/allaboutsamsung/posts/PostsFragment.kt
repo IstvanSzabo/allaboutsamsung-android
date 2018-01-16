@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import de.maxisma.allaboutsamsung.R
 import de.maxisma.allaboutsamsung.db.Db
 import de.maxisma.allaboutsamsung.db.Post
+import de.maxisma.allaboutsamsung.db.PostId
 import de.maxisma.allaboutsamsung.query.Query
 import de.maxisma.allaboutsamsung.query.newExecutor
 import de.maxisma.allaboutsamsung.rest.wordpressApi
@@ -18,6 +19,10 @@ import de.maxisma.allaboutsamsung.utils.dpToPx
 import kotlinx.android.synthetic.main.fragment_posts.*
 
 class PostsFragment : Fragment() {
+
+    interface InteractionListener {
+        fun displayPost(postId: PostId)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_posts, container, false)
@@ -32,7 +37,9 @@ class PostsFragment : Fragment() {
         val query = Query.Empty
         val executor = query.newExecutor(wordpressApi, db)
 
-        val adapter = PostsAdapter()
+        val adapter = PostsAdapter {
+            (activity as InteractionListener).displayPost(it.id) // TODO Make property for listener in superclass
+        }
         val lm = LinearLayoutManager(context!!)
         postList.adapter = adapter
         postList.layoutManager = lm

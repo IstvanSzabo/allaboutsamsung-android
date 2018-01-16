@@ -13,7 +13,7 @@ import com.bumptech.glide.request.RequestOptions
 import de.maxisma.allaboutsamsung.R
 import de.maxisma.allaboutsamsung.db.Post
 
-class PostsAdapter(var posts: List<Post> = emptyList()) : RecyclerView.Adapter<PostViewHolder>() {
+class PostsAdapter(var posts: List<Post> = emptyList(), private val onClick: (Post) -> Unit) : RecyclerView.Adapter<PostViewHolder>() {
 
     init {
         setHasStableIds(true)
@@ -23,7 +23,7 @@ class PostsAdapter(var posts: List<Post> = emptyList()) : RecyclerView.Adapter<P
 
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
         val post = posts[position]
-        holder.itemView.setOnClickListener {  }
+        holder.itemView.setOnClickListener { onClick(post) }
         holder.title.text = post.title
 
         initTransformation(holder.itemView.context)
