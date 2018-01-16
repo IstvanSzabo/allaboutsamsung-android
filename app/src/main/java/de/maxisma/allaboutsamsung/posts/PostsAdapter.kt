@@ -1,4 +1,4 @@
-package de.maxisma.allaboutsamsung.articles
+package de.maxisma.allaboutsamsung.posts
 
 import android.content.Context
 import android.graphics.Bitmap

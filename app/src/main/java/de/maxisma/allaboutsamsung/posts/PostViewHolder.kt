@@ -1,4 +1,4 @@
-package de.maxisma.allaboutsamsung.articles
+package de.maxisma.allaboutsamsung.posts
 
 import android.support.v7.widget.RecyclerView
 import android.view.View

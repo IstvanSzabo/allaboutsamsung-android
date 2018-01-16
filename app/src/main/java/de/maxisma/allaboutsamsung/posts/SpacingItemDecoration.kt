@@ -1,4 +1,4 @@
-package de.maxisma.allaboutsamsung.articles
+package de.maxisma.allaboutsamsung.posts
 
 import android.graphics.Rect
 import android.support.annotation.Px
