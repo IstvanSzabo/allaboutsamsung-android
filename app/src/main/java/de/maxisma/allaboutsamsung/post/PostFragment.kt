@@ -1,5 +1,6 @@
 package de.maxisma.allaboutsamsung.post
 
+import android.annotation.SuppressLint
 import android.arch.lifecycle.Observer
 import android.arch.persistence.room.Room
 import android.os.Bundle
@@ -29,12 +30,14 @@ class PostFragment @Deprecated("Use factory function.") constructor() : Fragment
         return inflater.inflate(R.layout.fragment_post, container, false)
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         postWebView.settings.apply {
             loadWithOverviewMode = true
             useWideViewPort = true
+            javaScriptEnabled = true
         }
 
         // TODO Inject this
@@ -42,7 +45,9 @@ class PostFragment @Deprecated("Use factory function.") constructor() : Fragment
         db.postDao.post(postId).observe(this, Observer { post ->
             post!!
 
-            // TODO "https://allaboutsamsung.de" as BuildConfig
+            // TODO Test with large articles
+            // TODO Catch image loading, open in gallery
+            // TODO Open all links in Chrome custom tab
             postWebView.loadDataWithBaseURL(BuildConfig.WEBVIEW_BASE_URL, post.toHtml(), "text/html", Charsets.UTF_8.name(), null)
         })
     }
