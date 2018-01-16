@@ -16,7 +16,7 @@ private const val CSS = """
     p {
         color: rgb(70, 70, 70);
     }
-    img[class^="align"]:not([class^="attachment"]) {
+    img[class^="align"]:not([class^="attachment"]), iframe {
     	width: calc(100% + 2 * $BODY_MARGIN);
         height: auto;
         margin-left: -$BODY_MARGIN;

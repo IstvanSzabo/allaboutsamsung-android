@@ -47,7 +47,8 @@ class PostFragment @Deprecated("Use factory function.") constructor() : Fragment
 
             // TODO Test with large articles
             // TODO Catch image loading, open in gallery
-            // TODO Open all links in Chrome custom tab
+            // TODO Open all links in Chrome custom tab, youtube in youtube app
+            // TODO Allow video fullscreen?
             postWebView.loadDataWithBaseURL(BuildConfig.WEBVIEW_BASE_URL, post.toHtml(), "text/html", Charsets.UTF_8.name(), null)
         })
     }
