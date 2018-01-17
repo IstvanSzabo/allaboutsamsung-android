@@ -1,8 +1,6 @@
 package de.maxisma.allaboutsamsung.post
 
 import android.annotation.SuppressLint
-import android.arch.lifecycle.Observer
-import android.arch.persistence.room.Room
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.view.LayoutInflater
@@ -13,6 +11,7 @@ import de.maxisma.allaboutsamsung.R
 import de.maxisma.allaboutsamsung.app
 import de.maxisma.allaboutsamsung.db.Db
 import de.maxisma.allaboutsamsung.db.PostId
+import de.maxisma.allaboutsamsung.utils.observe
 import kotlinx.android.synthetic.main.fragment_post.*
 import javax.inject.Inject
 
@@ -27,7 +26,8 @@ fun PostFragment(postId: PostId) = PostFragment().apply {
 
 class PostFragment @Deprecated("Use factory function.") constructor() : Fragment() {
     private val postId get() = arguments!!.getLong(ARG_POST_ID)
-    @Inject lateinit var db: Db
+    @Inject
+    lateinit var db: Db
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -50,7 +50,7 @@ class PostFragment @Deprecated("Use factory function.") constructor() : Fragment
         }
         postWebView.webViewClient = GlideCachingWebViewClient()
 
-        db.postMetaDao.postWithAuthorName(postId).observe(this, Observer { postWithAuthorName ->
+        db.postMetaDao.postWithAuthorName(postId).observe(this) { postWithAuthorName ->
             val (post, authorName) = postWithAuthorName!!
 
             // TODO Test with large articles
@@ -58,6 +58,6 @@ class PostFragment @Deprecated("Use factory function.") constructor() : Fragment
             // TODO Open all links in Chrome custom tab, youtube in youtube app
             // TODO Allow video fullscreen?
             postWebView.loadDataWithBaseURL(BuildConfig.WEBVIEW_BASE_URL, post.toHtml(authorName), "text/html", Charsets.UTF_8.name(), null)
-        })
+        }
     }
 }
