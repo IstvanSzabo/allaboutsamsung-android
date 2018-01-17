@@ -141,7 +141,11 @@ data class UserDto(
 )
 
 val httpClient: OkHttpClient = OkHttpClient.Builder()
-    .addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY })
+    .apply {
+        if (BuildConfig.DEBUG) {
+            addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY })
+        }
+    }
     .build()
 
 // We assume that all dates in DTOs are GMT dates
