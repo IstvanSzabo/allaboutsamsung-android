@@ -6,8 +6,10 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import de.maxisma.allaboutsamsung.BaseFragment
 import de.maxisma.allaboutsamsung.BuildConfig
 import de.maxisma.allaboutsamsung.R
+import de.maxisma.allaboutsamsung.R.id.postWebView
 import de.maxisma.allaboutsamsung.app
 import de.maxisma.allaboutsamsung.db.Db
 import de.maxisma.allaboutsamsung.db.PostId
@@ -24,7 +26,7 @@ fun PostFragment(postId: PostId) = PostFragment().apply {
     }
 }
 
-class PostFragment @Deprecated("Use factory function.") constructor() : Fragment() {
+class PostFragment @Deprecated("Use factory function.") constructor() : BaseFragment<Nothing>() {
     private val postId get() = arguments!!.getLong(ARG_POST_ID)
     @Inject
     lateinit var db: Db
