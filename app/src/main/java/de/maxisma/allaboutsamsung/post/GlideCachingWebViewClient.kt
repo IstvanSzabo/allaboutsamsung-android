@@ -6,17 +6,16 @@ import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import com.bumptech.glide.Glide
-import com.bumptech.glide.request.RequestOptions
+import de.maxisma.allaboutsamsung.utils.glide.GlideApp
 import java.util.concurrent.ExecutionException
 
 class GlideCachingWebViewClient : WebViewClient() {
     private fun shouldInterceptRequestInternal(view: WebView, url: String): WebResourceResponse? {
         val file = try {
-            Glide.with(view)
+            GlideApp.with(view)
                 .asFile()
                 .load(url)
-                .apply(RequestOptions().onlyRetrieveFromCache(true))
+                .onlyRetrieveFromCache(true)
                 .submit()
                 .get()
         } catch (e: ExecutionException) {
