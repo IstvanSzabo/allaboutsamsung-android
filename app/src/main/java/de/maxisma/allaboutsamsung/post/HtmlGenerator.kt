@@ -6,18 +6,23 @@ import java.text.DateFormat
 import java.util.TimeZone
 
 private const val BODY_MARGIN = "8px"
+private const val LIGHT_TEXT_COLOR = "rgb(70, 70, 70)"
+private const val DEFAULT_FONT_CONFIG = """
+font-family: 'Roboto', sans-serif;
+font-weight: 300;
+"""
 
 // TODO Style wp-caption?
 private const val CSS = """
     body {
         margin: $BODY_MARGIN;
+        $DEFAULT_FONT_CONFIG
     }
-    h1, h2, h3, h4, h5, h6, p {
-        font-family: 'Roboto', sans-serif;
-        font-weight: 300;
+    h1, h2, h3, h4, h5, h6 {
+        $DEFAULT_FONT_CONFIG
     }
     p {
-        color: rgb(70, 70, 70);
+        color: $LIGHT_TEXT_COLOR;
     }
     img {
         max-width: 100%;
@@ -36,12 +41,18 @@ private const val CSS = """
     a:link {
         text-decoration: none;
     }
+    h1 {
+        margin-bottom: 0.1em;
+    }
     .meta {
-
+        margin-bottom: 0.25em;
+        display: inline-block;
+        color: $LIGHT_TEXT_COLOR;
     }
     """
 
 // TODO Get "von" with i18n
+// TODO Deal with collapseomatic (see post.php)
 
 private val dateFormatter = (DateFormat.getDateInstance().clone() as DateFormat).apply {
     timeZone = TimeZone.getDefault()

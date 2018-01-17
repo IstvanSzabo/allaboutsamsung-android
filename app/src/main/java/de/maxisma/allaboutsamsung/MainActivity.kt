@@ -15,7 +15,7 @@ class MainActivity : AppCompatActivity(), PostsFragment.InteractionListener {
      * - Liveblog?
      * - Gallery
      * - Configuration (dark theme, push, analytics, ...)
-     * - Analytics
+     * - Analytics (article openings etc.)
      * - Push
      * - Featured
      * - Post overview (by category, search query, infinite scroll, pull-to-refresh, refresh onResume after a while)
