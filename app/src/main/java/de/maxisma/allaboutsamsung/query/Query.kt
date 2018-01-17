@@ -48,9 +48,11 @@ sealed class Query {
 }
 
 fun Query.newExecutor(wordpressApi: WordpressApi, db: Db) = when (this) {
-    is Query.Empty -> EmptyQueryExecutor(wordpressApi, db)
+    Query.Empty -> EmptyQueryExecutor(wordpressApi, db)
     is Query.Filter -> FilterQueryExecutor(this, wordpressApi, db)
 }
+
+private const val POSTS_PER_PAGE = 20
 
 private class EmptyQueryExecutor(private val wordpressApi: WordpressApi, private val db: Db) : QueryExecutor {
 
@@ -73,7 +75,7 @@ private class EmptyQueryExecutor(private val wordpressApi: WordpressApi, private
     }
 
     private suspend fun fetchPosts(beforeGmt: Date? = null) {
-        val posts = wordpressApi.posts(page = 1, postsPerPage = 10, search = null, onlyCategories = null, onlyTags = null, beforeGmt = beforeGmt).await()
+        val posts = wordpressApi.posts(page = 1, postsPerPage = POSTS_PER_PAGE, search = null, onlyCategories = null, onlyTags = null, beforeGmt = beforeGmt).await()
         val (missingCategoryIds, missingTagIds, missingUserIds) = db.findMissingMeta(posts)
         val categories = if (missingCategoryIds.isEmpty()) {
             emptyList()
@@ -131,7 +133,7 @@ private class FilterQueryExecutor(val query: Query.Filter, private val wordpress
     }
 
     private suspend fun fetchPosts(beforeGmt: Date? = null) {
-        val posts = wordpressApi.posts(page = 1, postsPerPage = 10,
+        val posts = wordpressApi.posts(page = 1, postsPerPage = POSTS_PER_PAGE,
             search = query.string, onlyCategories = query.onlyCategories?.let { CategoryIdsDto(it.toSet()) }, onlyTags = query.onlyTags?.let { TagIdsDto(it.toSet()) },
             beforeGmt = beforeGmt
         ).await()

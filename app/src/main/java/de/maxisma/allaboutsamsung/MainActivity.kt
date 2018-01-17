@@ -18,17 +18,17 @@ class MainActivity : AppCompatActivity(), PostsFragment.InteractionListener {
      * - Analytics (article openings etc.)
      * - Push
      * - Featured
-     * - Post overview (by category, search query, infinite scroll, pull-to-refresh, refresh onResume after a while)
+     * - Post overview (by category, search query, pull-to-refresh, refresh onResume after a while)
      * - Post details + comments
      * - YouTube channel (notify about new videos in app)
      * - Offline posts?
-     * - Give stable IDs to list items
-     * - Error handling
+     * - Error handling, request timeouts
      * - Sharing
      * - Glide preload
      * - Loading indicators
      * - Transitions
      * - Ads
+     * - Resolve warnings, code inspections
      *
      * - Keep posts, tags, categories in an observable DB, observe that in ViewModels
      *

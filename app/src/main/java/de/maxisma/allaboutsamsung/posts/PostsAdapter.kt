@@ -27,7 +27,6 @@ class PostsAdapter(var posts: List<Post> = emptyList(), private val onClick: (Po
 
         initTransformation(holder.itemView.context)
 
-
         GlideApp.with(holder.itemView)
             .load(post.imageUrl)
             .centerCrop()

@@ -13,6 +13,7 @@ import de.maxisma.allaboutsamsung.db.TagId
 import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.async
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -29,7 +30,7 @@ interface WordpressApi {
         @Query("search") search: String?,
         @Query("tags") onlyTags: TagIdsDto?,
         @Query("categories") onlyCategories: CategoryIdsDto?,
-        @Query("beforeGmt") beforeGmt: Date? = null
+        @Query("before") beforeGmt: Date? = null
     ): Deferred<List<PostDto>>
 
     @GET("categories?per_page=100")
@@ -139,7 +140,9 @@ data class UserDto(
     val name: String
 )
 
-val httpClient = OkHttpClient()
+val httpClient: OkHttpClient = OkHttpClient.Builder()
+    .addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY })
+    .build()
 
 // We assume that all dates in DTOs are GMT dates
 
@@ -158,6 +161,7 @@ private val retrofit = Retrofit.Builder()
     .client(httpClient)
     .addCallAdapterFactory(CoroutineCallAdapterFactory())
     .addConverterFactory(MoshiConverterFactory.create(moshi))
+    .addConverterFactory(RetrofitDateStringConverterFactory)
     .build()
 
 val wordpressApi: WordpressApi = retrofit.create(WordpressApi::class.java)

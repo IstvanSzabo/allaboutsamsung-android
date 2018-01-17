@@ -5,6 +5,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import com.github.pwittchen.infinitescroll.library.InfiniteScrollListener
 import de.maxisma.allaboutsamsung.BaseFragment
 import de.maxisma.allaboutsamsung.R
 import de.maxisma.allaboutsamsung.app
@@ -13,10 +14,16 @@ import de.maxisma.allaboutsamsung.db.PostId
 import de.maxisma.allaboutsamsung.query.Query
 import de.maxisma.allaboutsamsung.query.newExecutor
 import de.maxisma.allaboutsamsung.rest.wordpressApi
+import de.maxisma.allaboutsamsung.utils.IOPool
 import de.maxisma.allaboutsamsung.utils.dpToPx
 import de.maxisma.allaboutsamsung.utils.observe
 import kotlinx.android.synthetic.main.fragment_posts.*
+import kotlinx.coroutines.experimental.Job
+import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.launch
 import javax.inject.Inject
+
+private const val MAX_ITEMS_PER_REQUEST_ON_SCROLL = 20
 
 class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
 
@@ -47,6 +54,22 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
         postList.adapter = adapter
         postList.layoutManager = lm
         postList.addItemDecoration(SpacingItemDecoration(horizontalSpacing = 8.dpToPx(), verticalSpacing = 8.dpToPx()))
+
+        val infiniteScrollListener = object : InfiniteScrollListener(MAX_ITEMS_PER_REQUEST_ON_SCROLL, lm) {
+
+            private var lastJob: Job? = null
+
+            override fun onScrolledToEnd(firstVisibleItemPosition: Int) {
+                if (lastJob?.isActive != true) {
+                    lastJob = launch(IOPool) {
+                        executor.requestOlderPosts().join()
+                        // Debounce UI interaction
+                        delay(500)
+                    }
+                }
+            }
+        }
+        postList.addOnScrollListener(infiniteScrollListener)
 
         executor.data.observe(this) { it ->
             adapter.posts = it ?: emptyList()

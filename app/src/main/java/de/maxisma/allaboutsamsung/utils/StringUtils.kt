@@ -1,5 +1,5 @@
 package de.maxisma.allaboutsamsung.utils
 
-import java.net.URLDecoder
+import org.jsoup.parser.Parser
 
-fun String.urlDecode(): String = URLDecoder.decode(this, Charsets.UTF_8.name())
+fun String.htmlUnescape(): String = Parser.unescapeEntities(this, true)
