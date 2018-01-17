@@ -29,11 +29,11 @@ class GlideCachingWebViewClient : WebViewClient() {
     }
 
     @Suppress("OverridingDeprecatedMember", "DEPRECATION")
-    override fun shouldInterceptRequest(view: WebView, url: String): WebResourceResponse =
+    override fun shouldInterceptRequest(view: WebView, url: String): WebResourceResponse? =
         shouldInterceptRequestInternal(view, url) ?: super.shouldInterceptRequest(view, url)
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse =
+    override fun shouldInterceptRequest(view: WebView, request: WebResourceRequest): WebResourceResponse? =
         shouldInterceptRequestInternal(view, request.url.toString()) ?: super.shouldInterceptRequest(view, request)
 
 }
