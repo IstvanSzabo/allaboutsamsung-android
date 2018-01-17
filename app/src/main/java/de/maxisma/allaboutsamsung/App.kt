@@ -5,6 +5,8 @@ import android.app.Application
 import android.content.Context
 import android.support.v4.app.Fragment
 import android.webkit.WebView
+import de.maxisma.allaboutsamsung.utils.IOPool
+import kotlinx.coroutines.experimental.launch
 
 class App : Application() {
 
@@ -14,6 +16,10 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
         WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG)
+
+        launch(IOPool) {
+            appComponent.db.postDao.deleteOld()
+        }
     }
 }
 

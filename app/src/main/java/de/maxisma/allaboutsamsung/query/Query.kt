@@ -94,7 +94,6 @@ private class EmptyQueryExecutor(private val wordpressApi: WordpressApi, private
         db.importTagDtos(tags)
         db.importUserDtos(users)
 
-        // TODO Limit Posts in DB, clean on startup (not during scrolling)
         db.importPostDtos(posts)
     }
 
