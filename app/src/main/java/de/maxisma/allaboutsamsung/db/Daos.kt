@@ -57,7 +57,7 @@ abstract class PostDao {
     abstract fun post(id: PostId): LiveData<Post>
 
     @Query("SELECT dateUtc FROM Post ORDER BY datetime(dateUtc) ASC LIMIT 1")
-    abstract fun oldestDate(): Date
+    abstract fun oldestDate(): Date?
 
     // AS vtable should force SQlite to create a virtual table instead of querying for each row
     @Query("DELETE FROM Post WHERE id NOT IN (SELECT id FROM (SELECT id FROM Post ORDER BY datetime(dateUtc) DESC LIMIT $MAX_POSTS_IN_DB) AS vtable)")

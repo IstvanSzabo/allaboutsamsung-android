@@ -15,6 +15,7 @@ import de.maxisma.allaboutsamsung.db.importPostDtos
 import de.maxisma.allaboutsamsung.db.importTagDtos
 import de.maxisma.allaboutsamsung.db.importUserDtos
 import de.maxisma.allaboutsamsung.rest.CategoryIdsDto
+import de.maxisma.allaboutsamsung.rest.PostDto
 import de.maxisma.allaboutsamsung.rest.TagIdsDto
 import de.maxisma.allaboutsamsung.rest.UserIdsDto
 import de.maxisma.allaboutsamsung.rest.WordpressApi
@@ -47,35 +48,41 @@ sealed class Query {
     ) : Query()
 }
 
-fun Query.newExecutor(wordpressApi: WordpressApi, db: Db) = when (this) {
+fun Query.newExecutor(wordpressApi: WordpressApi, db: Db): QueryExecutor = when (this) {
     Query.Empty -> EmptyQueryExecutor(wordpressApi, db)
     is Query.Filter -> FilterQueryExecutor(this, wordpressApi, db)
 }
 
 private const val POSTS_PER_PAGE = 20
 
-private class EmptyQueryExecutor(private val wordpressApi: WordpressApi, private val db: Db) : QueryExecutor {
+private abstract class DbQueryExecutor(private val wordpressApi: WordpressApi, private val db: Db) : QueryExecutor {
 
     override val data: LiveData<List<Post>> = db.postDao.posts(oldestThresholdUtc = Date(0))
 
-    override fun tagsForPost(postId: PostId): Deferred<List<Tag>> = async(IOPool) {
+    final override fun tagsForPost(postId: PostId): Deferred<List<Tag>> = async(IOPool) {
         db.postTagDao.tags(postId)
     }
 
-    override fun categoriesForPost(postId: PostId): Deferred<List<Category>> = async(IOPool) {
+    final override fun categoriesForPost(postId: PostId): Deferred<List<Category>> = async(IOPool) {
         db.postCategoryDao.categories(postId)
     }
 
-    override fun tagById(tagId: TagId): Deferred<Tag> = async(IOPool) {
+    final override fun tagById(tagId: TagId): Deferred<Tag> = async(IOPool) {
         db.tagDao.tag(tagId)!!
     }
 
-    override fun categoryById(categoryId: CategoryId): Deferred<Category> = async(IOPool) {
+    final override fun categoryById(categoryId: CategoryId): Deferred<Category> = async(IOPool) {
         db.categoryDao.category(categoryId)!!
     }
 
-    private suspend fun fetchPosts(beforeGmt: Date? = null) {
-        val posts = wordpressApi.posts(page = 1, postsPerPage = POSTS_PER_PAGE, search = null, onlyCategories = null, onlyTags = null, beforeGmt = beforeGmt).await()
+    protected abstract suspend fun fetchPosts(beforeGmt: Date?): List<PostDto>
+
+    protected abstract suspend fun oldestPostDateUtc(): Date?
+
+    protected open suspend fun onInsertedPosts(postIds: Set<PostId>) {}
+
+    private suspend fun fetchPostsAndRelated(beforeGmt: Date? = null) {
+        val posts = fetchPosts(beforeGmt)
         val (missingCategoryIds, missingTagIds, missingUserIds) = db.findMissingMeta(posts)
         val categories = if (missingCategoryIds.isEmpty()) {
             emptyList()
@@ -95,81 +102,51 @@ private class EmptyQueryExecutor(private val wordpressApi: WordpressApi, private
         db.importCategoryDtos(categories)
         db.importTagDtos(tags)
         db.importUserDtos(users)
-
         db.importPostDtos(posts)
+
+        onInsertedPosts(posts.map { it.id }.toSet())
     }
 
-    override fun requestNewerPosts() = launch(IOPool) {
-        fetchPosts()
+    final override fun requestNewerPosts() = launch(IOPool) {
+        fetchPostsAndRelated()
     }
 
-    override fun requestOlderPosts() = launch(IOPool) {
-        fetchPosts(db.postDao.oldestDate())
+    final override fun requestOlderPosts() = launch(IOPool) {
+        fetchPostsAndRelated(oldestPostDateUtc())
     }
-
 }
 
-private class FilterQueryExecutor(val query: Query.Filter, private val wordpressApi: WordpressApi, private val db: Db) : QueryExecutor {
+private class EmptyQueryExecutor(private val wordpressApi: WordpressApi, private val db: Db) : DbQueryExecutor(wordpressApi, db) {
+    override suspend fun fetchPosts(beforeGmt: Date?) = wordpressApi
+        .posts(page = 1, postsPerPage = POSTS_PER_PAGE, search = null, onlyCategories = null, onlyTags = null, beforeGmt = beforeGmt)
+        .await()
+
+    override suspend fun oldestPostDateUtc() = db.postDao.oldestDate()
+}
+
+private class FilterQueryExecutor(val query: Query.Filter, private val wordpressApi: WordpressApi, private val db: Db) : DbQueryExecutor(wordpressApi, db) {
 
     private val postIds = mutableSetOf<PostId>()
     private val _data = MutableLiveData<List<Post>>()
 
     override val data: LiveData<List<Post>> = _data
 
-    override fun tagById(tagId: TagId): Deferred<Tag> = async(IOPool) {
-        db.tagDao.tag(tagId)!!
-    }
-
-    override fun categoryById(categoryId: CategoryId): Deferred<Category> = async(IOPool) {
-        db.categoryDao.category(categoryId)!!
-    }
-
-    override fun tagsForPost(postId: PostId): Deferred<List<Tag>> = async(IOPool) {
-        db.postTagDao.tags(postId)
-    }
-
-    override fun categoriesForPost(postId: PostId): Deferred<List<Category>> = async(IOPool) {
-        db.postCategoryDao.categories(postId)
-    }
-
-    private suspend fun fetchPosts(beforeGmt: Date? = null) {
-        val posts = wordpressApi.posts(page = 1, postsPerPage = POSTS_PER_PAGE,
-            search = query.string, onlyCategories = query.onlyCategories?.let { CategoryIdsDto(it.toSet()) }, onlyTags = query.onlyTags?.let { TagIdsDto(it.toSet()) },
+    override suspend fun fetchPosts(beforeGmt: Date?) = wordpressApi
+        .posts(
+            page = 1,
+            postsPerPage = POSTS_PER_PAGE,
+            search = query.string,
+            onlyCategories = query.onlyCategories?.let { CategoryIdsDto(it.toSet()) },
+            onlyTags = query.onlyTags?.let { TagIdsDto(it.toSet()) },
             beforeGmt = beforeGmt
         ).await()
-        val (missingCategoryIds, missingTagIds, missingUserIds) = db.findMissingMeta(posts)
-        val categories = if (missingCategoryIds.isEmpty()) {
-            emptyList()
-        } else {
-            wordpressApi.allCategories(CategoryIdsDto(missingCategoryIds)).await()
-        }
-        val tags = if (missingTagIds.isEmpty()) {
-            emptyList()
-        } else {
-            wordpressApi.allTags(TagIdsDto(missingTagIds)).await()
-        }
-        val users = if (missingUserIds.isEmpty()) {
-            emptyList()
-        } else {
-            wordpressApi.allUsers(UserIdsDto(missingUserIds)).await()
-        }
 
-        db.importCategoryDtos(categories)
-        db.importTagDtos(tags)
-        db.importUserDtos(users)
-        db.importPostDtos(posts)
-
-        postIds += posts.map { it.id }
-
-        _data.postValue(db.postDao.posts(postIds))
+    override suspend fun onInsertedPosts(postIds: Set<PostId>) {
+        super.onInsertedPosts(postIds)
+        this.postIds += postIds
+        _data.postValue(db.postDao.posts(this.postIds))
     }
 
-    override fun requestNewerPosts() = launch {
-        fetchPosts()
-    }
-
-    override fun requestOlderPosts() = launch {
-        fetchPosts(beforeGmt = _data.value!!.lastOrNull()?.dateUtc)
-    }
+    override suspend fun oldestPostDateUtc() = _data.value?.lastOrNull()?.dateUtc
 
 }
