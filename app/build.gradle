@@ -38,6 +38,7 @@ dependencies {
     def supportVersion = "27.0.2"
     implementation "com.android.support:appcompat-v7:$supportVersion"
     implementation "com.android.support:recyclerview-v7:$supportVersion"
+    implementation "com.android.support:design:$supportVersion"
     implementation "com.android.support.constraint:constraint-layout:1.0.2"
 
     testImplementation 'junit:junit:4.12'

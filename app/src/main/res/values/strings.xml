@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">AllAboutSamsung</string>
     <string name="article_image">Artikelbild</string>
+    <string name="network_error">Leider gab es einen Fehler beim Verbindungsaufbau.</string>
+    <string name="server_error">Ungültige Antwort erhalten.</string>
 </resources>

@@ -1,11 +1,14 @@
 package de.maxisma.allaboutsamsung.posts
 
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.github.pwittchen.infinitescroll.library.InfiniteScrollListener
+import com.squareup.moshi.JsonDataException
+import com.squareup.moshi.JsonEncodingException
 import de.maxisma.allaboutsamsung.BaseFragment
 import de.maxisma.allaboutsamsung.R
 import de.maxisma.allaboutsamsung.app
@@ -19,8 +22,11 @@ import de.maxisma.allaboutsamsung.utils.dpToPx
 import de.maxisma.allaboutsamsung.utils.observe
 import kotlinx.android.synthetic.main.fragment_posts.*
 import kotlinx.coroutines.experimental.Job
+import kotlinx.coroutines.experimental.TimeoutCancellationException
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
+import retrofit2.HttpException
+import java.io.IOException
 import javax.inject.Inject
 
 private const val MAX_ITEMS_PER_REQUEST_ON_SCROLL = 20
@@ -43,11 +49,21 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
         return inflater.inflate(R.layout.fragment_posts, container, false)
     }
 
+    private fun onError(e: Exception) {
+        val message = when(e) {
+            is HttpException, is JsonDataException, is JsonEncodingException -> R.string.server_error
+            is IOException, is TimeoutCancellationException -> R.string.network_error
+            else -> throw e
+        }
+        val view = view ?: return
+        Snackbar.make(view, message, Snackbar.LENGTH_LONG).show()
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         val query = Query.Empty
-        val executor = query.newExecutor(wordpressApi, db)
+        val executor = query.newExecutor(wordpressApi, db, ::onError)
 
         val adapter = PostsAdapter { listener.displayPost(it.id) }
         val lm = LinearLayoutManager(context!!)

@@ -22,13 +22,13 @@ class MainActivity : AppCompatActivity(), PostsFragment.InteractionListener {
      * - Post details + comments
      * - YouTube channel (notify about new videos in app)
      * - Offline posts?
-     * - Error handling, request timeouts
      * - Sharing
      * - Glide preload
      * - Loading indicators
      * - Transitions
      * - Ads
      * - Resolve warnings, code inspections
+     * - Documentation
      *
      * - Keep posts, tags, categories in an observable DB, observe that in ViewModels
      *
