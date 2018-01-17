@@ -39,6 +39,7 @@ class PostFragment @Deprecated("Use factory function.") constructor() : Fragment
             useWideViewPort = true
             javaScriptEnabled = true
         }
+        postWebView.webViewClient = GlideCachingWebViewClient()
 
         // TODO Inject this
         val db = Room.databaseBuilder(context!!, Db::class.java, "db").build()
