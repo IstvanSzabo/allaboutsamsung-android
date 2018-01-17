@@ -9,7 +9,7 @@ import android.webkit.WebViewClient
 import de.maxisma.allaboutsamsung.utils.glide.GlideApp
 import java.util.concurrent.ExecutionException
 
-class GlideCachingWebViewClient : WebViewClient() {
+open class GlideCachingWebViewClient : WebViewClient() {
     private fun shouldInterceptRequestInternal(view: WebView, url: String): WebResourceResponse? {
         val file = try {
             GlideApp.with(view)

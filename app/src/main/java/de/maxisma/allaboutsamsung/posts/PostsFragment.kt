@@ -23,6 +23,7 @@ import de.maxisma.allaboutsamsung.utils.observe
 import kotlinx.android.synthetic.main.fragment_posts.*
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.TimeoutCancellationException
+import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import retrofit2.HttpException
@@ -77,8 +78,10 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
 
             override fun onScrolledToEnd(firstVisibleItemPosition: Int) {
                 if (lastJob?.isActive != true) {
-                    lastJob = launch(IOPool) {
+                    lastJob = launch(UI) {
+                        postsProgressBar.visibility = View.VISIBLE
                         executor.requestOlderPosts().join()
+                        postsProgressBar.visibility = View.GONE
                         // Debounce UI interaction
                         delay(500)
                     }
@@ -91,6 +94,11 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
             adapter.posts = it ?: emptyList()
             adapter.notifyDataSetChanged()
         }
-        executor.requestNewerPosts()
+
+        launch(UI) {
+            postsProgressBar.visibility = View.VISIBLE
+            executor.requestNewerPosts()
+            postsProgressBar.visibility = View.GONE
+        }
     }
 }

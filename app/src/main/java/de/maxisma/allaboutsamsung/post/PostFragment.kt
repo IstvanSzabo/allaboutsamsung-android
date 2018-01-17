@@ -6,6 +6,8 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.WebChromeClient
+import android.webkit.WebView
 import de.maxisma.allaboutsamsung.BaseFragment
 import de.maxisma.allaboutsamsung.BuildConfig
 import de.maxisma.allaboutsamsung.R
@@ -51,6 +53,13 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
             javaScriptEnabled = true
         }
         postWebView.webViewClient = GlideCachingWebViewClient()
+        postWebView.webChromeClient = object : WebChromeClient() {
+            override fun onProgressChanged(view: WebView, newProgress: Int) {
+                super.onProgressChanged(view, newProgress)
+                postProgressBar.visibility = if (newProgress in 1..99) View.VISIBLE else View.GONE
+                postProgressBar.progress = newProgress
+            }
+        }
 
         db.postMetaDao.postWithAuthorName(postId).observe(this) { postWithAuthorName ->
             val (post, authorName) = postWithAuthorName!!

@@ -24,7 +24,7 @@ class MainActivity : AppCompatActivity(), PostsFragment.InteractionListener {
      * - Offline posts?
      * - Sharing
      * - Glide preload
-     * - Loading indicators
+     * - Colors
      * - Transitions
      * - Ads
      * - Resolve warnings, code inspections
