@@ -42,14 +42,14 @@ class PostFragment @Deprecated("Use factory function.") constructor() : Fragment
 
         // TODO Inject this
         val db = Room.databaseBuilder(context!!, Db::class.java, "db").build()
-        db.postDao.post(postId).observe(this, Observer { post ->
-            post!!
+        db.postMetaDao.postWithAuthorName(postId).observe(this, Observer { postWithAuthorName ->
+            val (post, authorName) = postWithAuthorName!!
 
             // TODO Test with large articles
             // TODO Catch image loading, open in gallery
             // TODO Open all links in Chrome custom tab, youtube in youtube app
             // TODO Allow video fullscreen?
-            postWebView.loadDataWithBaseURL(BuildConfig.WEBVIEW_BASE_URL, post.toHtml(), "text/html", Charsets.UTF_8.name(), null)
+            postWebView.loadDataWithBaseURL(BuildConfig.WEBVIEW_BASE_URL, post.toHtml(authorName), "text/html", Charsets.UTF_8.name(), null)
         })
     }
 }

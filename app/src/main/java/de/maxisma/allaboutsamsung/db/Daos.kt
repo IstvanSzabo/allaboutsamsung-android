@@ -2,6 +2,7 @@ package de.maxisma.allaboutsamsung.db
 
 import android.arch.lifecycle.LiveData
 import android.arch.persistence.room.Dao
+import android.arch.persistence.room.Embedded
 import android.arch.persistence.room.Insert
 import android.arch.persistence.room.OnConflictStrategy
 import android.arch.persistence.room.Query
@@ -11,9 +12,14 @@ import de.maxisma.allaboutsamsung.utils.Iso8601Utils
 import java.util.Date
 
 data class PostWithMeta(
-        val post: Post,
-        val postCategories: List<PostCategory>,
-        val postTags: List<PostTag>
+    val post: Post,
+    val postCategories: List<PostCategory>,
+    val postTags: List<PostTag>
+)
+
+data class PostWithAuthorName(
+    @Embedded val post: Post,
+    val authorName: String
 )
 
 @Dao
@@ -29,6 +35,9 @@ abstract class PostMetaDao {
             postTagDao.replacePostTags(post.id, tags)
         }
     }
+
+    @Query("SELECT Post.*, User.name AS authorName FROM Post JOIN User ON Post.author = User.id WHERE Post.id = :postId")
+    abstract fun postWithAuthorName(postId: PostId): LiveData<PostWithAuthorName>
 }
 
 @Dao
@@ -131,6 +140,18 @@ abstract class PostTagDao {
 
     @Query("SELECT * FROM Tag LEFT JOIN PostTag ON Tag.id = PostTag.tagId WHERE PostTag.postId = :postId")
     abstract fun tags(postId: PostId): List<Tag>
+}
+
+@Dao
+abstract class UserDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract fun insertUsers(users: List<User>)
+
+    @Query("SELECT * FROM User WHERE id = :id")
+    abstract fun user(id: UserId): User
+
+    @Query("SELECT id FROM User")
+    abstract fun userIds(): List<UserId>
 }
 
 object DateConverter {

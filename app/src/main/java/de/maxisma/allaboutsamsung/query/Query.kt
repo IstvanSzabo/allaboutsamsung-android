@@ -10,15 +10,17 @@ import de.maxisma.allaboutsamsung.db.PostId
 import de.maxisma.allaboutsamsung.db.Tag
 import de.maxisma.allaboutsamsung.db.TagId
 import de.maxisma.allaboutsamsung.db.findMissingMeta
-import de.maxisma.allaboutsamsung.db.firstImageUrlFromHtml
 import de.maxisma.allaboutsamsung.db.importCategoryDtos
 import de.maxisma.allaboutsamsung.db.importPostDtos
 import de.maxisma.allaboutsamsung.db.importTagDtos
+import de.maxisma.allaboutsamsung.db.importUserDtos
 import de.maxisma.allaboutsamsung.rest.CategoryIdsDto
 import de.maxisma.allaboutsamsung.rest.TagIdsDto
+import de.maxisma.allaboutsamsung.rest.UserIdsDto
 import de.maxisma.allaboutsamsung.rest.WordpressApi
 import de.maxisma.allaboutsamsung.rest.allCategories
 import de.maxisma.allaboutsamsung.rest.allTags
+import de.maxisma.allaboutsamsung.rest.allUsers
 import de.maxisma.allaboutsamsung.utils.IOPool
 import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.Job
@@ -39,9 +41,9 @@ interface QueryExecutor {
 sealed class Query {
     object Empty : Query()
     data class Filter(
-            val string: String?,
-            val onlyCategories: List<CategoryId>?,
-            val onlyTags: List<TagId>?
+        val string: String?,
+        val onlyCategories: List<CategoryId>?,
+        val onlyTags: List<TagId>?
     ) : Query()
 }
 
@@ -72,7 +74,7 @@ private class EmptyQueryExecutor(private val wordpressApi: WordpressApi, private
 
     private suspend fun fetchPosts(beforeGmt: Date? = null) {
         val posts = wordpressApi.posts(page = 1, postsPerPage = 10, search = null, onlyCategories = null, onlyTags = null, beforeGmt = beforeGmt).await()
-        val (missingCategoryIds, missingTagIds) = db.findMissingMeta(posts)
+        val (missingCategoryIds, missingTagIds, missingUserIds) = db.findMissingMeta(posts)
         val categories = if (missingCategoryIds.isEmpty()) {
             emptyList()
         } else {
@@ -83,8 +85,14 @@ private class EmptyQueryExecutor(private val wordpressApi: WordpressApi, private
         } else {
             wordpressApi.allTags(TagIdsDto(missingTagIds)).await()
         }
+        val users = if (missingUserIds.isEmpty()) {
+            emptyList()
+        } else {
+            wordpressApi.allUsers(UserIdsDto(missingUserIds)).await()
+        }
         db.importCategoryDtos(categories)
         db.importTagDtos(tags)
+        db.importUserDtos(users)
 
         // TODO Limit Posts in DB, clean on startup (not during scrolling)
         db.importPostDtos(posts)
@@ -125,9 +133,10 @@ private class FilterQueryExecutor(val query: Query.Filter, private val wordpress
 
     private suspend fun fetchPosts(beforeGmt: Date? = null) {
         val posts = wordpressApi.posts(page = 1, postsPerPage = 10,
-                search = query.string, onlyCategories = query.onlyCategories?.let { CategoryIdsDto(it.toSet()) }, onlyTags = query.onlyTags?.let { TagIdsDto(it.toSet()) },
-                beforeGmt = beforeGmt).await()
-        val (missingCategoryIds, missingTagIds) = db.findMissingMeta(posts)
+            search = query.string, onlyCategories = query.onlyCategories?.let { CategoryIdsDto(it.toSet()) }, onlyTags = query.onlyTags?.let { TagIdsDto(it.toSet()) },
+            beforeGmt = beforeGmt
+        ).await()
+        val (missingCategoryIds, missingTagIds, missingUserIds) = db.findMissingMeta(posts)
         val categories = if (missingCategoryIds.isEmpty()) {
             emptyList()
         } else {
@@ -138,9 +147,15 @@ private class FilterQueryExecutor(val query: Query.Filter, private val wordpress
         } else {
             wordpressApi.allTags(TagIdsDto(missingTagIds)).await()
         }
+        val users = if (missingUserIds.isEmpty()) {
+            emptyList()
+        } else {
+            wordpressApi.allUsers(UserIdsDto(missingUserIds)).await()
+        }
 
         db.importCategoryDtos(categories)
         db.importTagDtos(tags)
+        db.importUserDtos(users)
         db.importPostDtos(posts)
 
         postIds += posts.map { it.id }
