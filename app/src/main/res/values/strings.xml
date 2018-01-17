@@ -3,4 +3,6 @@
     <string name="article_image">Artikelbild</string>
     <string name="network_error">Leider gab es einen Fehler beim Verbindungsaufbau.</string>
     <string name="server_error">Ungültige Antwort erhalten.</string>
+    <string name="post">Artikel</string>
+    <string name="comments">Kommentare</string>
 </resources>

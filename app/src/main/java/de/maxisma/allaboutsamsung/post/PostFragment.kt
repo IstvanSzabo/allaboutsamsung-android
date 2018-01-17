@@ -2,8 +2,8 @@ package de.maxisma.allaboutsamsung.post
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.support.v4.app.Fragment
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebChromeClient
@@ -11,7 +11,6 @@ import android.webkit.WebView
 import de.maxisma.allaboutsamsung.BaseFragment
 import de.maxisma.allaboutsamsung.BuildConfig
 import de.maxisma.allaboutsamsung.R
-import de.maxisma.allaboutsamsung.R.id.postWebView
 import de.maxisma.allaboutsamsung.app
 import de.maxisma.allaboutsamsung.db.Db
 import de.maxisma.allaboutsamsung.db.PostId
@@ -47,19 +46,21 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        postWebView.settings.apply {
+        postContentWebView.settings.apply {
             loadWithOverviewMode = true
             useWideViewPort = true
             javaScriptEnabled = true
         }
-        postWebView.webViewClient = GlideCachingWebViewClient()
-        postWebView.webChromeClient = object : WebChromeClient() {
+        postContentWebView.webViewClient = GlideCachingWebViewClient()
+        postContentWebView.webChromeClient = object : WebChromeClient() {
             override fun onProgressChanged(view: WebView, newProgress: Int) {
                 super.onProgressChanged(view, newProgress)
-                postProgressBar.visibility = if (newProgress in 1..99) View.VISIBLE else View.GONE
-                postProgressBar.progress = newProgress
+                postContentProgressBar.visibility = if (newProgress in 1..99) View.VISIBLE else View.GONE
+                postContentProgressBar.progress = newProgress
             }
         }
+
+        postBottomNavigation.setOnNavigationItemSelectedListener(::onBottomNavigation)
 
         db.postMetaDao.postWithAuthorName(postId).observe(this) { postWithAuthorName ->
             val (post, authorName) = postWithAuthorName!!
@@ -68,7 +69,16 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
             // TODO Catch image loading, open in gallery
             // TODO Open all links in Chrome custom tab, youtube in youtube app
             // TODO Allow video fullscreen?
-            postWebView.loadDataWithBaseURL(BuildConfig.WEBVIEW_BASE_URL, post.toHtml(authorName), "text/html", Charsets.UTF_8.name(), null)
+            postContentWebView.loadDataWithBaseURL(BuildConfig.WEBVIEW_BASE_URL, post.toHtml(authorName), "text/html", Charsets.UTF_8.name(), null)
         }
+    }
+
+    private fun onBottomNavigation(menuItem: MenuItem): Boolean {
+        when (menuItem.itemId) {
+            R.id.postContent -> postViewPager.currentItem = 0
+            R.id.postComments -> postViewPager.currentItem = 1
+            else -> throw IllegalArgumentException("Unknown menuItem with id ${menuItem.itemId}!")
+        }
+        return true
     }
 }
