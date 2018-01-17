@@ -8,7 +8,9 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import de.maxisma.allaboutsamsung.DaggerAppComponent
 import de.maxisma.allaboutsamsung.R
+import de.maxisma.allaboutsamsung.app
 import de.maxisma.allaboutsamsung.db.Db
 import de.maxisma.allaboutsamsung.db.Post
 import de.maxisma.allaboutsamsung.db.PostId
@@ -17,11 +19,20 @@ import de.maxisma.allaboutsamsung.query.newExecutor
 import de.maxisma.allaboutsamsung.rest.wordpressApi
 import de.maxisma.allaboutsamsung.utils.dpToPx
 import kotlinx.android.synthetic.main.fragment_posts.*
+import javax.inject.Inject
 
 class PostsFragment : Fragment() {
 
     interface InteractionListener {
         fun displayPost(postId: PostId)
+    }
+
+    @Inject
+    lateinit var db: Db
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        app.appComponent.inject(this)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -30,9 +41,6 @@ class PostsFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        // TODO Inject this
-        val db = Room.databaseBuilder(context!!, Db::class.java, "db").build()
 
         val query = Query.Empty
         val executor = query.newExecutor(wordpressApi, db)

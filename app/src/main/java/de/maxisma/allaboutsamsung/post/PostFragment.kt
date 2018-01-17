@@ -10,9 +10,11 @@ import android.view.View
 import android.view.ViewGroup
 import de.maxisma.allaboutsamsung.BuildConfig
 import de.maxisma.allaboutsamsung.R
+import de.maxisma.allaboutsamsung.app
 import de.maxisma.allaboutsamsung.db.Db
 import de.maxisma.allaboutsamsung.db.PostId
 import kotlinx.android.synthetic.main.fragment_post.*
+import javax.inject.Inject
 
 private const val ARG_POST_ID = "post_id"
 
@@ -24,7 +26,14 @@ fun PostFragment(postId: PostId) = PostFragment().apply {
 }
 
 class PostFragment @Deprecated("Use factory function.") constructor() : Fragment() {
-    val postId get() = arguments!!.getLong(ARG_POST_ID)
+    private val postId get() = arguments!!.getLong(ARG_POST_ID)
+    @Inject lateinit var db: Db
+
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        app.appComponent.inject(this)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_post, container, false)
@@ -41,8 +50,6 @@ class PostFragment @Deprecated("Use factory function.") constructor() : Fragment
         }
         postWebView.webViewClient = GlideCachingWebViewClient()
 
-        // TODO Inject this
-        val db = Room.databaseBuilder(context!!, Db::class.java, "db").build()
         db.postMetaDao.postWithAuthorName(postId).observe(this, Observer { postWithAuthorName ->
             val (post, authorName) = postWithAuthorName!!
 
