@@ -31,6 +31,7 @@ class MainActivity : AppCompatActivity(), PostsFragment.InteractionListener {
      * - Test on older versions
      * - Automatic settings migration and/or setup wizard
      * - Rotation
+     * - Send app version header
      *
      * - Keep posts, tags, categories in an observable DB, observe that in ViewModels
      */
