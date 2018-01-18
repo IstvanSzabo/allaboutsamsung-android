@@ -7,6 +7,8 @@ import android.support.v4.app.Fragment
 import android.webkit.WebView
 import de.maxisma.allaboutsamsung.utils.IOPool
 import kotlinx.coroutines.experimental.launch
+import com.crashlytics.android.Crashlytics
+import io.fabric.sdk.android.Fabric
 
 class App : Application() {
 
@@ -15,6 +17,7 @@ class App : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        Fabric.with(this, Crashlytics())
         WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG)
 
         launch(IOPool) {
