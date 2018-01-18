@@ -11,7 +11,7 @@ class MainActivity : AppCompatActivity(), PostsFragment.InteractionListener {
     /*
      * Features TODO:
      * - Small and large widget
-     * - Legal notice?
+     * - Legal notice accessible via menu
      * - Liveblog?
      * - Gallery
      * - Configuration (dark theme, push, analytics, ...)
@@ -32,6 +32,7 @@ class MainActivity : AppCompatActivity(), PostsFragment.InteractionListener {
      * - Automatic settings migration and/or setup wizard
      * - Rotation
      * - Send app version header
+     * - Highlight breaking (font color / shaking exclamation mark / ...)
      *
      * - Keep posts, tags, categories in an observable DB, observe that in ViewModels
      */
