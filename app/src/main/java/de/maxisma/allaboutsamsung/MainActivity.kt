@@ -41,9 +41,11 @@ class MainActivity : AppCompatActivity(), PostsFragment.InteractionListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        supportFragmentManager.beginTransaction()
-                .add(R.id.fragmentContainer, PostsFragment(), "posts")
-                .commit()
+        if (savedInstanceState == null) {
+            supportFragmentManager.beginTransaction()
+                    .add(R.id.fragmentContainer, PostsFragment(), "posts")
+                    .commit()
+        }
     }
 
     override fun displayPost(postId: PostId) {
