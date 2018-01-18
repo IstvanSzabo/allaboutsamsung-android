@@ -40,7 +40,6 @@ class MainActivity : AppCompatActivity(), PostsFragment.InteractionListener {
 
         supportFragmentManager.beginTransaction()
                 .add(R.id.fragmentContainer, PostsFragment(), "posts")
-                .addToBackStack("posts")
                 .commit()
     }
 
