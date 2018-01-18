@@ -29,6 +29,8 @@ class MainActivity : AppCompatActivity(), PostsFragment.InteractionListener {
      * - Ads
      * - Resolve warnings, code inspections
      * - Documentation
+     * - Test on older versions
+     * - Automatic settings migration and/or setup wizard
      *
      * - Keep posts, tags, categories in an observable DB, observe that in ViewModels
      *

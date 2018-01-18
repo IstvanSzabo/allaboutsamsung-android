@@ -1,19 +1,20 @@
 package de.maxisma.allaboutsamsung.post
 
 import android.annotation.SuppressLint
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.webkit.WebChromeClient
-import android.webkit.WebView
+import android.webkit.CookieManager
 import de.maxisma.allaboutsamsung.BaseFragment
 import de.maxisma.allaboutsamsung.BuildConfig
 import de.maxisma.allaboutsamsung.R
 import de.maxisma.allaboutsamsung.app
 import de.maxisma.allaboutsamsung.db.Db
 import de.maxisma.allaboutsamsung.db.PostId
+import de.maxisma.allaboutsamsung.utils.ExtendedWebChromeClient
 import de.maxisma.allaboutsamsung.utils.observe
 import kotlinx.android.synthetic.main.fragment_post.*
 import javax.inject.Inject
@@ -28,10 +29,12 @@ fun PostFragment(postId: PostId) = PostFragment().apply {
 }
 
 class PostFragment @Deprecated("Use factory function.") constructor() : BaseFragment<Nothing>() {
-    private val postId get() = arguments!!.getLong(ARG_POST_ID)
     @Inject
     lateinit var db: Db
 
+    private val postId get() = arguments!!.getLong(ARG_POST_ID)
+
+    private val commentsUrl get() = BuildConfig.COMMENTS_URL_TEMPLATE.replace("[POST_ID]", postId.toString())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,18 +49,25 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        postContentWebView.settings.apply {
-            loadWithOverviewMode = true
-            useWideViewPort = true
-            javaScriptEnabled = true
-        }
-        postContentWebView.webViewClient = GlideCachingWebViewClient()
-        postContentWebView.webChromeClient = object : WebChromeClient() {
-            override fun onProgressChanged(view: WebView, newProgress: Int) {
-                super.onProgressChanged(view, newProgress)
-                postContentProgressBar.visibility = if (newProgress in 1..99) View.VISIBLE else View.GONE
-                postContentProgressBar.progress = newProgress
+        postContentWebView.apply {
+            settings.apply {
+                loadWithOverviewMode = true
+                useWideViewPort = true
+                javaScriptEnabled = true
             }
+            webChromeClient = ExtendedWebChromeClient(postContentProgressBar)
+            webViewClient = GlideCachingWebViewClient()
+        }
+        postCommentsWebView.apply {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
+            }
+            settings.apply {
+                javaScriptEnabled = true
+                javaScriptCanOpenWindowsAutomatically = true
+                setSupportMultipleWindows(true)
+            }
+            webChromeClient = ExtendedWebChromeClient(postCommentsProgressBar, supportWindowCreation = true)
         }
 
         postBottomNavigation.setOnNavigationItemSelectedListener(::onBottomNavigation)
@@ -70,6 +80,7 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
             // TODO Open all links in Chrome custom tab, youtube in youtube app
             // TODO Allow video fullscreen?
             postContentWebView.loadDataWithBaseURL(BuildConfig.WEBVIEW_BASE_URL, post.toHtml(authorName), "text/html", Charsets.UTF_8.name(), null)
+            postCommentsWebView.loadUrl(commentsUrl)
         }
     }
 
