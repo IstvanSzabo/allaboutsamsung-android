@@ -19,7 +19,6 @@ class MainActivity : AppCompatActivity(), PostsFragment.InteractionListener {
      * - Push
      * - Featured
      * - Post overview (by category, search query, pull-to-refresh, refresh onResume after a while)
-     * - Post details + comments
      * - YouTube channel (notify about new videos in app)
      * - Offline posts?
      * - Sharing
@@ -33,8 +32,6 @@ class MainActivity : AppCompatActivity(), PostsFragment.InteractionListener {
      * - Automatic settings migration and/or setup wizard
      *
      * - Keep posts, tags, categories in an observable DB, observe that in ViewModels
-     *
-     * - DEPENDENCY INJECTION
      */
 
     override fun onCreate(savedInstanceState: Bundle?) {
