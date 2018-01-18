@@ -1,7 +1,12 @@
 package de.maxisma.allaboutsamsung
 
+import android.net.Uri
 import android.os.Bundle
+import android.support.customtabs.CustomTabsIntent
+import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
+import android.view.Menu
+import android.view.MenuItem
 import de.maxisma.allaboutsamsung.db.PostId
 import de.maxisma.allaboutsamsung.post.PostFragment
 import de.maxisma.allaboutsamsung.posts.PostsFragment
@@ -11,7 +16,6 @@ class MainActivity : AppCompatActivity(), PostsFragment.InteractionListener {
     /*
      * Features TODO:
      * - Small and large widget
-     * - Legal notice accessible via menu
      * - Liveblog?
      * - Gallery
      * - Configuration (dark theme, push, analytics, ...)
@@ -22,7 +26,6 @@ class MainActivity : AppCompatActivity(), PostsFragment.InteractionListener {
      * - YouTube channel (notify about new videos in app)
      * - Offline posts?
      * - Sharing
-     * - Glide preload
      * - Colors
      * - Transitions
      * - Ads
@@ -37,21 +40,37 @@ class MainActivity : AppCompatActivity(), PostsFragment.InteractionListener {
      * - Keep posts, tags, categories in an observable DB, observe that in ViewModels
      */
 
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+        menuInflater.inflate(R.menu.activity_main, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.legal_notice -> CustomTabsIntent.Builder()
+                .setShowTitle(true)
+                .setToolbarColor(ContextCompat.getColor(this, R.color.colorPrimary))
+                .build()
+                .launchUrl(this, Uri.parse(BuildConfig.LEGAL_NOTICE_URL))
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
-                    .add(R.id.fragmentContainer, PostsFragment(), "posts")
-                    .commit()
+                .add(R.id.fragmentContainer, PostsFragment(), "posts")
+                .commit()
         }
     }
 
     override fun displayPost(postId: PostId) {
         supportFragmentManager.beginTransaction()
-                .add(R.id.fragmentContainer, PostFragment(postId), "post: $postId")
-                .addToBackStack("post: $postId")
-                .commit()
+            .add(R.id.fragmentContainer, PostFragment(postId), "post: $postId")
+            .addToBackStack("post: $postId")
+            .commit()
     }
 }

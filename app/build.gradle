@@ -21,6 +21,7 @@ android {
         buildConfigField "String", "WEBVIEW_BASE_URL", "\"https://allaboutsamsung.de\""
         buildConfigField "String", "REST_BASE_URL", "\"https://allaboutsamsung.de/wp-json/wp/v2/\""
         buildConfigField "String", "COMMENTS_URL_TEMPLATE", "\"https://allaboutsamsung.de/wp-content/plugins/app-api/xml/comment.php?guid=[POST_ID]\""
+        buildConfigField "String", "LEGAL_NOTICE_URL", "\"https://allaboutsamsung.de/impressum\""
     }
     buildTypes {
         release {
@@ -38,14 +39,15 @@ kotlin {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation"org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
-    implementation"org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 
     def supportVersion = "27.0.2"
     implementation "com.android.support:appcompat-v7:$supportVersion"
     implementation "com.android.support:recyclerview-v7:$supportVersion"
     implementation "com.android.support:design:$supportVersion"
     implementation "com.android.support.constraint:constraint-layout:1.0.2"
+    implementation "com.android.support:customtabs:$supportVersion"
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
