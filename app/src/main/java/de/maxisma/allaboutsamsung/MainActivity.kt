@@ -30,6 +30,7 @@ class MainActivity : AppCompatActivity(), PostsFragment.InteractionListener {
      * - Documentation
      * - Test on older versions
      * - Automatic settings migration and/or setup wizard
+     * - Rotation
      *
      * - Keep posts, tags, categories in an observable DB, observe that in ViewModels
      */
