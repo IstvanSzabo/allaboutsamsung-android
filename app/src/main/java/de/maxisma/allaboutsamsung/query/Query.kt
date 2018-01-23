@@ -16,6 +16,7 @@ import de.maxisma.allaboutsamsung.db.importTagDtos
 import de.maxisma.allaboutsamsung.db.importUserDtos
 import de.maxisma.allaboutsamsung.rest.CategoryIdsDto
 import de.maxisma.allaboutsamsung.rest.PostDto
+import de.maxisma.allaboutsamsung.rest.PostIdsDto
 import de.maxisma.allaboutsamsung.rest.TagIdsDto
 import de.maxisma.allaboutsamsung.rest.UserIdsDto
 import de.maxisma.allaboutsamsung.rest.WordpressApi
@@ -45,7 +46,8 @@ sealed class Query {
     data class Filter(
         val string: String?,
         val onlyCategories: List<CategoryId>?,
-        val onlyTags: List<TagId>?
+        val onlyTags: List<TagId>?,
+        val onlyIds: List<PostId>?
     ) : Query()
 }
 
@@ -132,7 +134,8 @@ private class EmptyQueryExecutor(
     onError: (Exception) -> Unit
 ) : DbQueryExecutor(wordpressApi, db, onError) {
     override suspend fun fetchPosts(beforeGmt: Date?) = wordpressApi
-        .posts(page = 1, postsPerPage = POSTS_PER_PAGE, search = null, onlyCategories = null, onlyTags = null, beforeGmt = beforeGmt)
+        .posts(page = 1, postsPerPage = POSTS_PER_PAGE,
+            search = null, onlyCategories = null, onlyTags = null, onlyIds = null, beforeGmt = beforeGmt)
         .await()
 
     override suspend fun oldestPostDateUtc() = db.postDao.oldestDate()
@@ -157,6 +160,7 @@ private class FilterQueryExecutor(
             search = query.string,
             onlyCategories = query.onlyCategories?.let { CategoryIdsDto(it.toSet()) },
             onlyTags = query.onlyTags?.let { TagIdsDto(it.toSet()) },
+            onlyIds = query.onlyIds?.let { PostIdsDto(it.toSet()) },
             beforeGmt = beforeGmt
         ).await()
 

@@ -17,7 +17,6 @@ import de.maxisma.allaboutsamsung.db.PostId
 import de.maxisma.allaboutsamsung.query.Query
 import de.maxisma.allaboutsamsung.query.newExecutor
 import de.maxisma.allaboutsamsung.rest.WordpressApi
-import de.maxisma.allaboutsamsung.rest.wordpressApi
 import de.maxisma.allaboutsamsung.utils.dpToPx
 import de.maxisma.allaboutsamsung.utils.observe
 import kotlinx.android.synthetic.main.fragment_posts.*

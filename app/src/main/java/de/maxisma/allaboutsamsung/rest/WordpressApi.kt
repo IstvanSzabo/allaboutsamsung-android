@@ -9,6 +9,7 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.Rfc3339DateJsonAdapter
 import de.maxisma.allaboutsamsung.BuildConfig
 import de.maxisma.allaboutsamsung.db.CategoryId
+import de.maxisma.allaboutsamsung.db.PostId
 import de.maxisma.allaboutsamsung.db.TagId
 import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.async
@@ -30,6 +31,7 @@ interface WordpressApi {
         @Query("search") search: String?,
         @Query("tags") onlyTags: TagIdsDto?,
         @Query("categories") onlyCategories: CategoryIdsDto?,
+        @Query("include") onlyIds: PostIdsDto?,
         @Query("before") beforeGmt: Date? = null
     ): Deferred<List<PostDto>>
 
@@ -89,6 +91,12 @@ class TagIdsDto(
 
 class CategoryIdsDto(
     val ids: Set<CategoryId>
+) {
+    override fun toString() = ids.joinToString(separator = ",")
+}
+
+class PostIdsDto(
+    val ids: Set<PostId>
 ) {
     override fun toString() = ids.joinToString(separator = ",")
 }
@@ -160,7 +168,7 @@ private val moshi = Moshi.Builder()
     })
     .build()
 
-private val retrofit = Retrofit.Builder()
+private val wordpressRetrofit = Retrofit.Builder()
     .baseUrl(BuildConfig.REST_BASE_URL)
     .client(httpClient)
     .addCallAdapterFactory(CoroutineCallAdapterFactory())
@@ -168,4 +176,4 @@ private val retrofit = Retrofit.Builder()
     .addConverterFactory(RetrofitDateStringConverterFactory)
     .build()
 
-val wordpressApi: WordpressApi = retrofit.create(WordpressApi::class.java)
+val wordpressApi: WordpressApi = wordpressRetrofit.create(WordpressApi::class.java)

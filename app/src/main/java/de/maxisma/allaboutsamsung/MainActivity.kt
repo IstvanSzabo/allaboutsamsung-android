@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import de.maxisma.allaboutsamsung.db.PostId
+import de.maxisma.allaboutsamsung.notification.updatePushSubscription
 import de.maxisma.allaboutsamsung.post.PostFragment
 import de.maxisma.allaboutsamsung.posts.PostsFragment
 
@@ -59,6 +60,8 @@ class MainActivity : AppCompatActivity(), PostsFragment.InteractionListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        updatePushSubscription()
 
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
