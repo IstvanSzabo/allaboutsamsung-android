@@ -3,7 +3,6 @@ package de.maxisma.allaboutsamsung.db
 import android.arch.persistence.room.ColumnInfo
 import android.arch.persistence.room.Entity
 import android.arch.persistence.room.ForeignKey
-import android.arch.persistence.room.Index
 import android.arch.persistence.room.PrimaryKey
 import java.util.Date
 
@@ -69,6 +68,20 @@ data class Tag(
     val name: String,
     val slug: String
 )
+
+@Entity(
+    foreignKeys = [
+        ForeignKey(entity = Tag::class, parentColumns = ["id"], childColumns = ["id"], onDelete = ForeignKey.RESTRICT)
+    ]
+)
+data class TagSubscription(@PrimaryKey val id: TagId)
+
+@Entity(
+    foreignKeys = [
+        ForeignKey(entity = Category::class, parentColumns = ["id"], childColumns = ["id"], onDelete = ForeignKey.RESTRICT)
+    ]
+)
+data class CategorySubscription(@PrimaryKey val id: CategoryId)
 
 @Entity
 data class User(

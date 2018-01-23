@@ -1,15 +1,18 @@
 package de.maxisma.allaboutsamsung.notification
 
-import android.arch.lifecycle.Transformations.map
 import com.google.firebase.messaging.FirebaseMessaging
 import de.maxisma.allaboutsamsung.db.Category
+import de.maxisma.allaboutsamsung.db.Db
 import de.maxisma.allaboutsamsung.db.Tag
 import de.maxisma.allaboutsamsung.utils.IOPool
-import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 
-fun updatePushSubscription() {
-    // TODO Get subs from db, call subscribe
+fun updatePushSubscription(db: Db) {
+    launch(IOPool) {
+        val subscribedCategories = db.categoryDao.subscribedCategories()
+        val subscribedTags = db.tagDao.subscribedTags()
+        subscribe(subscribedCategories, subscribedTags)
+    }
 }
 
 private fun categorySlugToTopic(slug: String) = "category~%$slug"

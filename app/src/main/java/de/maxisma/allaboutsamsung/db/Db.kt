@@ -4,7 +4,12 @@ import android.arch.persistence.room.Database
 import android.arch.persistence.room.RoomDatabase
 import android.arch.persistence.room.TypeConverters
 
-@Database(entities = [Post::class, Category::class, Tag::class, PostCategory::class, PostTag::class, User::class], version = 1, exportSchema = false)
+@Database(
+    entities = [
+        Post::class, Category::class, Tag::class, PostCategory::class, PostTag::class,
+        User::class, CategorySubscription::class, TagSubscription::class
+    ], version = 1, exportSchema = false
+)
 @TypeConverters(DateConverter::class)
 abstract class Db : RoomDatabase() {
     abstract val postDao: PostDao

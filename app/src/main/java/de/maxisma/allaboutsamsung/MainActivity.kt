@@ -61,7 +61,7 @@ class MainActivity : AppCompatActivity(), PostsFragment.InteractionListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        updatePushSubscription()
+        updatePushSubscription(app.appComponent.db)
 
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()
