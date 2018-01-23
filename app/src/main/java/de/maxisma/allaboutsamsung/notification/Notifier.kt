@@ -13,8 +13,9 @@ import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 
 fun notifyAboutPost(guid: PostId, db: Db, api: WordpressApi, context: Context) {
+    // TODO JobDispatcher
     val query = Query.Filter(string = null, onlyCategories = null, onlyTags = null, onlyIds = listOf(guid))
-    val executor = query.newExecutor(api, db, onError = { TODO("Handle") })
+    val executor = query.newExecutor(api, db, onError = { TODO("Reschedule") })
     launch(UI) {
         executor.data.observeForever(notifier(executor.data, context))
         executor.requestNewerPosts()

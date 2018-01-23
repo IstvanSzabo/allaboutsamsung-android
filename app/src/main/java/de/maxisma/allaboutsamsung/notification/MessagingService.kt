@@ -26,7 +26,6 @@ class MessagingService : FirebaseMessagingService() {
         unsubscribe(unsubCategories, unsubTags)
 
         if (subscribedCategorySlugs.size > unsubCategories.size || subscribedTagSlugs.size > unsubTags.size) {
-            // TODO JobDispatcher
             notifyAboutPost(guid, db, api, applicationContext)
         }
     }
