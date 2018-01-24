@@ -61,7 +61,7 @@ fun Db.importPostDtos(postDtos: List<PostDto>) {
             val post = Post(
                 id = postDto.id,
                 author = postDto.author,
-                content = postDto.content.rendered,
+                content = postDto.content.rendered, // TODO Process img elements somewhere that don't have an a-tag, wrap them in one
                 dateUtc = postDto.date_gmt,
                 link = postDto.link,
                 slug = postDto.slug,

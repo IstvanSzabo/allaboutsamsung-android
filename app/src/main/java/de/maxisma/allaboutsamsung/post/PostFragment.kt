@@ -1,6 +1,7 @@
 package de.maxisma.allaboutsamsung.post
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -20,6 +21,9 @@ import de.maxisma.allaboutsamsung.R
 import de.maxisma.allaboutsamsung.app
 import de.maxisma.allaboutsamsung.db.Db
 import de.maxisma.allaboutsamsung.db.PostId
+import de.maxisma.allaboutsamsung.gallery.Photo
+import de.maxisma.allaboutsamsung.gallery.extractPhotos
+import de.maxisma.allaboutsamsung.gallery.newGalleryActivityIntent
 import de.maxisma.allaboutsamsung.query.Query
 import de.maxisma.allaboutsamsung.query.newExecutor
 import de.maxisma.allaboutsamsung.rest.WordpressApi
@@ -71,7 +75,6 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
                 javaScriptEnabled = true
             }
             webChromeClient = ExtendedWebChromeClient(postContentProgressBar)
-            webViewClient = PostWebViewClient()
         }
         postCommentsWebView.apply {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -92,8 +95,8 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
             val (post, authorName) = postWithAuthorName ?: return@observe downloadPost(postId)
 
             // TODO Test with large articles
-            // TODO Catch image loading, open in gallery
             // TODO Allow video fullscreen?
+            postContentWebView.webViewClient = PostWebViewClient(post.extractPhotos())
             postContentWebView.loadDataWithBaseURL(
                 BuildConfig.WEBVIEW_BASE_URL,
                 postHtmlGenerator.generateHtml(post, authorName),
@@ -121,14 +124,28 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
     }
 }
 
-private class PostWebViewClient : GlideCachingWebViewClient() {
+private class PostWebViewClient(private val photos: List<Photo>) : GlideCachingWebViewClient() {
     private fun shouldOverrideUrlLoadingInternal(view: WebView, url: String): Boolean {
+        if (url.endsWith(".jpg") || url.endsWith(".jpeg") || url.endsWith(".png")) {
+            val selected = photos.firstOrNull { url == it.fullImageUrl || url == it.smallImageUrl }
+            if (selected != null) {
+                val intent = newGalleryActivityIntent(view.context, photos, selected)
+                view.context.startActivity(intent)
+            } else {
+                openCustomTab(view.context, url)
+            }
+        } else {
+            openCustomTab(view.context, url)
+        }
+        return true
+    }
+
+    private fun openCustomTab(context: Context, url: String) {
         CustomTabsIntent.Builder()
             .setShowTitle(true)
-            .setToolbarColor(ContextCompat.getColor(view.context, R.color.colorPrimary))
+            .setToolbarColor(ContextCompat.getColor(context, R.color.colorPrimary))
             .build()
-            .launchUrl(view.context, Uri.parse(url))
-        return true
+            .launchUrl(context, Uri.parse(url))
     }
 
     @Suppress("OverridingDeprecatedMember", "DEPRECATION")
