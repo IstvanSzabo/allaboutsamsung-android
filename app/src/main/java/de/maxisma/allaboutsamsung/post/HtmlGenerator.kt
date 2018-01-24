@@ -14,6 +14,7 @@ font-weight: 300;
 """
 
 // TODO Style wp-caption?
+// TODO Fix when order different https://stackoverflow.com/questions/13352080/match-all-class-selectors-that-begin-with#comment18224022_13352103
 private const val CSS = """
     body {
         margin: $BODY_MARGIN;
