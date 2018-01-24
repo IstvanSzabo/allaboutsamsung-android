@@ -7,7 +7,7 @@ suspend fun <T> retry(vararg handleTypes: KClass<out Exception>, initialBackoffM
     require(maxTries > 0) { "You must allow at least one try." }
 
     var backoffMs = initialBackoffMs
-    var lastException: Throwable = AssertionError("You should never see this.")
+    lateinit var lastException: Throwable
     repeat(maxTries) {
         try {
             return f()
