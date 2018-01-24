@@ -1,7 +1,8 @@
 package de.maxisma.allaboutsamsung.post
 
+import android.content.Context
+import de.maxisma.allaboutsamsung.R
 import de.maxisma.allaboutsamsung.db.Post
-import org.intellij.lang.annotations.Language
 import java.text.DateFormat
 import java.util.TimeZone
 
@@ -51,25 +52,31 @@ private const val CSS = """
     }
     """
 
-// TODO Get "von" with i18n
 // TODO Deal with collapseomatic (see post.php)
 
 private val dateFormatter = (DateFormat.getDateInstance().clone() as DateFormat).apply {
     timeZone = TimeZone.getDefault()
 }
 
-@Language("HTML")
-fun Post.toHtml(authorName: String): String = """<html>
+abstract class PostHtmlGenerator {
+    protected abstract fun formatAuthorName(authorName: String): String
+
+    fun generateHtml(post: Post, authorName: String) = """<html>
 <head>
-    <title>$title</title>
+    <title>${post.title}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <style type="text/css">$CSS</style>
 </head>
 <body>
-<h1>$title</h1>
-<span class="meta">Von $authorName, ${dateFormatter.format(dateUtc)}</span>
-$content
+<h1>${post.title}</h1>
+<span class="meta">${formatAuthorName(authorName)}, ${dateFormatter.format(post.dateUtc)}</span>
+${post.content}
 </body>
 </html>
 """
+}
+
+class AndroidPostHtmlGenerator(private val context: Context) : PostHtmlGenerator() {
+    override fun formatAuthorName(authorName: String): String = context.getString(R.string.author_template, authorName)
+}

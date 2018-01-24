@@ -38,6 +38,9 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
     @Inject
     lateinit var db: Db
 
+    @Inject
+    lateinit var postHtmlGenerator: PostHtmlGenerator
+
     private val postId get() = arguments!!.getLong(ARG_POST_ID)
 
     private val commentsUrl get() = BuildConfig.COMMENTS_URL_TEMPLATE.replace("[POST_ID]", postId.toString())
@@ -85,7 +88,13 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
             // TODO Test with large articles
             // TODO Catch image loading, open in gallery
             // TODO Allow video fullscreen?
-            postContentWebView.loadDataWithBaseURL(BuildConfig.WEBVIEW_BASE_URL, post.toHtml(authorName), "text/html", Charsets.UTF_8.name(), null)
+            postContentWebView.loadDataWithBaseURL(
+                BuildConfig.WEBVIEW_BASE_URL,
+                postHtmlGenerator.generateHtml(post, authorName),
+                "text/html",
+                Charsets.UTF_8.name(),
+                null
+            )
             postCommentsWebView.loadUrl(commentsUrl)
         }
     }

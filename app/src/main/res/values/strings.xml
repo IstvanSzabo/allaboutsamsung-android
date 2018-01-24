@@ -8,4 +8,5 @@
     <string name="legal_notice">Impressum</string>
     <string name="news_channel_name">News</string>
     <string name="news_channel_description">Liefert Benachrichtigungen über neue Artikel.</string>
+    <string name="author_template">Von %1$s</string>
 </resources>

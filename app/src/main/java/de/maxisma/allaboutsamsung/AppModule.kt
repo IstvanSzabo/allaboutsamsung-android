@@ -5,6 +5,8 @@ import android.content.Context
 import dagger.Module
 import dagger.Provides
 import de.maxisma.allaboutsamsung.db.Db
+import de.maxisma.allaboutsamsung.post.AndroidPostHtmlGenerator
+import de.maxisma.allaboutsamsung.post.PostHtmlGenerator
 import de.maxisma.allaboutsamsung.rest.WordpressApi
 import de.maxisma.allaboutsamsung.rest.wordpressApi as retrofitWordpressApi
 
@@ -21,4 +23,7 @@ class AppModule(private val app: App) {
 
     @Provides
     fun wordpressApi(): WordpressApi = retrofitWordpressApi
+
+    @Provides
+    fun postHtmlGenerator(): PostHtmlGenerator = AndroidPostHtmlGenerator(app)
 }
