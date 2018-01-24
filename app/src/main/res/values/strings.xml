@@ -6,4 +6,6 @@
     <string name="post">Artikel</string>
     <string name="comments">Kommentare</string>
     <string name="legal_notice">Impressum</string>
+    <string name="news_channel_name">News</string>
+    <string name="news_channel_description">Liefert Benachrichtigungen über neue Artikel.</string>
 </resources>

@@ -8,6 +8,8 @@ import android.webkit.WebView
 import de.maxisma.allaboutsamsung.utils.IOPool
 import kotlinx.coroutines.experimental.launch
 import com.crashlytics.android.Crashlytics
+import com.evernote.android.job.JobManager
+import de.maxisma.allaboutsamsung.scheduling.JobCreator
 import io.fabric.sdk.android.Fabric
 
 class App : Application() {
@@ -19,6 +21,8 @@ class App : Application() {
         super.onCreate()
         Fabric.with(this, Crashlytics())
         WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG)
+
+        JobManager.create(this).addJobCreator(JobCreator())
 
         launch(IOPool) {
             appComponent.db.postDao.deleteOld()

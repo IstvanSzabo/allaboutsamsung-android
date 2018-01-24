@@ -3,6 +3,7 @@ package de.maxisma.allaboutsamsung.notification
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import de.maxisma.allaboutsamsung.app
+import de.maxisma.allaboutsamsung.scheduling.scheduleNotificationJob
 import de.maxisma.allaboutsamsung.utils.map
 import org.json.JSONArray
 
@@ -14,9 +15,9 @@ class MessagingService : FirebaseMessagingService() {
         val guid = message.data["guid"]?.toLongOrNull() ?: return
         val categorySlugs = JSONArray(message.data["categories"] ?: return).map { it as String }
         val tagSlugs = JSONArray(message.data["tags"] ?: return).map { it as String }
+        val extraTopics = JSONArray(message.data["extraTopics"] ?: "[]").map { it as String }
 
         val db = app.appComponent.db
-        val api = app.appComponent.wordpressApi
 
         val subscribedCategorySlugs = db.categoryDao.subscribedCategories().map { it.slug }.toHashSet()
         val subscribedTagSlugs = db.tagDao.subscribedTags().map { it.slug }.toHashSet()
@@ -25,8 +26,10 @@ class MessagingService : FirebaseMessagingService() {
 
         unsubscribe(unsubCategories, unsubTags)
 
-        if (subscribedCategorySlugs.size > unsubCategories.size || subscribedTagSlugs.size > unsubTags.size) {
-            notifyAboutPost(guid, db, api, applicationContext)
+        val isDebug = DEBUG_TOPIC in extraTopics
+
+        if (isDebug || subscribedCategorySlugs.size > unsubCategories.size || subscribedTagSlugs.size > unsubTags.size) {
+            scheduleNotificationJob(guid)
         }
     }
 

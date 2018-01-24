@@ -1,5 +1,7 @@
 package de.maxisma.allaboutsamsung
 
+import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.support.customtabs.CustomTabsIntent
@@ -11,6 +13,14 @@ import de.maxisma.allaboutsamsung.db.PostId
 import de.maxisma.allaboutsamsung.notification.updatePushSubscription
 import de.maxisma.allaboutsamsung.post.PostFragment
 import de.maxisma.allaboutsamsung.posts.PostsFragment
+
+private const val EXTRA_POST_ID = "post_id" // TODO Handle this
+
+fun mainActivityIntent(context: Context, postId: PostId?): Intent {
+    return Intent(context, MainActivity::class.java).apply {
+        putExtra(EXTRA_POST_ID, postId)
+    }
+}
 
 class MainActivity : AppCompatActivity(), PostsFragment.InteractionListener {
 

@@ -87,7 +87,7 @@ abstract class CategoryDao {
     @Query("SELECT * FROM Category WHERE id IN (:categoryIds)")
     abstract fun categories(categoryIds: List<CategoryId>): List<Category>
 
-    @Query("SELECT * FROM Category LEFT JOIN CategorySubscription")
+    @Query("SELECT * FROM Category LEFT JOIN CategorySubscription ON Category.id = CategorySubscription.id")
     abstract fun subscribedCategories(): List<Category>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -121,7 +121,7 @@ abstract class TagDao {
     @Query("SELECT * FROM Tag WHERE id IN (:tagIds)")
     abstract fun tags(tagIds: List<TagId>): List<Tag>
 
-    @Query("SELECT * FROM Tag LEFT JOIN TagSubscription")
+    @Query("SELECT * FROM Tag LEFT JOIN TagSubscription ON Tag.id = TagSubscription.id")
     abstract fun subscribedTags(): List<Tag>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
