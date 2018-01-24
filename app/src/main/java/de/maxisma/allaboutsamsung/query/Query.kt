@@ -59,6 +59,7 @@ fun Query.newExecutor(wordpressApi: WordpressApi, db: Db, onError: (Exception) -
 private const val POSTS_PER_PAGE = 20
 private const val TIMEOUT_MS = 30_000L
 
+// TODO Auto-retry
 private abstract class DbQueryExecutor(
     private val wordpressApi: WordpressApi,
     private val db: Db,

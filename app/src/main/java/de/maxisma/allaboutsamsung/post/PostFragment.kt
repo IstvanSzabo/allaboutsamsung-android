@@ -20,6 +20,9 @@ import de.maxisma.allaboutsamsung.R
 import de.maxisma.allaboutsamsung.app
 import de.maxisma.allaboutsamsung.db.Db
 import de.maxisma.allaboutsamsung.db.PostId
+import de.maxisma.allaboutsamsung.query.Query
+import de.maxisma.allaboutsamsung.query.newExecutor
+import de.maxisma.allaboutsamsung.rest.WordpressApi
 import de.maxisma.allaboutsamsung.utils.ExtendedWebChromeClient
 import de.maxisma.allaboutsamsung.utils.observe
 import kotlinx.android.synthetic.main.fragment_post.*
@@ -37,6 +40,9 @@ fun PostFragment(postId: PostId) = PostFragment().apply {
 class PostFragment @Deprecated("Use factory function.") constructor() : BaseFragment<Nothing>() {
     @Inject
     lateinit var db: Db
+
+    @Inject
+    lateinit var wordpressApi: WordpressApi
 
     @Inject
     lateinit var postHtmlGenerator: PostHtmlGenerator
@@ -81,9 +87,9 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
 
         postBottomNavigation.setOnNavigationItemSelectedListener(::onBottomNavigation)
 
-        // TODO Don't just assume the post has already been downloaded
+
         db.postMetaDao.postWithAuthorName(postId).observe(this) { postWithAuthorName ->
-            val (post, authorName) = postWithAuthorName!!
+            val (post, authorName) = postWithAuthorName ?: return@observe downloadPost(postId)
 
             // TODO Test with large articles
             // TODO Catch image loading, open in gallery
@@ -97,6 +103,12 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
             )
             postCommentsWebView.loadUrl(commentsUrl)
         }
+    }
+
+    private fun downloadPost(postId: PostId) {
+        val query = Query.Filter(string = null, onlyCategories = null, onlyTags = null, onlyIds = listOf(postId))
+        val executor = query.newExecutor(wordpressApi, db, ::displaySupportedError)
+        executor.requestNewerPosts()
     }
 
     private fun onBottomNavigation(menuItem: MenuItem): Boolean {
