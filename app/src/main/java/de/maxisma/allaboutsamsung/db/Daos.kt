@@ -36,7 +36,7 @@ abstract class PostMetaDao {
         }
     }
 
-    @Query("SELECT Post.*, User.name AS authorName FROM Post JOIN User ON Post.author = User.id WHERE Post.id = :postId")
+    @Query("SELECT Post.*, User.name AS authorName FROM Post JOIN User ON Post.author = User.id WHERE Post.id = :postId AND User.id IS NOT NULL")
     abstract fun postWithAuthorName(postId: PostId): LiveData<PostWithAuthorName>
 }
 
@@ -87,7 +87,7 @@ abstract class CategoryDao {
     @Query("SELECT * FROM Category WHERE id IN (:categoryIds)")
     abstract fun categories(categoryIds: List<CategoryId>): List<Category>
 
-    @Query("SELECT * FROM Category LEFT JOIN CategorySubscription ON Category.id = CategorySubscription.id")
+    @Query("SELECT * FROM Category WHERE Category.id IN (SELECT CategorySubscription.id FROM CategorySubscription)")
     abstract fun subscribedCategories(): List<Category>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -121,7 +121,7 @@ abstract class TagDao {
     @Query("SELECT * FROM Tag WHERE id IN (:tagIds)")
     abstract fun tags(tagIds: List<TagId>): List<Tag>
 
-    @Query("SELECT * FROM Tag LEFT JOIN TagSubscription ON Tag.id = TagSubscription.id")
+    @Query("SELECT * FROM Tag WHERE Tag.id IN (SELECT TagSubscription.id FROM TagSubscription)")
     abstract fun subscribedTags(): List<Tag>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
