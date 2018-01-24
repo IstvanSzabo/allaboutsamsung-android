@@ -96,6 +96,7 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
 
             // TODO Test with large articles
             // TODO Allow video fullscreen?
+            // TODO Open YouTube via normal Intent
             postContentWebView.webViewClient = PostWebViewClient(post.extractPhotos())
             postContentWebView.loadDataWithBaseURL(
                 BuildConfig.WEBVIEW_BASE_URL,

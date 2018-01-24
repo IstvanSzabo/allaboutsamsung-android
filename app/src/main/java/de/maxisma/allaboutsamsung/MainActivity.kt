@@ -27,14 +27,12 @@ class MainActivity : AppCompatActivity(), PostsFragment.InteractionListener {
     /*
      * Features TODO:
      * - Small and large widget
-     * - Gallery
-     * - Configuration (dark theme, push, analytics, ...)
+     * - Configuration (dark theme, push topics, analytics, ...)
      * - Analytics (article openings etc.)
-     * - Push
      * - Featured
      * - Post overview (by category, search query, pull-to-refresh, refresh onResume after a while)
      * - YouTube channel (notify about new videos in app)
-     * - Offline posts?
+     * - Test offline access
      * - Sharing
      * - Colors
      * - Transitions
@@ -46,8 +44,6 @@ class MainActivity : AppCompatActivity(), PostsFragment.InteractionListener {
      * - Rotation
      * - Send app version header
      * - Highlight breaking (font color / shaking exclamation mark / ...)
-     *
-     * - Keep posts, tags, categories in an observable DB, observe that in ViewModels
      */
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {

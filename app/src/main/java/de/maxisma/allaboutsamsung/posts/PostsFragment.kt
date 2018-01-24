@@ -83,7 +83,7 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
 
         launch(UI) {
             postsProgressBar.visibility = View.VISIBLE
-            executor.requestNewerPosts()
+            executor.requestNewerPosts().join()
             postsProgressBar.visibility = View.GONE
         }
     }
