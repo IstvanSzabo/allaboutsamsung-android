@@ -72,6 +72,7 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
 
         postBottomNavigation.setOnNavigationItemSelectedListener(::onBottomNavigation)
 
+        // TODO Don't just assume the post has already been downloaded
         db.postMetaDao.postWithAuthorName(postId).observe(this) { postWithAuthorName ->
             val (post, authorName) = postWithAuthorName!!
 
