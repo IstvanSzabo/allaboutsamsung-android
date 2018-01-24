@@ -1,13 +1,19 @@
 package de.maxisma.allaboutsamsung.post
 
 import android.annotation.SuppressLint
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.support.annotation.RequiresApi
+import android.support.customtabs.CustomTabsIntent
+import android.support.v4.content.ContextCompat
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.CookieManager
+import android.webkit.WebResourceRequest
+import android.webkit.WebView
 import de.maxisma.allaboutsamsung.BaseFragment
 import de.maxisma.allaboutsamsung.BuildConfig
 import de.maxisma.allaboutsamsung.R
@@ -56,7 +62,7 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
                 javaScriptEnabled = true
             }
             webChromeClient = ExtendedWebChromeClient(postContentProgressBar)
-            webViewClient = GlideCachingWebViewClient()
+            webViewClient = PostWebViewClient()
         }
         postCommentsWebView.apply {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -78,7 +84,6 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
 
             // TODO Test with large articles
             // TODO Catch image loading, open in gallery
-            // TODO Open all links in Chrome custom tab, youtube in youtube app
             // TODO Allow video fullscreen?
             postContentWebView.loadDataWithBaseURL(BuildConfig.WEBVIEW_BASE_URL, post.toHtml(authorName), "text/html", Charsets.UTF_8.name(), null)
             postCommentsWebView.loadUrl(commentsUrl)
@@ -92,5 +97,26 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
             else -> throw IllegalArgumentException("Unknown menuItem with id ${menuItem.itemId}!")
         }
         return true
+    }
+}
+
+private class PostWebViewClient : GlideCachingWebViewClient() {
+    private fun shouldOverrideUrlLoadingInternal(view: WebView, url: String): Boolean {
+        CustomTabsIntent.Builder()
+            .setShowTitle(true)
+            .setToolbarColor(ContextCompat.getColor(view.context, R.color.colorPrimary))
+            .build()
+            .launchUrl(view.context, Uri.parse(url))
+        return true
+    }
+
+    @Suppress("OverridingDeprecatedMember", "DEPRECATION")
+    override fun shouldOverrideUrlLoading(view: WebView, url: String): Boolean {
+        return shouldOverrideUrlLoadingInternal(view, url) || super.shouldOverrideUrlLoading(view, url)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    override fun shouldOverrideUrlLoading(view: WebView, request: WebResourceRequest): Boolean {
+        return request.method == "GET" && shouldOverrideUrlLoadingInternal(view, request.url.toString()) || super.shouldOverrideUrlLoading(view, request)
     }
 }
