@@ -27,7 +27,6 @@ class MainActivity : AppCompatActivity(), PostsFragment.InteractionListener {
     /*
      * Features TODO:
      * - Small and large widget
-     * - Liveblog?
      * - Gallery
      * - Configuration (dark theme, push, analytics, ...)
      * - Analytics (article openings etc.)
