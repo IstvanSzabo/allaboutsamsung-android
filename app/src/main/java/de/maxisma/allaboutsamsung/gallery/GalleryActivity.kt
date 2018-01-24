@@ -23,6 +23,9 @@ import paperparcel.PaperParcel
 import paperparcel.PaperParcelable
 
 // TODO Bar at the bottom
+// TODO Lock when zoomed in, hide bar
+// TODO Toggle bar visibility on tap
+// TODO Highlight selected element in bar
 
 private const val EXTRA_PHOTOS = "photos"
 private const val EXTRA_SELECTED_PHOTO = "selected_photo"
