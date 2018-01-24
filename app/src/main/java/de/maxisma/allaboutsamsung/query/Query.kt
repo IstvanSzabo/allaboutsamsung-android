@@ -2,6 +2,8 @@ package de.maxisma.allaboutsamsung.query
 
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
+import com.squareup.moshi.JsonDataException
+import com.squareup.moshi.JsonEncodingException
 import de.maxisma.allaboutsamsung.db.Category
 import de.maxisma.allaboutsamsung.db.CategoryId
 import de.maxisma.allaboutsamsung.db.Db
@@ -24,11 +26,15 @@ import de.maxisma.allaboutsamsung.rest.allCategories
 import de.maxisma.allaboutsamsung.rest.allTags
 import de.maxisma.allaboutsamsung.rest.allUsers
 import de.maxisma.allaboutsamsung.utils.IOPool
+import de.maxisma.allaboutsamsung.utils.retry
 import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.Job
+import kotlinx.coroutines.experimental.TimeoutCancellationException
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.withTimeout
+import retrofit2.HttpException
+import java.io.IOException
 import java.util.Date
 
 interface QueryExecutor {
@@ -59,7 +65,6 @@ fun Query.newExecutor(wordpressApi: WordpressApi, db: Db, onError: (Exception) -
 private const val POSTS_PER_PAGE = 20
 private const val TIMEOUT_MS = 30_000L
 
-// TODO Auto-retry
 private abstract class DbQueryExecutor(
     private val wordpressApi: WordpressApi,
     private val db: Db,
@@ -91,30 +96,38 @@ private abstract class DbQueryExecutor(
     protected open suspend fun onInsertedPosts(postIds: Set<PostId>) {}
 
     private suspend fun fetchPostsAndRelated(beforeGmt: Date? = null) = try {
-        withTimeout(TIMEOUT_MS) {
-            val posts = fetchPosts(beforeGmt)
-            val (missingCategoryIds, missingTagIds, missingUserIds) = db.findMissingMeta(posts)
-            val categories = if (missingCategoryIds.isEmpty()) {
-                emptyList()
-            } else {
-                wordpressApi.allCategories(CategoryIdsDto(missingCategoryIds)).await()
-            }
-            val tags = if (missingTagIds.isEmpty()) {
-                emptyList()
-            } else {
-                wordpressApi.allTags(TagIdsDto(missingTagIds)).await()
-            }
-            val users = if (missingUserIds.isEmpty()) {
-                emptyList()
-            } else {
-                wordpressApi.allUsers(UserIdsDto(missingUserIds)).await()
-            }
-            db.importCategoryDtos(categories)
-            db.importTagDtos(tags)
-            db.importUserDtos(users)
-            db.importPostDtos(posts)
+        retry(
+            HttpException::class,
+            JsonDataException::class,
+            JsonEncodingException::class,
+            IOException::class,
+            TimeoutCancellationException::class
+        ) {
+            withTimeout(TIMEOUT_MS) {
+                val posts = fetchPosts(beforeGmt)
+                val (missingCategoryIds, missingTagIds, missingUserIds) = db.findMissingMeta(posts)
+                val categories = if (missingCategoryIds.isEmpty()) {
+                    emptyList()
+                } else {
+                    wordpressApi.allCategories(CategoryIdsDto(missingCategoryIds)).await()
+                }
+                val tags = if (missingTagIds.isEmpty()) {
+                    emptyList()
+                } else {
+                    wordpressApi.allTags(TagIdsDto(missingTagIds)).await()
+                }
+                val users = if (missingUserIds.isEmpty()) {
+                    emptyList()
+                } else {
+                    wordpressApi.allUsers(UserIdsDto(missingUserIds)).await()
+                }
+                db.importCategoryDtos(categories)
+                db.importTagDtos(tags)
+                db.importUserDtos(users)
+                db.importPostDtos(posts)
 
-            onInsertedPosts(posts.map { it.id }.toSet())
+                onInsertedPosts(posts.map { it.id }.toSet())
+            }
         }
     } catch (e: Exception) {
         onError(e)
@@ -135,8 +148,10 @@ private class EmptyQueryExecutor(
     onError: (Exception) -> Unit
 ) : DbQueryExecutor(wordpressApi, db, onError) {
     override suspend fun fetchPosts(beforeGmt: Date?) = wordpressApi
-        .posts(page = 1, postsPerPage = POSTS_PER_PAGE,
-            search = null, onlyCategories = null, onlyTags = null, onlyIds = null, beforeGmt = beforeGmt)
+        .posts(
+            page = 1, postsPerPage = POSTS_PER_PAGE,
+            search = null, onlyCategories = null, onlyTags = null, onlyIds = null, beforeGmt = beforeGmt
+        )
         .await()
 
     override suspend fun oldestPostDateUtc() = db.postDao.oldestDate()
