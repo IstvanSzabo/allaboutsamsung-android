@@ -14,9 +14,11 @@ private fun Element.findFullImgUrl(): String? {
 fun Post.extractPhotos(): List<Photo> {
     val doc = Jsoup.parse(content)
     val images = doc.getElementsByTag("img").not(".wp-smiley")
-    return images.map { img ->
-        val small = img.attr("src")
-        val full = img.findFullImgUrl()
-        Photo(small, full ?: small)
-    }
+    return images
+        .filter { it.classNames().any { it.startsWith("wp-image") || it.startsWith("attachment") } }
+        .map { img ->
+            val small = img.attr("src")
+            val full = img.findFullImgUrl()
+            Photo(small, full ?: small)
+        }
 }
