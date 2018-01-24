@@ -34,7 +34,7 @@ fun Db.importCategoryDtos(categoryDtos: List<CategoryDto>) {
                 slug = it.slug,
                 count = it.count,
                 description = it.description,
-                name = it.name
+                name = it.name.htmlUnescape()
             )
         }
     )
@@ -48,7 +48,7 @@ fun Db.importTagDtos(tagDtos: List<TagDto>) {
                 slug = it.slug,
                 count = it.count,
                 description = it.description,
-                name = it.name
+                name = it.name.htmlUnescape()
             )
         }
     )
