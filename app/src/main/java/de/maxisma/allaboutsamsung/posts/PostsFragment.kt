@@ -37,6 +37,8 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
     @Inject
     lateinit var wordpressApi: WordpressApi
 
+    private var currentLoadingJob: Job? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         app.appComponent.inject(this)
@@ -60,11 +62,9 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
 
         val infiniteScrollListener = object : InfiniteScrollListener(MAX_ITEMS_PER_REQUEST_ON_SCROLL, lm) {
 
-            private var lastJob: Job? = null
-
             override fun onScrolledToEnd(firstVisibleItemPosition: Int) {
-                if (lastJob?.isActive != true) {
-                    lastJob = launch(UI) {
+                if (currentLoadingJob?.isActive != true) {
+                    currentLoadingJob = launch(UI) {
                         postsProgressBar.visibility = View.VISIBLE
                         executor.requestOlderPosts().join()
                         postsProgressBar.visibility = View.GONE
@@ -81,7 +81,7 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
             adapter.notifyDataSetChanged()
         }
 
-        launch(UI) {
+        currentLoadingJob = launch(UI) {
             postsProgressBar.visibility = View.VISIBLE
             executor.requestNewerPosts().join()
             postsProgressBar.visibility = View.GONE
