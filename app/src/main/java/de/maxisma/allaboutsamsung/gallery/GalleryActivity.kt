@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v4.view.PagerAdapter
+import android.support.v4.view.ViewPager
 import android.support.v7.app.AppCompatActivity
 import android.view.Gravity
 import android.view.View
@@ -14,8 +15,8 @@ import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import de.maxisma.allaboutsamsung.R
 import de.maxisma.allaboutsamsung.utils.IOPool
-import de.maxisma.allaboutsamsung.utils.glide.GlideApp
 import de.maxisma.allaboutsamsung.utils.asArrayList
+import de.maxisma.allaboutsamsung.utils.glide.GlideApp
 import kotlinx.android.synthetic.main.activity_gallery.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
@@ -47,6 +48,24 @@ class GalleryActivity : AppCompatActivity() {
 
         galleryViewPager.adapter = PhotoAdapter(photos)
         galleryViewPager.currentItem = selectedIndex
+
+        launch(UI) {
+            val photoBar = galleryPhotoBar.configurePhotoBar(photos, onPhotoClick = { photo, photoBar ->
+                galleryViewPager.currentItem = photos.indexOf(photo)
+                photoBar.highlightPhoto(photo)
+            }).receive()
+
+            galleryViewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+                override fun onPageScrollStateChanged(state: Int) {}
+
+                override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
+
+                override fun onPageSelected(position: Int) {
+                    photoBar.highlightPhoto(photos[position])
+                }
+            })
+
+        }
     }
 }
 
