@@ -44,6 +44,7 @@ class MainActivity : AppCompatActivity(), PostsFragment.InteractionListener {
      * - Rotation
      * - Send app version header
      * - Highlight breaking (font color / shaking exclamation mark / ...)
+     * - Check for memory leaks
      */
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
