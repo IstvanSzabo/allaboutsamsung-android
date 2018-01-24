@@ -2,6 +2,7 @@ package de.maxisma.allaboutsamsung.post
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -30,6 +31,7 @@ import de.maxisma.allaboutsamsung.rest.WordpressApi
 import de.maxisma.allaboutsamsung.utils.ExtendedWebChromeClient
 import de.maxisma.allaboutsamsung.utils.observe
 import kotlinx.android.synthetic.main.fragment_post.*
+import okhttp3.HttpUrl
 import javax.inject.Inject
 
 private const val ARG_POST_ID = "post_id"
@@ -96,7 +98,6 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
 
             // TODO Test with large articles
             // TODO Allow video fullscreen?
-            // TODO Open YouTube via normal Intent
             postContentWebView.webViewClient = PostWebViewClient(post.extractPhotos())
             postContentWebView.loadDataWithBaseURL(
                 BuildConfig.WEBVIEW_BASE_URL,
@@ -127,16 +128,18 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
 
 private class PostWebViewClient(private val photos: List<Photo>) : GlideCachingWebViewClient() {
     private fun shouldOverrideUrlLoadingInternal(view: WebView, url: String): Boolean {
-        if (url.endsWith(".jpg") || url.endsWith(".jpeg") || url.endsWith(".png")) {
-            val selected = photos.firstOrNull { url == it.fullImageUrl || url == it.smallImageUrl }
-            if (selected != null) {
-                val intent = newGalleryActivityIntent(view.context, photos, selected)
-                view.context.startActivity(intent)
-            } else {
-                openCustomTab(view.context, url)
+        when {
+            url.endsWith(".jpg") || url.endsWith(".jpeg") || url.endsWith(".png") -> {
+                val selected = photos.firstOrNull { url == it.fullImageUrl || url == it.smallImageUrl }
+                if (selected != null) {
+                    val intent = newGalleryActivityIntent(view.context, photos, selected)
+                    view.context.startActivity(intent)
+                } else {
+                    openCustomTab(view.context, url)
+                }
             }
-        } else {
-            openCustomTab(view.context, url)
+            "youtube." in HttpUrl.parse(url)?.host() ?: "" -> view.context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+            else -> openCustomTab(view.context, url)
         }
         return true
     }
