@@ -2,6 +2,7 @@ package de.maxisma.allaboutsamsung.gallery
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.PointF
 import android.os.Bundle
 import android.support.v4.view.PagerAdapter
 import android.support.v4.view.ViewPager
@@ -17,15 +18,13 @@ import de.maxisma.allaboutsamsung.R
 import de.maxisma.allaboutsamsung.utils.IOPool
 import de.maxisma.allaboutsamsung.utils.asArrayList
 import de.maxisma.allaboutsamsung.utils.glide.GlideApp
+import de.maxisma.allaboutsamsung.utils.toggleVisibility
 import kotlinx.android.synthetic.main.activity_gallery.*
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import paperparcel.PaperParcel
 import paperparcel.PaperParcelable
 
-// TODO Bar at the bottom
-// TODO Lock when zoomed in, hide bar
-// TODO Toggle bar visibility on tap
 // TODO Highlight selected element in bar
 
 private const val EXTRA_PHOTOS = "photos"
@@ -46,9 +45,6 @@ class GalleryActivity : AppCompatActivity() {
         val selectedPhoto = intent.getParcelableExtra<Photo?>(EXTRA_SELECTED_PHOTO)
         val selectedIndex = Math.max(0, photos.indexOf(selectedPhoto))
 
-        galleryViewPager.adapter = PhotoAdapter(photos)
-        galleryViewPager.currentItem = selectedIndex
-
         launch(UI) {
             val photoBar = galleryPhotoBar.configurePhotoBar(photos, onPhotoClick = { photo, photoBar ->
                 galleryViewPager.currentItem = photos.indexOf(photo)
@@ -65,6 +61,15 @@ class GalleryActivity : AppCompatActivity() {
                 }
             })
 
+            galleryViewPager.adapter = PhotoAdapter(
+                photos,
+                onClick = { galleryPhotoBar.toggleVisibility(disabledState = View.GONE) },
+                onZoomedInStateChanged = { zoomedIn ->
+                    galleryPhotoBar.visibility = if (!zoomedIn) View.VISIBLE else View.GONE
+                    galleryViewPager.disableTouchPaging = zoomedIn
+                }
+            )
+            galleryViewPager.currentItem = selectedIndex
         }
     }
 }
@@ -77,10 +82,11 @@ data class Photo(val smallImageUrl: String, val fullImageUrl: String) : PaperPar
     }
 }
 
-private class PhotoAdapter(private val photos: List<Photo>) : PagerAdapter() {
+private class PhotoAdapter(private val photos: List<Photo>, private val onClick: () -> Unit, private val onZoomedInStateChanged: (Boolean) -> Unit) : PagerAdapter() {
 
     private fun photoView(context: Context, photo: Photo): View = FrameLayout(context).apply {
         layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+        setOnClickListener { onClick() }
 
         val progressBar = ProgressBar(context).apply {
             layoutParams = FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, Gravity.CENTER)
@@ -90,6 +96,13 @@ private class PhotoAdapter(private val photos: List<Photo>) : PagerAdapter() {
 
         val imageView = SubsamplingScaleImageView(context).apply {
             layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+            setOnStateChangedListener(object : SubsamplingScaleImageView.OnStateChangedListener {
+                override fun onCenterChanged(p0: PointF?, p1: Int) {}
+
+                override fun onScaleChanged(scale: Float, p1: Int) {
+                    onZoomedInStateChanged(scale > minScale)
+                }
+            })
 
             progressBar.visibility = View.VISIBLE
             launch(IOPool) {
