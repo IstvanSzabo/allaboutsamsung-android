@@ -25,8 +25,6 @@ import kotlinx.coroutines.experimental.launch
 import paperparcel.PaperParcel
 import paperparcel.PaperParcelable
 
-// TODO Highlight selected element in bar
-
 private const val EXTRA_PHOTOS = "photos"
 private const val EXTRA_SELECTED_PHOTO = "selected_photo"
 
