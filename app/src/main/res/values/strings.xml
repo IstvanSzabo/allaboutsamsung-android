@@ -17,4 +17,5 @@
     <string name="push_deals">Deal-Benachrichtigungen</string>
     <string name="categories">Kategorien</string>
     <string name="search">Suche</string>
+    <string name="refresh">Aktualisieren</string>
 </resources>

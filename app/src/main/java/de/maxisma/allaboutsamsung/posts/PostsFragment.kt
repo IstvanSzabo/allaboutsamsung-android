@@ -4,6 +4,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import com.github.pwittchen.infinitescroll.library.InfiniteScrollListener
@@ -47,7 +50,24 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
         app.appComponent.inject(this)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.fragment_posts, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.refresh -> {
+                requestNewerPosts()
+                return true
+            }
+        }
+
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -62,6 +82,8 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
             startActivityForResult(newCategoryActivityIntent(context!!), REQUEST_CODE_CATEGORY)
         }
 
+        postsSwipeRefresh.setOnRefreshListener { requestNewerPosts() }
+
         val adapter = PostsAdapter { listener.displayPost(it.id) }
         val lm = LinearLayoutManager(context!!)
         postList.adapter = adapter
@@ -73,9 +95,9 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
             override fun onScrolledToEnd(firstVisibleItemPosition: Int) {
                 if (currentLoadingJob?.isActive != true) {
                     currentLoadingJob = launch(UI) {
-                        postsProgressBar.visibility = View.VISIBLE
+                        postsSwipeRefresh.isRefreshing = true
                         currentExecutor?.requestOlderPosts()?.join()
-                        postsProgressBar.visibility = View.GONE
+                        postsSwipeRefresh.isRefreshing = false
                         // Debounce UI interaction
                         delay(500)
                     }
@@ -98,12 +120,13 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
         }
 
         currentExecutor = executor
+        requestNewerPosts()
+    }
 
-        currentLoadingJob = launch(UI) {
-            postsProgressBar.visibility = View.VISIBLE
-            executor.requestNewerPosts().join()
-            postsProgressBar.visibility = View.GONE
-        }
+    private fun requestNewerPosts() = launch(UI) {
+        postsSwipeRefresh.isRefreshing = true
+        currentExecutor?.requestNewerPosts()?.join()
+        postsSwipeRefresh.isRefreshing = false
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
