@@ -10,12 +10,14 @@ import android.os.Build
 import android.support.annotation.RequiresApi
 import android.support.annotation.WorkerThread
 import android.support.v4.app.NotificationCompat
+import android.support.v4.app.TaskStackBuilder
 import com.evernote.android.job.Job
+import de.maxisma.allaboutsamsung.MainActivity
 import de.maxisma.allaboutsamsung.R
 import de.maxisma.allaboutsamsung.db.Db
 import de.maxisma.allaboutsamsung.db.Post
 import de.maxisma.allaboutsamsung.db.PostId
-import de.maxisma.allaboutsamsung.mainActivityIntent
+import de.maxisma.allaboutsamsung.post.newPostActivityIntent
 import de.maxisma.allaboutsamsung.query.Query
 import de.maxisma.allaboutsamsung.query.newExecutor
 import de.maxisma.allaboutsamsung.rest.WordpressApi
@@ -77,12 +79,12 @@ private fun PostNotificationViewModel.notifyAboutPost(context: Context) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         createNewsNotificationChannel(context)
     }
-    val pendingIntent = PendingIntent.getActivity(
-        context,
-        0,
-        mainActivityIntent(context, post.id),
-        PendingIntent.FLAG_CANCEL_CURRENT
-    )
+
+    val stackBuilder = TaskStackBuilder.create(context).apply {
+        addParentStack(MainActivity::class.java)
+        addNextIntent(newPostActivityIntent(context, post.id))
+    }
+    val pendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_CANCEL_CURRENT)
     val notification = NotificationCompat.Builder(context, NEWS_CHANNEL_ID)
         .setSmallIcon(R.drawable.ic_launcher_foreground) // TODO right icon
         .setContentTitle(post.title)

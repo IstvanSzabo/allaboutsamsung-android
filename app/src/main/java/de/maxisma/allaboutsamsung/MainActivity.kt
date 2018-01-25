@@ -10,18 +10,10 @@ import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import de.maxisma.allaboutsamsung.db.PostId
-import de.maxisma.allaboutsamsung.post.PostFragment
+import de.maxisma.allaboutsamsung.post.newPostActivityIntent
 import de.maxisma.allaboutsamsung.posts.PostsFragment
 import de.maxisma.allaboutsamsung.settings.newPreferencesActivityIntent
 import de.maxisma.allaboutsamsung.settings.updatePushSubscriptionsAccordingly
-
-private const val EXTRA_POST_ID = "post_id" // TODO Handle this
-
-fun mainActivityIntent(context: Context, postId: PostId?): Intent {
-    return Intent(context, MainActivity::class.java).apply {
-        putExtra(EXTRA_POST_ID, postId)
-    }
-}
 
 class MainActivity : AppCompatActivity(), PostsFragment.InteractionListener {
 
@@ -36,7 +28,6 @@ class MainActivity : AppCompatActivity(), PostsFragment.InteractionListener {
      * - Test offline access
      * - Sharing
      * - Colors
-     * - Transitions
      * - Ads
      * - Resolve warnings, code inspections
      * - Documentation
@@ -79,9 +70,6 @@ class MainActivity : AppCompatActivity(), PostsFragment.InteractionListener {
     }
 
     override fun displayPost(postId: PostId) {
-        supportFragmentManager.beginTransaction()
-            .add(R.id.fragmentContainer, PostFragment(postId), "post: $postId")
-            .addToBackStack("post: $postId")
-            .commit()
+        startActivity(newPostActivityIntent(this, postId))
     }
 }

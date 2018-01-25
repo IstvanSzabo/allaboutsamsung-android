@@ -26,6 +26,8 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".post.PostActivity" />
+
         <activity android:name=".gallery.GalleryActivity" />
 
         <activity android:name=".settings.PreferenceActivity" />
