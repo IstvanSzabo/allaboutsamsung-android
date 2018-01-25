@@ -111,7 +111,7 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
     }
 
     private fun downloadPost(postId: PostId) {
-        val query = Query.Filter(string = null, onlyCategories = null, onlyTags = null, onlyIds = listOf(postId))
+        val query = Query.Filter(onlyIds = listOf(postId))
         val executor = query.newExecutor(wordpressApi, db, ::displaySupportedError)
         executor.requestNewerPosts()
     }

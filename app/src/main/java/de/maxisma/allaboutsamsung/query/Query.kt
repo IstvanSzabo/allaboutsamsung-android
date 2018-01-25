@@ -50,10 +50,10 @@ interface QueryExecutor {
 sealed class Query {
     object Empty : Query()
     data class Filter(
-        val string: String?,
-        val onlyCategories: List<CategoryId>?,
-        val onlyTags: List<TagId>?,
-        val onlyIds: List<PostId>?
+        val string: String? = null,
+        val onlyCategories: List<CategoryId>? = null,
+        val onlyTags: List<TagId>? = null,
+        val onlyIds: List<PostId>? = null
     ) : Query()
 }
 

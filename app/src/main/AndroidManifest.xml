@@ -32,6 +32,10 @@
 
         <activity android:name=".settings.PreferenceActivity" />
 
+        <activity
+            android:name=".categories.CategoryActivity"
+            android:theme="@style/Theme.AppCompat.Dialog" />
+
         <service android:name=".notification.MessagingService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />

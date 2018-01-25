@@ -1,5 +1,6 @@
 package de.maxisma.allaboutsamsung.posts
 
+import android.content.Intent
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
@@ -9,9 +10,12 @@ import com.github.pwittchen.infinitescroll.library.InfiniteScrollListener
 import de.maxisma.allaboutsamsung.BaseFragment
 import de.maxisma.allaboutsamsung.R
 import de.maxisma.allaboutsamsung.app
+import de.maxisma.allaboutsamsung.categories.categoryActivityResult
+import de.maxisma.allaboutsamsung.categories.newCategoryActivityIntent
 import de.maxisma.allaboutsamsung.db.Db
 import de.maxisma.allaboutsamsung.db.PostId
 import de.maxisma.allaboutsamsung.query.Query
+import de.maxisma.allaboutsamsung.query.QueryExecutor
 import de.maxisma.allaboutsamsung.query.newExecutor
 import de.maxisma.allaboutsamsung.rest.WordpressApi
 import de.maxisma.allaboutsamsung.utils.dpToPx
@@ -24,6 +28,7 @@ import kotlinx.coroutines.experimental.launch
 import javax.inject.Inject
 
 private const val MAX_ITEMS_PER_REQUEST_ON_SCROLL = 20
+private const val REQUEST_CODE_CATEGORY = 0
 
 class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
 
@@ -38,6 +43,7 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
     lateinit var wordpressApi: WordpressApi
 
     private var currentLoadingJob: Job? = null
+    private var currentExecutor: QueryExecutor? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,8 +57,9 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val query = Query.Empty
-        val executor = query.newExecutor(wordpressApi, db, ::displaySupportedError)
+        categoryButton.setOnClickListener {
+            startActivityForResult(newCategoryActivityIntent(context!!), REQUEST_CODE_CATEGORY)
+        }
 
         val adapter = PostsAdapter { listener.displayPost(it.id) }
         val lm = LinearLayoutManager(context!!)
@@ -66,7 +73,7 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
                 if (currentLoadingJob?.isActive != true) {
                     currentLoadingJob = launch(UI) {
                         postsProgressBar.visibility = View.VISIBLE
-                        executor.requestOlderPosts().join()
+                        currentExecutor?.requestOlderPosts()?.join()
                         postsProgressBar.visibility = View.GONE
                         // Debounce UI interaction
                         delay(500)
@@ -76,15 +83,34 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
         }
         postList.addOnScrollListener(infiniteScrollListener)
 
-        executor.data.observe(this) { it ->
+        Query.Empty.load()
+    }
+
+    private fun Query.load() {
+        currentExecutor?.data?.removeObservers(this@PostsFragment)
+
+        val executor = newExecutor(wordpressApi, db, ::displaySupportedError)
+        val adapter = postList.adapter as PostsAdapter
+        executor.data.observe(this@PostsFragment) { it ->
             adapter.posts = it ?: emptyList()
             adapter.notifyDataSetChanged()
         }
+
+        currentExecutor = executor
 
         currentLoadingJob = launch(UI) {
             postsProgressBar.visibility = View.VISIBLE
             executor.requestNewerPosts().join()
             postsProgressBar.visibility = View.GONE
+        }
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        val id = data?.categoryActivityResult?.categoryId
+        if (requestCode == REQUEST_CODE_CATEGORY && id != null) {
+            Query.Filter(onlyCategories = listOf(id)).load()
+        } else {
+            super.onActivityResult(requestCode, resultCode, data)
         }
     }
 }

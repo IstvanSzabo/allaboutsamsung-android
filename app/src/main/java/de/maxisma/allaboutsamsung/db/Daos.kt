@@ -84,6 +84,9 @@ abstract class CategoryDao {
     @Query("SELECT * FROM Category WHERE id = :categoryId")
     abstract fun category(categoryId: CategoryId): Category?
 
+    @Query("SELECT * FROM Category")
+    abstract fun categories(): LiveData<List<Category>>
+
     @Query("SELECT * FROM Category WHERE id IN (:categoryIds)")
     abstract fun categories(categoryIds: List<CategoryId>): List<Category>
 

@@ -15,4 +15,6 @@
     <string name="preferences">Einstellungen</string>
     <string name="select_push_topics">Benachrichtigungsthemen auswählen</string>
     <string name="push_deals">Deal-Benachrichtigungen</string>
+    <string name="categories">Kategorien</string>
+    <string name="search">Suche</string>
 </resources>

@@ -40,7 +40,7 @@ fun notifyAboutPost(postId: PostId, db: Db, api: WordpressApi, context: Context)
         barrier.release()
     }
 
-    val query = Query.Filter(string = null, onlyCategories = null, onlyTags = null, onlyIds = listOf(postId))
+    val query = Query.Filter(onlyIds = listOf(postId))
     val executor = query.newExecutor(api, db, onError = ::reschedule)
     launch(UI) {
         executor.requestNewerPosts().join()

@@ -8,9 +8,11 @@ import android.view.Menu
 import android.view.MenuItem
 import de.maxisma.allaboutsamsung.settings.newPreferencesActivityIntent
 
-abstract class BaseActivity: AppCompatActivity() {
+abstract class BaseActivity(private val useDefaultMenu: Boolean = true) : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.activity_base, menu)
+        if (useDefaultMenu) {
+            menuInflater.inflate(R.menu.activity_base, menu)
+        }
         return true
     }
 

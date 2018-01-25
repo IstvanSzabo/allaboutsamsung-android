@@ -2,6 +2,7 @@ package de.maxisma.allaboutsamsung
 
 import android.content.Context
 import dagger.Component
+import de.maxisma.allaboutsamsung.categories.CategoryActivity
 import de.maxisma.allaboutsamsung.db.Db
 import de.maxisma.allaboutsamsung.post.PostFragment
 import de.maxisma.allaboutsamsung.post.PostHtmlGenerator
@@ -24,4 +25,5 @@ interface AppComponent {
     fun inject(postsFragment: PostsFragment)
     fun inject(postFragment: PostFragment)
     fun inject(preferenceFragment: PreferenceFragment)
+    fun inject(categoryActivity: CategoryActivity)
 }
