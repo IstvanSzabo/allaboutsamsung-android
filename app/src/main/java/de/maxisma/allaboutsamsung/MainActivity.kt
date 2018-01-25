@@ -1,21 +1,12 @@
 package de.maxisma.allaboutsamsung
 
-import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
-import android.support.customtabs.CustomTabsIntent
-import android.support.v4.content.ContextCompat
-import android.support.v7.app.AppCompatActivity
-import android.view.Menu
-import android.view.MenuItem
 import de.maxisma.allaboutsamsung.db.PostId
 import de.maxisma.allaboutsamsung.post.newPostActivityIntent
 import de.maxisma.allaboutsamsung.posts.PostsFragment
-import de.maxisma.allaboutsamsung.settings.newPreferencesActivityIntent
 import de.maxisma.allaboutsamsung.settings.updatePushSubscriptionsAccordingly
 
-class MainActivity : AppCompatActivity(), PostsFragment.InteractionListener {
+class MainActivity : BaseActivity(), PostsFragment.InteractionListener {
 
     /*
      * Features TODO:
@@ -38,23 +29,6 @@ class MainActivity : AppCompatActivity(), PostsFragment.InteractionListener {
      * - Highlight breaking (font color / shaking exclamation mark / ...)
      * - Check for memory leaks
      */
-
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        menuInflater.inflate(R.menu.activity_main, menu)
-        return true
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            R.id.preferences -> startActivity(newPreferencesActivityIntent(this))
-            R.id.legal_notice -> CustomTabsIntent.Builder()
-                .setShowTitle(true)
-                .setToolbarColor(ContextCompat.getColor(this, R.color.colorPrimary))
-                .build()
-                .launchUrl(this, Uri.parse(BuildConfig.LEGAL_NOTICE_URL))
-        }
-        return super.onOptionsItemSelected(item)
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
