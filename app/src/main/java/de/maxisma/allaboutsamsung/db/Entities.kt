@@ -69,18 +69,12 @@ data class Tag(
     val slug: String
 )
 
-@Entity(
-    foreignKeys = [
-        ForeignKey(entity = Tag::class, parentColumns = ["id"], childColumns = ["id"], onDelete = ForeignKey.RESTRICT)
-    ]
-)
+// No foreign keys as the tags have not necessarily been downloaded
+@Entity
 data class TagSubscription(@PrimaryKey val id: TagId)
 
-@Entity(
-    foreignKeys = [
-        ForeignKey(entity = Category::class, parentColumns = ["id"], childColumns = ["id"], onDelete = ForeignKey.RESTRICT)
-    ]
-)
+// No foreign keys as the categories have not necessarily been downloaded
+@Entity
 data class CategorySubscription(@PrimaryKey val id: CategoryId)
 
 @Entity

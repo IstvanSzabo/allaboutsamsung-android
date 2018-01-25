@@ -90,11 +90,16 @@ abstract class CategoryDao {
     @Query("SELECT * FROM Category WHERE Category.id IN (SELECT CategorySubscription.id FROM CategorySubscription)")
     abstract fun subscribedCategories(): List<Category>
 
+    @Query("DELETE FROM CategorySubscription")
+    abstract fun deleteCategorySubscriptions()
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun insertCategorySubscriptions(categorySubscriptions: List<CategorySubscription>)
 
-    open fun subscribe(categories: List<Category>) {
-        insertCategorySubscriptions(categories.map { CategorySubscription(it.id) })
+    @Transaction
+    open fun replaceCategorySubscriptions(categorySubscriptions: List<CategorySubscription>) {
+        deleteCategorySubscriptions()
+        insertCategorySubscriptions(categorySubscriptions)
     }
 }
 
@@ -124,11 +129,16 @@ abstract class TagDao {
     @Query("SELECT * FROM Tag WHERE Tag.id IN (SELECT TagSubscription.id FROM TagSubscription)")
     abstract fun subscribedTags(): List<Tag>
 
+    @Query("DELETE FROM TagSubscription")
+    abstract fun deleteTagSubscriptions()
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun insertTagSubscriptions(tagSubscriptions: List<TagSubscription>)
 
-    open fun subscribe(tags: List<Tag>) {
-        insertTagSubscriptions(tags.map { TagSubscription(it.id) })
+    @Transaction
+    open fun replaceTagSubscriptions(tagSubscriptions: List<TagSubscription>) {
+        deleteTagSubscriptions()
+        insertTagSubscriptions(tagSubscriptions)
     }
 }
 

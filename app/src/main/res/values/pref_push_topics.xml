@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="prefPushTopicsEntries">
+        <item>Keine Benachrichtigungen</item>
+        <item>Breaking News</item>
+        <item>Alle Artikel</item>
+    </array>
+    <array name="prefPushTopicsEntryValues" translatable="false">
+        <item>none</item>
+        <item>breaking</item>
+        <item>all</item>
+    </array>
+    <string name="prefPushTopicsDefaultValue">breaking</string>
+</resources>

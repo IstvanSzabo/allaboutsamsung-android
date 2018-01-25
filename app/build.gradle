@@ -22,6 +22,8 @@ android {
         buildConfigField "String", "REST_BASE_URL", "\"https://allaboutsamsung.de/wp-json/wp/v2/\""
         buildConfigField "String", "COMMENTS_URL_TEMPLATE", "\"https://allaboutsamsung.de/wp-content/plugins/app-api/xml/comment.php?guid=[POST_ID]\""
         buildConfigField "String", "LEGAL_NOTICE_URL", "\"https://allaboutsamsung.de/impressum\""
+        buildConfigField "int", "BREAKING_CATEGORY_ID", "531"
+        buildConfigField "int", "DEAL_TAG_ID", "342"
     }
     buildTypes {
         release {

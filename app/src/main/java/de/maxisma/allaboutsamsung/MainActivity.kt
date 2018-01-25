@@ -10,9 +10,10 @@ import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import de.maxisma.allaboutsamsung.db.PostId
-import de.maxisma.allaboutsamsung.notification.updatePushSubscription
 import de.maxisma.allaboutsamsung.post.PostFragment
 import de.maxisma.allaboutsamsung.posts.PostsFragment
+import de.maxisma.allaboutsamsung.settings.newPreferencesActivityIntent
+import de.maxisma.allaboutsamsung.settings.updatePushSubscriptionsAccordingly
 
 private const val EXTRA_POST_ID = "post_id" // TODO Handle this
 
@@ -27,7 +28,7 @@ class MainActivity : AppCompatActivity(), PostsFragment.InteractionListener {
     /*
      * Features TODO:
      * - Small and large widget
-     * - Configuration (dark theme, push topics, analytics, ...)
+     * - Remaining configuration options, honour theme + analytics
      * - Analytics (article openings etc.)
      * - Featured
      * - Post overview (by category, search query, pull-to-refresh, refresh onResume after a while)
@@ -54,6 +55,7 @@ class MainActivity : AppCompatActivity(), PostsFragment.InteractionListener {
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            R.id.preferences -> startActivity(newPreferencesActivityIntent(this))
             R.id.legal_notice -> CustomTabsIntent.Builder()
                 .setShowTitle(true)
                 .setToolbarColor(ContextCompat.getColor(this, R.color.colorPrimary))
@@ -67,7 +69,7 @@ class MainActivity : AppCompatActivity(), PostsFragment.InteractionListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        updatePushSubscription(app.appComponent.db)
+        app.appComponent.preferenceHolder.updatePushSubscriptionsAccordingly(app.appComponent.db)
 
         if (savedInstanceState == null) {
             supportFragmentManager.beginTransaction()

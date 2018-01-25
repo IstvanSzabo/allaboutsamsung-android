@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- KEEP VALUES IN SYNC WIT PreferenceHolder.kt -->
+
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="useDarkTheme"
+        android:title="@string/use_dark_theme" />
+
+    <CheckBoxPreference
+        android:defaultValue="true"
+        android:key="allowAnalytics"
+        android:summary="@string/google_analytics_settings_reason"
+        android:title="@string/allow_google_analytics" />
+
+    <ListPreference
+        android:defaultValue="@string/prefPushTopicsDefaultValue"
+        android:dialogTitle="@string/select_push_topics"
+        android:entries="@array/prefPushTopicsEntries"
+        android:entryValues="@array/prefPushTopicsEntryValues"
+        android:key="pushTopics"
+        android:title="@string/select_push_topics" />
+
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="pushDeals"
+        android:title="@string/push_deals" />
+</PreferenceScreen>

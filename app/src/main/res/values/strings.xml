@@ -9,4 +9,10 @@
     <string name="news_channel_name">News</string>
     <string name="news_channel_description">Liefert Benachrichtigungen über neue Artikel.</string>
     <string name="author_template">Von %1$s</string>
+    <string name="use_dark_theme">Dunkles Theme benutzen</string>
+    <string name="google_analytics_settings_reason">Google Analytics ermöglicht uns herauszufinden, woran ihr wirklich interessiert seid.</string>
+    <string name="allow_google_analytics">Erlaube Google Analytics</string>
+    <string name="preferences">Einstellungen</string>
+    <string name="select_push_topics">Benachrichtigungsthemen auswählen</string>
+    <string name="push_deals">Deal-Benachrichtigungen</string>
 </resources>
