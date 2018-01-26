@@ -1,10 +1,14 @@
 package de.maxisma.allaboutsamsung
 
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import de.maxisma.allaboutsamsung.db.PostId
 import de.maxisma.allaboutsamsung.post.newPostActivityIntent
 import de.maxisma.allaboutsamsung.posts.PostsFragment
 import de.maxisma.allaboutsamsung.settings.updatePushSubscriptionsAccordingly
+
+fun newMainActivityIntent(context: Context) = Intent(context, MainActivity::class.java)
 
 class MainActivity : BaseActivity(), PostsFragment.InteractionListener {
 

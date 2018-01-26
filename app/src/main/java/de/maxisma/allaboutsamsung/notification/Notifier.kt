@@ -17,6 +17,7 @@ import de.maxisma.allaboutsamsung.R
 import de.maxisma.allaboutsamsung.db.Db
 import de.maxisma.allaboutsamsung.db.Post
 import de.maxisma.allaboutsamsung.db.PostId
+import de.maxisma.allaboutsamsung.newMainActivityIntent
 import de.maxisma.allaboutsamsung.post.newPostActivityIntent
 import de.maxisma.allaboutsamsung.query.Query
 import de.maxisma.allaboutsamsung.query.newExecutor
@@ -81,8 +82,8 @@ private fun PostNotificationViewModel.notifyAboutPost(context: Context) {
     }
 
     val stackBuilder = TaskStackBuilder.create(context).apply {
-        addParentStack(MainActivity::class.java)
-        addNextIntent(newPostActivityIntent(context, post.id))
+        addNextIntentWithParentStack(newMainActivityIntent(context))
+        addNextIntentWithParentStack(newPostActivityIntent(context, post.id))
     }
     val pendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_CANCEL_CURRENT)
     val notification = NotificationCompat.Builder(context, NEWS_CHANNEL_ID)
