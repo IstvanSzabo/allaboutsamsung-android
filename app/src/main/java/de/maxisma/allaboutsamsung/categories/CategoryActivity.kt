@@ -32,7 +32,6 @@ val Intent.categoryActivityResult: CategoryActivity.Result
         return CategoryActivity.Result(if (id != -1) id else null)
     }
 
-// TODO Make prettier
 class CategoryActivity : BaseActivity(useDefaultMenu = false) {
 
     data class Result(val categoryId: CategoryId?)
