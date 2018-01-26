@@ -23,11 +23,14 @@ import de.maxisma.allaboutsamsung.query.Query
 import de.maxisma.allaboutsamsung.query.QueryExecutor
 import de.maxisma.allaboutsamsung.query.newExecutor
 import de.maxisma.allaboutsamsung.rest.WordpressApi
+import de.maxisma.allaboutsamsung.utils.IOPool
 import de.maxisma.allaboutsamsung.utils.dpToPx
 import de.maxisma.allaboutsamsung.utils.observe
 import kotlinx.android.synthetic.main.fragment_posts.*
+import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import javax.inject.Inject
@@ -35,7 +38,6 @@ import javax.inject.Inject
 private const val MAX_ITEMS_PER_REQUEST_ON_SCROLL = 20
 private const val REQUEST_CODE_CATEGORY = 0
 
-// TODO Visualize current query
 class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
 
     interface InteractionListener {
@@ -131,7 +133,7 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
         Query.Empty.load()
     }
 
-    private fun Query.load() {
+    private fun Query.load() = launch(UI) {
         currentExecutor?.data?.removeObservers(this@PostsFragment)
 
         val executor = newExecutor(wordpressApi, db, ::displaySupportedError)
@@ -143,7 +145,18 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
 
         currentExecutor = executor
         requestNewerPosts()
+        activity?.title = description.await()
     }
+
+    private val Query.description: Deferred<String>
+        get() = when (this) {
+            Query.Empty -> async { getString(R.string.app_name) }
+            is Query.Filter -> when {
+                string != null -> async<String> { string }
+                onlyCategories?.size == 1 -> async(IOPool) { db.categoryDao.categories(onlyCategories)[0].name }
+                else -> async { getString(R.string.app_name) }
+            }
+        }
 
     private fun requestNewerPosts() = launch(UI) {
         postsSwipeRefresh.isRefreshing = true
