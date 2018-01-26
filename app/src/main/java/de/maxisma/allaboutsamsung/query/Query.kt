@@ -38,6 +38,7 @@ import java.io.IOException
 import java.util.Date
 
 interface QueryExecutor {
+    val query: Query
     val data: LiveData<List<Post>>
     fun tagById(tagId: TagId): Deferred<Tag>
     fun categoryById(categoryId: CategoryId): Deferred<Category>
@@ -147,6 +148,7 @@ private class EmptyQueryExecutor(
     private val db: Db,
     onError: (Exception) -> Unit
 ) : DbQueryExecutor(wordpressApi, db, onError) {
+    override val query = Query.Empty
     override suspend fun fetchPosts(beforeGmt: Date?) = wordpressApi
         .posts(
             page = 1, postsPerPage = POSTS_PER_PAGE,
@@ -158,7 +160,7 @@ private class EmptyQueryExecutor(
 }
 
 private class FilterQueryExecutor(
-    val query: Query.Filter,
+    override val query: Query.Filter,
     private val wordpressApi: WordpressApi,
     private val db: Db,
     onError: (Exception) -> Unit

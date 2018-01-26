@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.support.annotation.StringRes
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -32,7 +33,6 @@ val Intent.categoryActivityResult: CategoryActivity.Result
     }
 
 // TODO Make prettier
-// TODO Add synthetic category "all"?
 class CategoryActivity : BaseActivity(useDefaultMenu = false) {
 
     data class Result(val categoryId: CategoryId?)
@@ -45,21 +45,29 @@ class CategoryActivity : BaseActivity(useDefaultMenu = false) {
         setContentView(R.layout.activity_category)
         app.appComponent.inject(this)
 
-        setResultInternal(null)
+        setResultOk(null)
 
         categoryList.layoutManager = LinearLayoutManager(this)
 
         db.categoryDao.categories().observe(this) {
             it ?: return@observe
 
-            categoryList.adapter = CategoryAdapter(it, onClick = {
-                setResultInternal(it.id)
+            categoryList.adapter = CategoryAdapter(createVirtualCategoryList(it), onClick = {
+                setResultOk(it)
                 finish()
             })
         }
     }
 
-    private fun setResultInternal(categoryId: CategoryId?) {
+    private fun createVirtualCategoryList(dbCategories: List<Category>) =
+        listOf(VirtualCategory.SyntheticAllCategory) + dbCategories.map { VirtualCategory.DbCategory(it.name, it.id) }.sortedBy { it.name }
+
+    override fun onBackPressed() {
+        setResult(RESULT_CANCELED)
+        super.onBackPressed()
+    }
+
+    private fun setResultOk(categoryId: CategoryId?) {
         setResult(Activity.RESULT_OK, Intent().apply { putExtra(RESULT_CATEGORY_ID, categoryId ?: RESULT_CATEGORY_ID_DEFAULT) })
     }
 }
@@ -68,7 +76,7 @@ private class CategoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemV
     val categoryDescription: TextView = itemView.findViewById(R.id.categoryDescription)
 }
 
-private class CategoryAdapter(private val categories: List<Category>, private val onClick: (Category) -> Unit) : RecyclerView.Adapter<CategoryViewHolder>() {
+private class CategoryAdapter(private val categories: List<VirtualCategory>, private val onClick: (CategoryId?) -> Unit) : RecyclerView.Adapter<CategoryViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.row_category, parent, false)
         return CategoryViewHolder(view)
@@ -77,8 +85,24 @@ private class CategoryAdapter(private val categories: List<Category>, private va
     override fun getItemCount() = categories.size
 
     override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
-        holder.categoryDescription.text = categories[position].name
-        holder.itemView.setOnClickListener { onClick(categories[position]) }
-    }
+        val category = categories[position]
+        val name = when (category) {
+            is VirtualCategory.DbCategory -> category.name
+            is VirtualCategory.SyntheticAllCategory -> holder.itemView.context.getString(category.nameRes)
+        }
 
+        holder.categoryDescription.text = name
+        holder.itemView.setOnClickListener { onClick(categories[position].categoryId) }
+    }
+}
+
+private sealed class VirtualCategory {
+    abstract val categoryId: CategoryId?
+
+    data class DbCategory(val name: String, override val categoryId: CategoryId) : VirtualCategory()
+    object SyntheticAllCategory : VirtualCategory() {
+        override val categoryId: CategoryId? = null
+        @StringRes
+        val nameRes: Int = R.string.all_categories
+    }
 }

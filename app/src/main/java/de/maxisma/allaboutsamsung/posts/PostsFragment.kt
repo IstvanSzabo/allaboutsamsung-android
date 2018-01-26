@@ -1,5 +1,6 @@
 package de.maxisma.allaboutsamsung.posts
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
@@ -130,9 +131,14 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        val id = data?.categoryActivityResult?.categoryId
-        if (requestCode == REQUEST_CODE_CATEGORY && id != null) {
-            Query.Filter(onlyCategories = listOf(id)).load()
+
+        if (requestCode == REQUEST_CODE_CATEGORY && resultCode == Activity.RESULT_OK) {
+            val id = data?.categoryActivityResult?.categoryId
+            val query = if (id != null) Query.Filter(onlyCategories = listOf(id)) else Query.Empty
+
+            if (query != currentExecutor?.query) {
+                query.load()
+            }
         } else {
             super.onActivityResult(requestCode, resultCode, data)
         }

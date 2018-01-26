@@ -18,4 +18,5 @@
     <string name="categories">Kategorien</string>
     <string name="search">Suche</string>
     <string name="refresh">Aktualisieren</string>
+    <string name="all_categories">Alle Kategorien</string>
 </resources>
