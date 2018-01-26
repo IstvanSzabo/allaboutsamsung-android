@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
+import android.support.v7.widget.SearchView
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -34,6 +35,7 @@ import javax.inject.Inject
 private const val MAX_ITEMS_PER_REQUEST_ON_SCROLL = 20
 private const val REQUEST_CODE_CATEGORY = 0
 
+// TODO Visualize current query
 class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
 
     interface InteractionListener {
@@ -55,9 +57,27 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
         app.appComponent.inject(this)
     }
 
+    private lateinit var searchItem: MenuItem
+
+    private val searchQueryListener = object : SearchView.OnQueryTextListener {
+        override fun onQueryTextSubmit(query: String): Boolean {
+            Query.Filter(string = query).load()
+
+            (searchItem.actionView as SearchView).isIconified = true
+            searchItem.collapseActionView()
+            return false
+        }
+
+        override fun onQueryTextChange(newText: String?) = false
+
+    }
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.fragment_posts, menu)
+
+        searchItem = menu.findItem(R.id.search)!!
+        (searchItem.actionView as SearchView).setOnQueryTextListener(searchQueryListener)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -79,10 +99,10 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
         super.onViewCreated(view, savedInstanceState)
 
         // TODO Make buttons highlight on click
-        // TODO Make search button work
         categoryButton.setOnClickListener {
             startActivityForResult(newCategoryActivityIntent(context!!), REQUEST_CODE_CATEGORY)
         }
+        searchButton.setOnClickListener { searchItem.expandActionView() }
 
         postsSwipeRefresh.setOnRefreshListener { requestNewerPosts() }
 
