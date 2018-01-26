@@ -79,6 +79,7 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
         super.onViewCreated(view, savedInstanceState)
 
         // TODO Make buttons highlight on click
+        // TODO Make search button work
         categoryButton.setOnClickListener {
             startActivityForResult(newCategoryActivityIntent(context!!), REQUEST_CODE_CATEGORY)
         }
