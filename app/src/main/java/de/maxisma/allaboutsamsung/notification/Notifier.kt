@@ -11,8 +11,8 @@ import android.support.annotation.RequiresApi
 import android.support.annotation.WorkerThread
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.TaskStackBuilder
+import android.support.v4.content.ContextCompat
 import com.evernote.android.job.Job
-import de.maxisma.allaboutsamsung.MainActivity
 import de.maxisma.allaboutsamsung.R
 import de.maxisma.allaboutsamsung.db.Db
 import de.maxisma.allaboutsamsung.db.Post
@@ -87,7 +87,8 @@ private fun PostNotificationViewModel.notifyAboutPost(context: Context) {
     }
     val pendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_CANCEL_CURRENT)
     val notification = NotificationCompat.Builder(context, NEWS_CHANNEL_ID)
-        .setSmallIcon(R.drawable.ic_launcher_foreground) // TODO right icon
+        .setSmallIcon(R.drawable.ic_notification)
+        .setColor(ContextCompat.getColor(context, R.color.colorPrimary))
         .setContentTitle(post.title)
         .setContentText(textContent)
         .setAutoCancel(true)
