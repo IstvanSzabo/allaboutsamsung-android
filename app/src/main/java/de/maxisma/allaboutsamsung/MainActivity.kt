@@ -18,7 +18,7 @@ class MainActivity : BaseActivity(), PostsFragment.InteractionListener {
      * - Remaining configuration options, honour theme + analytics
      * - Analytics (article openings etc.)
      * - Featured
-     * - Post overview (by category, search query, refresh onResume after a while)
+     * - Refresh in onResume after a while
      * - YouTube channel (notify about new videos in app)
      * - Test offline access
      * - Sharing
