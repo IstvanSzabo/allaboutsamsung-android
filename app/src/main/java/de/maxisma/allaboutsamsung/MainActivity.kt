@@ -25,7 +25,6 @@ class MainActivity : BaseActivity(), PostsFragment.InteractionListener {
      * - Refresh in onResume after a while
      * - YouTube channel (notify about new videos in app)
      * - Test offline access
-     * - Colors
      * - Ads
      * - Resolve warnings, code inspections
      * - Documentation
