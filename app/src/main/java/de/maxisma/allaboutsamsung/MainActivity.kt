@@ -35,6 +35,7 @@ class MainActivity : BaseActivity(), PostsFragment.InteractionListener {
      * - Send app version header
      * - Check for memory leaks
      * - Expire old data, that is also refresh when scrolling down
+     * - Fix menu item color
      */
 
     override fun onCreate(savedInstanceState: Bundle?) {
