@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import com.bumptech.glide.load.MultiTransformation
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import de.maxisma.allaboutsamsung.R
@@ -28,7 +29,7 @@ class VideoAdapter(var videos: List<Video> = emptyList(), private val onClick: (
         if (::transformation.isInitialized) return
 
         val dimensionPixelSize = context.resources.getDimensionPixelSize(R.dimen.rounded_corner_radius)
-        transformation = MultiTransformation<Bitmap>(DarkenTransformation(), RoundedCorners(dimensionPixelSize))
+        transformation = MultiTransformation<Bitmap>(YouTubeTrimTransformation(), DarkenTransformation(), RoundedCorners(dimensionPixelSize), CenterCrop())
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VideoViewHolder {
@@ -46,8 +47,7 @@ class VideoAdapter(var videos: List<Video> = emptyList(), private val onClick: (
         holder.itemView.setOnClickListener { onClick(video) }
 
         GlideApp.with(holder.background)
-            .load(video.thumbnailUrl) // TODO play button, trim
-            .centerCrop()
+            .load(video.thumbnailUrl)
             .transform(transformation)
             .transition(DrawableTransitionOptions.withCrossFade())
             .into(holder.background)
