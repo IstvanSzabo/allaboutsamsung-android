@@ -3,10 +3,14 @@ package de.maxisma.allaboutsamsung
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.support.v4.app.FragmentManager
+import android.support.v4.app.FragmentStatePagerAdapter
 import de.maxisma.allaboutsamsung.db.PostId
 import de.maxisma.allaboutsamsung.post.newPostActivityIntent
 import de.maxisma.allaboutsamsung.posts.PostsFragment
 import de.maxisma.allaboutsamsung.settings.updatePushSubscriptionsAccordingly
+import de.maxisma.allaboutsamsung.youtube.YouTubeFragment
+import kotlinx.android.synthetic.main.activity_main.*
 
 fun newMainActivityIntent(context: Context) = Intent(context, MainActivity::class.java)
 
@@ -36,17 +40,31 @@ class MainActivity : BaseActivity(), PostsFragment.InteractionListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        setSupportActionBar(mainToolbar)
 
         app.appComponent.preferenceHolder.updatePushSubscriptionsAccordingly(app.appComponent.db)
 
-        if (savedInstanceState == null) {
-            supportFragmentManager.beginTransaction()
-                .add(R.id.fragmentContainer, PostsFragment(), "posts")
-                .commit()
-        }
+        mainViewPager.adapter = MainAdapter(this, supportFragmentManager)
+        mainTabLayout.setupWithViewPager(mainViewPager, true)
     }
 
     override fun displayPost(postId: PostId) {
         startActivity(newPostActivityIntent(this, postId))
     }
+}
+
+private class MainAdapter(private val context: Context, fragmentManager: FragmentManager) : FragmentStatePagerAdapter(fragmentManager) {
+    override fun getItem(position: Int) = when (position) {
+        0 -> PostsFragment()
+        1 -> YouTubeFragment()
+        else -> throw IndexOutOfBoundsException("Unknown position $position.")
+    }
+
+    override fun getPageTitle(position: Int): CharSequence = when (position) {
+        0 -> context.getString(R.string.posts)
+        1 -> context.getString(R.string.videos)
+        else -> throw IndexOutOfBoundsException("Unknown position $position.")
+    }
+
+    override fun getCount() = 2
 }

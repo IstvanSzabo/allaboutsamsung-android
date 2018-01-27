@@ -150,7 +150,7 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
     }
 
     private fun PostsAdapter.updateWith(posts: List<Post>, executor: QueryExecutor) = launch(UI) {
-        this@updateWith.posts = posts.toPostViewModels(executor) ?: emptyList()
+        this@updateWith.posts = posts.toPostViewModels(executor)
         notifyDataSetChanged()
     }
 
