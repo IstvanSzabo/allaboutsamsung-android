@@ -211,7 +211,7 @@ abstract class VideoDao {
     @Query("SELECT publishedUtc FROM PlaylistItem JOIN Video ON Video.id = PlaylistItem.videoId WHERE playlistId = :playlistId ORDER BY datetime(publishedUtc) ASC LIMIT 1")
     abstract fun oldestDateInPlaylist(playlistId: PlaylistId): Date
 
-    @Query("SELECT Video.* FROM PlaylistItem JOIN Video ON Video.id = PlaylistItem.videoId WHERE playlistId = :playlistId ORDER BY datetime(publishedUtc)")
+    @Query("SELECT Video.* FROM PlaylistItem JOIN Video ON Video.id = PlaylistItem.videoId WHERE playlistId = :playlistId ORDER BY datetime(publishedUtc) DESC")
     abstract fun videosInPlaylist(playlistId: PlaylistId): LiveData<List<Video>>
 }
 
