@@ -13,7 +13,7 @@ import org.jsoup.Jsoup
 data class MissingMeta(
     val missingCategoryIds: Set<CategoryIdDto>,
     val missingTagIds: Set<TagIdDto>,
-    val missinguserIds: Set<UserIdDto>
+    val missingUserIds: Set<UserIdDto>
 )
 
 fun Db.findMissingMeta(postDtos: List<PostDto>): MissingMeta {

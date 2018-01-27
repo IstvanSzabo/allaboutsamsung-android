@@ -23,6 +23,7 @@ import de.maxisma.allaboutsamsung.db.Post
 import de.maxisma.allaboutsamsung.db.PostId
 import de.maxisma.allaboutsamsung.query.Query
 import de.maxisma.allaboutsamsung.query.QueryExecutor
+import de.maxisma.allaboutsamsung.query.WORDPRESS_POSTS_PER_PAGE
 import de.maxisma.allaboutsamsung.query.newExecutor
 import de.maxisma.allaboutsamsung.rest.WordpressApi
 import de.maxisma.allaboutsamsung.utils.IOPool
@@ -37,7 +38,6 @@ import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import javax.inject.Inject
 
-private const val MAX_ITEMS_PER_REQUEST_ON_SCROLL = 20
 private const val REQUEST_CODE_CATEGORY = 0
 
 class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
@@ -116,7 +116,7 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
         postList.layoutManager = lm
         postList.addItemDecoration(SpacingItemDecoration(horizontalSpacing = 8.dpToPx(), verticalSpacing = 8.dpToPx()))
 
-        val infiniteScrollListener = object : InfiniteScrollListener(MAX_ITEMS_PER_REQUEST_ON_SCROLL, lm) {
+        val infiniteScrollListener = object : InfiniteScrollListener(WORDPRESS_POSTS_PER_PAGE, lm) {
 
             override fun onScrolledToEnd(firstVisibleItemPosition: Int) {
                 if (currentLoadingJob?.isActive != true) {
@@ -174,7 +174,6 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-
         if (requestCode == REQUEST_CODE_CATEGORY && resultCode == Activity.RESULT_OK) {
             val id = data?.categoryActivityResult?.categoryId
             val query = if (id != null) Query.Filter(onlyCategories = listOf(id)) else Query.Empty

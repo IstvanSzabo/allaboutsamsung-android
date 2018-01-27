@@ -63,7 +63,7 @@ fun Query.newExecutor(wordpressApi: WordpressApi, db: Db, onError: (Exception) -
     is Query.Filter -> FilterQueryExecutor(this, wordpressApi, db, onError)
 }
 
-private const val POSTS_PER_PAGE = 20
+const val WORDPRESS_POSTS_PER_PAGE = 20
 private const val TIMEOUT_MS = 30_000L
 
 private abstract class DbQueryExecutor(
@@ -151,7 +151,7 @@ private class EmptyQueryExecutor(
     override val query = Query.Empty
     override suspend fun fetchPosts(beforeGmt: Date?) = wordpressApi
         .posts(
-            page = 1, postsPerPage = POSTS_PER_PAGE,
+            page = 1, postsPerPage = WORDPRESS_POSTS_PER_PAGE,
             search = null, onlyCategories = null, onlyTags = null, onlyIds = null, beforeGmt = beforeGmt
         )
         .await()
@@ -174,7 +174,7 @@ private class FilterQueryExecutor(
     override suspend fun fetchPosts(beforeGmt: Date?) = wordpressApi
         .posts(
             page = 1,
-            postsPerPage = POSTS_PER_PAGE,
+            postsPerPage = WORDPRESS_POSTS_PER_PAGE,
             search = query.string,
             onlyCategories = query.onlyCategories?.let { CategoryIdsDto(it.toSet()) },
             onlyTags = query.onlyTags?.let { TagIdsDto(it.toSet()) },

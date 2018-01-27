@@ -2,6 +2,9 @@ package de.maxisma.allaboutsamsung
 
 import android.arch.persistence.room.Room
 import android.content.Context
+import com.google.api.client.http.javanet.NetHttpTransport
+import com.google.api.client.json.jackson2.JacksonFactory
+import com.google.api.services.youtube.YouTube
 import dagger.Module
 import dagger.Provides
 import de.maxisma.allaboutsamsung.db.Db
@@ -26,4 +29,13 @@ class AppModule(private val app: App) {
 
     @Provides
     fun postHtmlGenerator(): PostHtmlGenerator = AndroidPostHtmlGenerator(app)
+
+    @Provides
+    fun youTube(): YouTube {
+        val httpTransport = NetHttpTransport()
+        val httpRequestFactory = httpTransport.createRequestFactory()
+        val jsonFactory = JacksonFactory()
+        val httpRequestInitializer = httpRequestFactory.initializer
+        return YouTube.Builder(httpTransport, jsonFactory, httpRequestInitializer).build()
+    }
 }

@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import com.bumptech.glide.load.MultiTransformation
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import de.maxisma.allaboutsamsung.BuildConfig
 import de.maxisma.allaboutsamsung.R
 import de.maxisma.allaboutsamsung.db.Post
 import de.maxisma.allaboutsamsung.utils.glide.GlideApp
@@ -28,8 +27,6 @@ class PostsAdapter(var posts: List<PostViewModel> = emptyList(), private val onC
         holder.title.text = postViewModel.post.title
         holder.breakingView.visibility = if (postViewModel.isBreaking) View.VISIBLE else View.GONE
 
-        initTransformation(holder.itemView.context)
-
         GlideApp.with(holder.itemView)
             .load(postViewModel.post.imageUrl)
             .centerCrop()
@@ -46,6 +43,7 @@ class PostsAdapter(var posts: List<PostViewModel> = emptyList(), private val onC
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
+        initTransformation(parent.context)
         val view = LayoutInflater.from(parent.context).inflate(R.layout.row_post, parent, false)
         return PostViewHolder(view)
     }

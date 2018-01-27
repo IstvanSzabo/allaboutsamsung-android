@@ -1,18 +1,18 @@
 package de.maxisma.allaboutsamsung
 
 import android.app.Activity
-import android.app.Application
 import android.content.Context
+import android.support.multidex.MultiDexApplication
 import android.support.v4.app.Fragment
 import android.webkit.WebView
-import de.maxisma.allaboutsamsung.utils.IOPool
-import kotlinx.coroutines.experimental.launch
 import com.crashlytics.android.Crashlytics
 import com.evernote.android.job.JobManager
 import de.maxisma.allaboutsamsung.scheduling.JobCreator
+import de.maxisma.allaboutsamsung.utils.IOPool
 import io.fabric.sdk.android.Fabric
+import kotlinx.coroutines.experimental.launch
 
-class App : Application() {
+class App : MultiDexApplication() {
 
     val appComponent: AppComponent =
         DaggerAppComponent.builder().appModule(AppModule(this)).build()
@@ -25,7 +25,10 @@ class App : Application() {
         JobManager.create(this).addJobCreator(JobCreator())
 
         launch(IOPool) {
-            appComponent.db.postDao.deleteOld()
+            appComponent.db.apply {
+                postDao.deleteOld()
+                videoDao.deleteExpired()
+            }
         }
     }
 }

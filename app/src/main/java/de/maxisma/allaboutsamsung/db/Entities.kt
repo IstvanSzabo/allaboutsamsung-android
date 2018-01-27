@@ -10,6 +10,8 @@ typealias CategoryId = Int
 typealias TagId = Int
 typealias PostId = Long
 typealias UserId = Int
+typealias PlaylistId = String
+typealias VideoId = String
 
 @Entity(
     foreignKeys = [
@@ -81,4 +83,24 @@ data class CategorySubscription(@PrimaryKey val id: CategoryId)
 data class User(
     @PrimaryKey val id: UserId,
     val name: String
+)
+
+@Entity(
+    primaryKeys = ["playlistId", "videoId"],
+    foreignKeys = [
+        ForeignKey(entity = Video::class, parentColumns = ["id"], childColumns = ["videoId"], onDelete = ForeignKey.CASCADE)
+    ]
+)
+data class PlaylistItem(
+    val playlistId: PlaylistId,
+    val videoId: VideoId
+)
+
+@Entity
+data class Video(
+    @PrimaryKey val id: VideoId,
+    val title: String,
+    val thumbnailUrl: String,
+    val publishedUtc: Date,
+    val expiryDateUtc: Date
 )

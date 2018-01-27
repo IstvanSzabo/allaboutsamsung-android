@@ -193,6 +193,28 @@ abstract class UserDao {
     abstract fun userIds(): List<UserId>
 }
 
+@Dao
+abstract class VideoDao {
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract fun insertVideos(videos: List<Video>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract fun insertPlaylistItems(playlistItems: List<PlaylistItem>)
+
+    @Query("""
+        DELETE FROM Video
+        WHERE datetime(expiryDateUtc) < datetime('now')
+        OR datetime(publishedUtc) < (SELECT min(datetime(publishedUtc)) FROM Video WHERE datetime(expiryDateUtc) < datetime('now'))
+    """)
+    abstract fun deleteExpired()
+
+    @Query("SELECT publishedUtc FROM PlaylistItem JOIN Video ON Video.id = PlaylistItem.videoId WHERE playlistId = :playlistId ORDER BY datetime(publishedUtc) ASC LIMIT 1")
+    abstract fun oldestDateInPlaylist(playlistId: PlaylistId): Date
+
+    @Query("SELECT Video.* FROM PlaylistItem JOIN Video ON Video.id = PlaylistItem.videoId WHERE playlistId = :playlistId ORDER BY datetime(publishedUtc)")
+    abstract fun videosInPlaylist(playlistId: PlaylistId): LiveData<List<Video>>
+}
+
 object DateConverter {
     @TypeConverter
     @JvmStatic
