@@ -10,6 +10,7 @@ import android.support.annotation.RequiresApi
 import android.support.customtabs.CustomTabsIntent
 import android.support.v4.app.ShareCompat
 import android.support.v4.content.ContextCompat
+import android.support.v4.view.ViewPager
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -109,7 +110,15 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
         }
 
         postBottomNavigation.setOnNavigationItemSelectedListener(::onBottomNavigation)
+        postViewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+            override fun onPageScrollStateChanged(state: Int) {}
 
+            override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
+
+            override fun onPageSelected(position: Int) {
+                postBottomNavigation.selectedItemId = postBottomNavigation.menu.getItem(position).itemId
+            }
+        })
 
         db.postMetaDao.postWithAuthorName(postId).observe(this) { postWithAuthorName ->
             val (post, authorName) = postWithAuthorName ?: return@observe downloadPost(postId)
