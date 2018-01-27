@@ -7,6 +7,7 @@ import android.widget.TextView
 import de.maxisma.allaboutsamsung.R
 
 class PostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-    val image = itemView.findViewById<ImageView>(R.id.rowPostBackground)
-    val title = itemView.findViewById<TextView>(R.id.rowPostTitle)
+    val image: ImageView = itemView.findViewById(R.id.rowPostBackground)
+    val title: TextView = itemView.findViewById(R.id.rowPostTitle)
+    val breakingView: TextView = itemView.findViewById(R.id.rowPostBreaking)
 }

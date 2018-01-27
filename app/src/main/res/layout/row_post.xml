@@ -39,4 +39,25 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0"
         tools:text="TextViewTextViewTextViewTextViewTextViewText ViewTextViewTextViewTextViewTextViewTextViewT extViewText ViewTextViewTex tVi ewTextViewTextViewTextViewTextViewTextView TextViewTextViewTextViewTextViewT extViewTextViewTextViewTextVi ewTextViewTextViewTextViewTextVie wTextViewTextViewTextViewText ViewTextViewTextViewTextViewTextViewTextViewTextViewTextViewTextViewTextViewTextViewTextViewTextViewTextViewTextViewTextViewTextViewTextViewTextViewTextViewTextViewTextViewTextViewTextViewTextViewTextViewTextViewTextViewTextViewTextViewTextViewT extVi ewTextVie wTextView TextViewTextVi ewTextViewTextViewText ViewTextViewTextViewTextViewT extViewTextViewTextViewTextViewText ViewTextViewTextView" />
+
+    <TextView
+        android:id="@+id/rowPostBreaking"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:fontFamily="sans-serif"
+        android:shadowColor="@android:color/white"
+        android:shadowDx="-1"
+        android:shadowDy="-1"
+        android:shadowRadius="1"
+        android:text="@string/breaking_highlight"
+        android:textAppearance="@style/TextAppearance.AppCompat"
+        android:textColor="@color/colorAccent"
+        android:textSize="22sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </android.support.constraint.ConstraintLayout>

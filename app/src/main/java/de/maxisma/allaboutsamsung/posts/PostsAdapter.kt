@@ -4,15 +4,17 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import com.bumptech.glide.load.MultiTransformation
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import de.maxisma.allaboutsamsung.BuildConfig
 import de.maxisma.allaboutsamsung.R
 import de.maxisma.allaboutsamsung.db.Post
 import de.maxisma.allaboutsamsung.utils.glide.GlideApp
 
-class PostsAdapter(var posts: List<Post> = emptyList(), private val onClick: (Post) -> Unit) : RecyclerView.Adapter<PostViewHolder>() {
+class PostsAdapter(var posts: List<PostViewModel> = emptyList(), private val onClick: (Post) -> Unit) : RecyclerView.Adapter<PostViewHolder>() {
 
     init {
         setHasStableIds(true)
@@ -21,14 +23,15 @@ class PostsAdapter(var posts: List<Post> = emptyList(), private val onClick: (Po
     private lateinit var transformation: MultiTransformation<Bitmap>
 
     override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
-        val post = posts[position]
-        holder.itemView.setOnClickListener { onClick(post) }
-        holder.title.text = post.title
+        val postViewModel = posts[position]
+        holder.itemView.setOnClickListener { onClick(postViewModel.post) }
+        holder.title.text = postViewModel.post.title
+        holder.breakingView.visibility = if (postViewModel.isBreaking) View.VISIBLE else View.GONE
 
         initTransformation(holder.itemView.context)
 
         GlideApp.with(holder.itemView)
-            .load(post.imageUrl)
+            .load(postViewModel.post.imageUrl)
             .centerCrop()
             .transform(transformation)
             .transition(DrawableTransitionOptions.withCrossFade())
@@ -49,5 +52,5 @@ class PostsAdapter(var posts: List<Post> = emptyList(), private val onClick: (Po
 
     override fun getItemCount() = posts.size
 
-    override fun getItemId(position: Int) = posts[position].id
+    override fun getItemId(position: Int) = posts[position].post.id
 }

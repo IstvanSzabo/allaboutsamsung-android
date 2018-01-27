@@ -13,11 +13,13 @@ import android.view.View
 import android.view.ViewGroup
 import com.github.pwittchen.infinitescroll.library.InfiniteScrollListener
 import de.maxisma.allaboutsamsung.BaseFragment
+import de.maxisma.allaboutsamsung.BuildConfig
 import de.maxisma.allaboutsamsung.R
 import de.maxisma.allaboutsamsung.app
 import de.maxisma.allaboutsamsung.categories.categoryActivityResult
 import de.maxisma.allaboutsamsung.categories.newCategoryActivityIntent
 import de.maxisma.allaboutsamsung.db.Db
+import de.maxisma.allaboutsamsung.db.Post
 import de.maxisma.allaboutsamsung.db.PostId
 import de.maxisma.allaboutsamsung.query.Query
 import de.maxisma.allaboutsamsung.query.QueryExecutor
@@ -138,15 +140,22 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
 
         val executor = newExecutor(wordpressApi, db, ::displaySupportedError)
         val adapter = postList.adapter as PostsAdapter
-        executor.data.observe(this@PostsFragment) { it ->
-            adapter.posts = it ?: emptyList()
-            adapter.notifyDataSetChanged()
+        executor.data.observe(this@PostsFragment) {
+            adapter.updateWith(it ?: emptyList(), executor)
         }
 
         currentExecutor = executor
         requestNewerPosts()
         activity?.title = description.await()
     }
+
+    private fun PostsAdapter.updateWith(posts: List<Post>, executor: QueryExecutor) = launch(UI) {
+        this@updateWith.posts = posts.toPostViewModels(executor) ?: emptyList()
+        notifyDataSetChanged()
+    }
+
+    private suspend fun Iterable<Post>.toPostViewModels(executor: QueryExecutor) =
+        map { PostViewModel(it, isBreaking = BuildConfig.BREAKING_CATEGORY_ID in executor.categoriesForPost(it.id).await().map { it.id }) }
 
     private val Query.description: Deferred<String>
         get() = when (this) {

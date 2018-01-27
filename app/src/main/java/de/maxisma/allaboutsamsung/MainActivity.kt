@@ -15,7 +15,7 @@ class MainActivity : BaseActivity(), PostsFragment.InteractionListener {
     /*
      * Features TODO:
      * - Small and large widget
-     * - Remaining configuration options, honour theme + analytics
+     * - Remaining configuration options, honor theme + analytics
      * - Analytics (article openings etc.)
      * - Featured
      * - Refresh in onResume after a while
@@ -29,8 +29,8 @@ class MainActivity : BaseActivity(), PostsFragment.InteractionListener {
      * - Automatic settings migration and/or setup wizard
      * - Rotation
      * - Send app version header
-     * - Highlight breaking (font color / shaking exclamation mark / ...)
      * - Check for memory leaks
+     * - Expire old data, that is also refresh when scrolling down
      */
 
     override fun onCreate(savedInstanceState: Bundle?) {
