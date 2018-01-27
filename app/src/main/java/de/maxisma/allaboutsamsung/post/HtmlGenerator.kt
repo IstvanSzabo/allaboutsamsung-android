@@ -13,8 +13,6 @@ font-family: 'Roboto', sans-serif;
 font-weight: 300;
 """
 
-// TODO Style wp-caption?
-// TODO Fix when order different https://stackoverflow.com/questions/13352080/match-all-class-selectors-that-begin-with#comment18224022_13352103
 private const val CSS = """
     body {
         margin: $BODY_MARGIN;
@@ -30,12 +28,17 @@ private const val CSS = """
         max-width: 100%;
         height: auto;
     }
-    img[class^="align"]:not([class^="attachment"]), iframe {
+    [class*="align"]:not([class*="attachment"]), iframe {
     	width: calc(100% + 2 * $BODY_MARGIN);
         max-width: none; /* Override max-width from img rule */
         height: auto;
         margin-left: -$BODY_MARGIN;
         margin-right: -$BODY_MARGIN;
+    }
+    p.wp-caption-text {
+        padding: $BODY_MARGIN;
+        background-color: lightgray;
+        margin: 0 0 16px 0;
     }
     .shariff {
         display: none;
@@ -52,8 +55,6 @@ private const val CSS = """
         color: $LIGHT_TEXT_COLOR;
     }
     """
-
-// TODO Deal with collapseomatic (see post.php)
 
 private val dateFormatter = (DateFormat.getDateInstance().clone() as DateFormat).apply {
     timeZone = TimeZone.getDefault()

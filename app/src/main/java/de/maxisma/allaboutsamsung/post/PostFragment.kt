@@ -96,7 +96,6 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
         db.postMetaDao.postWithAuthorName(postId).observe(this) { postWithAuthorName ->
             val (post, authorName) = postWithAuthorName ?: return@observe downloadPost(postId)
 
-            // TODO Test with large articles
             // TODO Allow video fullscreen?
             postContentWebView.webViewClient = PostWebViewClient(post.extractPhotos())
             postContentWebView.loadDataWithBaseURL(
