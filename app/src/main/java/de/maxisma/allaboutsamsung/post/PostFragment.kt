@@ -8,8 +8,11 @@ import android.os.Build
 import android.os.Bundle
 import android.support.annotation.RequiresApi
 import android.support.customtabs.CustomTabsIntent
+import android.support.v4.app.ShareCompat
 import android.support.v4.content.ContextCompat
 import android.view.LayoutInflater
+import android.view.Menu
+import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
@@ -30,6 +33,7 @@ import de.maxisma.allaboutsamsung.query.newExecutor
 import de.maxisma.allaboutsamsung.rest.WordpressApi
 import de.maxisma.allaboutsamsung.utils.ExtendedWebChromeClient
 import de.maxisma.allaboutsamsung.utils.observe
+import de.maxisma.allaboutsamsung.utils.observeUntilFalse
 import kotlinx.android.synthetic.main.fragment_post.*
 import okhttp3.HttpUrl
 import javax.inject.Inject
@@ -59,7 +63,21 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
         app.appComponent.inject(this)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.fragment_post, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        R.id.share -> {
+            sharePost()
+            true
+        }
+        else -> super.onOptionsItemSelected(item)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -96,7 +114,6 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
         db.postMetaDao.postWithAuthorName(postId).observe(this) { postWithAuthorName ->
             val (post, authorName) = postWithAuthorName ?: return@observe downloadPost(postId)
 
-            // TODO Allow video fullscreen?
             postContentWebView.webViewClient = PostWebViewClient(post.extractPhotos())
             postContentWebView.loadDataWithBaseURL(
                 BuildConfig.WEBVIEW_BASE_URL,
@@ -113,6 +130,20 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
         val query = Query.Filter(onlyIds = listOf(postId))
         val executor = query.newExecutor(wordpressApi, db, ::displaySupportedError)
         executor.requestNewerPosts()
+    }
+
+    private fun sharePost() {
+        db.postDao.post(postId).observeUntilFalse(this) { post ->
+            post ?: return@observeUntilFalse true
+
+            ShareCompat.IntentBuilder.from(activity)
+                .setType("text/plain")
+                .setText("${post.title} ${post.link}")
+                .setChooserTitle(R.string.share_post)
+                .startChooser()
+
+            false
+        }
     }
 
     private fun onBottomNavigation(menuItem: MenuItem): Boolean {

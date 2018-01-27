@@ -19,4 +19,6 @@
     <string name="search">Suche</string>
     <string name="refresh">Aktualisieren</string>
     <string name="all_categories">Alle Kategorien</string>
+    <string name="share">Teilen</string>
+    <string name="share_post">Artikel teilen</string>
 </resources>
