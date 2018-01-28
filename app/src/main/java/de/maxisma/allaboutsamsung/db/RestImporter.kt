@@ -9,6 +9,7 @@ import de.maxisma.allaboutsamsung.rest.UserDto
 import de.maxisma.allaboutsamsung.rest.UserIdDto
 import de.maxisma.allaboutsamsung.utils.htmlUnescape
 import org.jsoup.Jsoup
+import java.util.Date
 
 data class MissingMeta(
     val missingCategoryIds: Set<CategoryIdDto>,
@@ -55,6 +56,7 @@ fun Db.importTagDtos(tagDtos: List<TagDto>) {
 }
 
 fun Db.importPostDtos(postDtos: List<PostDto>) {
+    val importDate = Date()
     val postsWithMeta = postDtos
         .asSequence()
         .map { postDto ->
@@ -66,7 +68,8 @@ fun Db.importPostDtos(postDtos: List<PostDto>) {
                 link = postDto.link,
                 slug = postDto.slug,
                 title = postDto.title.rendered.htmlUnescape(),
-                imageUrl = postDto.content.rendered.firstImageUrlFromHtml()
+                imageUrl = postDto.content.rendered.firstImageUrlFromHtml(),
+                dbItemCreatedDateUtc = importDate
             )
             val usedCategories = postDto.categories.map { category ->
                 PostCategory(postDto.id, category)

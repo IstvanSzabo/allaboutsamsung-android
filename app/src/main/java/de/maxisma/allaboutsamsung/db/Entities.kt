@@ -26,7 +26,8 @@ data class Post(
     val title: String,
     val content: String,
     @ColumnInfo(index = true) val author: Int,
-    val imageUrl: String?
+    val imageUrl: String?,
+    val dbItemCreatedDateUtc: Date
 )
 
 @Entity(

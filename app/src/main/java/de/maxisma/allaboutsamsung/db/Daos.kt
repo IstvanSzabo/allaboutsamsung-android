@@ -40,8 +40,6 @@ abstract class PostMetaDao {
     abstract fun postWithAuthorName(postId: PostId): LiveData<PostWithAuthorName>
 }
 
-private const val MAX_POSTS_IN_DB = 100
-
 @Dao
 abstract class PostDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -59,9 +57,12 @@ abstract class PostDao {
     @Query("SELECT dateUtc FROM Post ORDER BY datetime(dateUtc) ASC LIMIT 1")
     abstract fun oldestDate(): Date?
 
-    // AS vtable should force SQlite to create a virtual table instead of querying for each row
-    @Query("DELETE FROM Post WHERE id NOT IN (SELECT id FROM (SELECT id FROM Post ORDER BY datetime(dateUtc) DESC LIMIT $MAX_POSTS_IN_DB) AS vtable)")
-    abstract fun deleteOld()
+    @Query("""
+        DELETE FROM Post
+        WHERE datetime(dbItemCreatedDateUtc) < datetime(:latestAcceptableDateUtc)
+        OR datetime(dateUtc) < (SELECT min(datetime(dateUtc)) FROM Post WHERE datetime(dbItemCreatedDateUtc) < datetime(:latestAcceptableDateUtc))
+    """)
+    abstract fun deleteExpired(latestAcceptableDateUtc: Date)
 }
 
 @Dao

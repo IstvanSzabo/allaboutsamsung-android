@@ -40,12 +40,14 @@ import java.util.Date
 interface QueryExecutor {
     val query: Query
     val data: LiveData<List<Post>>
+
     fun tagById(tagId: TagId): Deferred<Tag>
     fun categoryById(categoryId: CategoryId): Deferred<Category>
     fun tagsForPost(postId: PostId): Deferred<List<Tag>>
     fun categoriesForPost(postId: PostId): Deferred<List<Category>>
     fun requestNewerPosts(): Job
     fun requestOlderPosts(): Job
+    fun refresh(postId: PostId): Job
 }
 
 sealed class Query {
@@ -65,6 +67,7 @@ fun Query.newExecutor(wordpressApi: WordpressApi, db: Db, onError: (Exception) -
 
 const val WORDPRESS_POSTS_PER_PAGE = 20
 private const val TIMEOUT_MS = 30_000L
+private const val POST_INFO_EXPIRY_MS = 15 * 60 * 1000L
 
 private abstract class DbQueryExecutor(
     private val wordpressApi: WordpressApi,
@@ -90,13 +93,13 @@ private abstract class DbQueryExecutor(
         db.categoryDao.category(categoryId)!!
     }
 
-    protected abstract suspend fun fetchPosts(beforeGmt: Date?): List<PostDto>
+    protected abstract suspend fun fetchPosts(beforeGmt: Date?, onlyIds: List<PostId>?): List<PostDto>
 
     protected abstract suspend fun oldestPostDateUtc(): Date?
 
     protected open suspend fun onInsertedPosts(postIds: Set<PostId>) {}
 
-    private suspend fun fetchPostsAndRelated(beforeGmt: Date? = null) = try {
+    private suspend fun fetchPostsAndRelated(beforeGmt: Date? = null, onlyIds: List<PostId>? = null) = try {
         retry(
             HttpException::class,
             JsonDataException::class,
@@ -105,7 +108,7 @@ private abstract class DbQueryExecutor(
             TimeoutCancellationException::class
         ) {
             withTimeout(TIMEOUT_MS) {
-                val posts = fetchPosts(beforeGmt)
+                val posts = fetchPosts(beforeGmt, onlyIds)
                 val (missingCategoryIds, missingTagIds, missingUserIds) = db.findMissingMeta(posts)
                 val categories = if (missingCategoryIds.isEmpty()) {
                     emptyList()
@@ -134,12 +137,21 @@ private abstract class DbQueryExecutor(
         onError(e)
     }
 
+    private val oldestAcceptableDataAgeUtc: Date
+        get() = Date(System.currentTimeMillis() - POST_INFO_EXPIRY_MS)
+
     final override fun requestNewerPosts() = launch(IOPool) {
+        db.postDao.deleteExpired(oldestAcceptableDataAgeUtc)
         fetchPostsAndRelated()
     }
 
     final override fun requestOlderPosts() = launch(IOPool) {
+        db.postDao.deleteExpired(oldestAcceptableDataAgeUtc)
         fetchPostsAndRelated(oldestPostDateUtc())
+    }
+
+    final override fun refresh(postId: PostId) = launch(IOPool) {
+        fetchPostsAndRelated(onlyIds = listOf(postId))
     }
 }
 
@@ -149,10 +161,11 @@ private class EmptyQueryExecutor(
     onError: (Exception) -> Unit
 ) : DbQueryExecutor(wordpressApi, db, onError) {
     override val query = Query.Empty
-    override suspend fun fetchPosts(beforeGmt: Date?) = wordpressApi
+    override suspend fun fetchPosts(beforeGmt: Date?, onlyIds: List<PostId>?) = wordpressApi
         .posts(
             page = 1, postsPerPage = WORDPRESS_POSTS_PER_PAGE,
-            search = null, onlyCategories = null, onlyTags = null, onlyIds = null, beforeGmt = beforeGmt
+            search = null, onlyCategories = null, onlyTags = null,
+            onlyIds = onlyIds?.let { PostIdsDto(it.toSet()) }, beforeGmt = beforeGmt
         )
         .await()
 
@@ -171,14 +184,14 @@ private class FilterQueryExecutor(
 
     override val data: LiveData<List<Post>> = _data
 
-    override suspend fun fetchPosts(beforeGmt: Date?) = wordpressApi
+    override suspend fun fetchPosts(beforeGmt: Date?, onlyIds: List<PostId>?) = wordpressApi
         .posts(
             page = 1,
             postsPerPage = WORDPRESS_POSTS_PER_PAGE,
             search = query.string,
             onlyCategories = query.onlyCategories?.let { CategoryIdsDto(it.toSet()) },
             onlyTags = query.onlyTags?.let { TagIdsDto(it.toSet()) },
-            onlyIds = query.onlyIds?.let { PostIdsDto(it.toSet()) },
+            onlyIds = (onlyIds ?: query.onlyIds)?.let { PostIdsDto(it.toSet()) },
             beforeGmt = beforeGmt
         ).await()
 

@@ -25,7 +25,6 @@ class App : MultiDexApplication() {
 
         launch(IOPool) {
             appComponent.db.apply {
-                postDao.deleteOld()
                 videoDao.deleteExpired()
             }
         }

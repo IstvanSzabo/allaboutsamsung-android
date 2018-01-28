@@ -48,6 +48,8 @@ fun PostFragment(postId: PostId) = PostFragment().apply {
     }
 }
 
+private const val POST_DETAIL_EXPIRY_MS = 2 * 60 * 1000L
+
 class PostFragment @Deprecated("Use factory function.") constructor() : BaseFragment<Nothing>() {
     @Inject
     lateinit var db: Db
@@ -58,7 +60,7 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
     @Inject
     lateinit var postHtmlGenerator: PostHtmlGenerator
 
-    private val postId get() = arguments!!.getLong(ARG_POST_ID)
+    private val postId: PostId by lazy { arguments!!.getLong(ARG_POST_ID) }
 
     private val commentsUrl get() = BuildConfig.COMMENTS_URL_TEMPLATE.replace("[POST_ID]", postId.toString())
 
@@ -120,8 +122,16 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
             }
         })
 
+        val query = Query.Filter(onlyIds = listOf(postId))
+        val executor = query.newExecutor(wordpressApi, db, ::displaySupportedError)
+        executor.requestNewerPosts()
+
         db.postMetaDao.postWithAuthorName(postId).observe(this) { postWithAuthorName ->
-            val (post, authorName) = postWithAuthorName ?: return@observe downloadPost(postId)
+            val (post, authorName) = postWithAuthorName ?: return@observe
+
+            if (post.dbItemCreatedDateUtc.time + POST_DETAIL_EXPIRY_MS < System.currentTimeMillis()) {
+                executor.refresh(postId)
+            }
 
             postContentWebView.webViewClient = PostWebViewClient(post.extractPhotos())
             postContentWebView.loadDataWithBaseURL(
@@ -133,12 +143,6 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
             )
             postCommentsWebView.loadUrl(commentsUrl)
         }
-    }
-
-    private fun downloadPost(postId: PostId) {
-        val query = Query.Filter(onlyIds = listOf(postId))
-        val executor = query.newExecutor(wordpressApi, db, ::displaySupportedError)
-        executor.requestNewerPosts()
     }
 
     private fun sharePost() {

@@ -33,7 +33,6 @@ class MainActivity : BaseActivity(), PostsFragment.InteractionListener, YouTubeF
      * - Rotation
      * - Send app version header
      * - Check for memory leaks
-     * - Expire old data, that is also refresh when scrolling down
      */
 
     override fun onCreate(savedInstanceState: Bundle?) {
