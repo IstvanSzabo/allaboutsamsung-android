@@ -34,7 +34,6 @@ class MainActivity : BaseActivity(), PostsFragment.InteractionListener, YouTubeF
      * - Send app version header
      * - Check for memory leaks
      * - Expire old data, that is also refresh when scrolling down
-     * - Integrate icon in toolbar?
      */
 
     override fun onCreate(savedInstanceState: Bundle?) {
