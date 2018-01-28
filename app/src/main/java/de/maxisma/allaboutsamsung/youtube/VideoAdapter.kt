@@ -29,7 +29,7 @@ class VideoAdapter(var videos: List<Video> = emptyList(), private val onClick: (
         if (::transformation.isInitialized) return
 
         val dimensionPixelSize = context.resources.getDimensionPixelSize(R.dimen.rounded_corner_radius)
-        transformation = MultiTransformation<Bitmap>(YouTubeTrimTransformation(), DarkenTransformation(), RoundedCorners(dimensionPixelSize), CenterCrop())
+        transformation = MultiTransformation<Bitmap>(YouTubeTrimTransformation(), DarkenTransformation(), CenterCrop(), RoundedCorners(dimensionPixelSize))
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VideoViewHolder {
