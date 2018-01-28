@@ -12,10 +12,15 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
 
+        <item name="popupTheme">@style/AppTheme.NoActionBar.PopupTheme</item>
         <item name="colorControlNormal">@android:color/white</item>
         <item name="android:textColorPrimary">@android:color/white</item>
         <item name="titleTextColor">@android:color/white</item>
         <item name="subtitleTextColor">@android:color/white</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar.PopupTheme">
+        <item name="android:textColor">@android:color/black</item>
     </style>
 
     <style name="BigDialog" parent="android:Theme.Dialog">

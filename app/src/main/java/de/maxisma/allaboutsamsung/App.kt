@@ -20,7 +20,6 @@ class App : MultiDexApplication() {
     override fun onCreate() {
         super.onCreate()
         Fabric.with(this, Crashlytics())
-        WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG)
 
         JobManager.create(this).addJobCreator(JobCreator())
 
