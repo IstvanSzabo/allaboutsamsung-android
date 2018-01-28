@@ -33,6 +33,14 @@ class YouTubeRepository(
      */
     private val pageTokens = mutableListOf<String>()
 
+    init {
+        launch(IOPool) {
+            mutex.withLock {
+                db.videoDao.deleteExpired()
+            }
+        }
+    }
+
     fun markAsSeen(unseenVideos: UnseenVideos) = launch(IOPool) {
         mutex.withLock {
             db.videoDao.insertSeenVideos(unseenVideos.map { SeenVideo(it) })
