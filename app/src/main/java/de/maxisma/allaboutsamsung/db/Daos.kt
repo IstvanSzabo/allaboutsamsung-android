@@ -213,6 +213,12 @@ abstract class VideoDao {
 
     @Query("SELECT Video.* FROM PlaylistItem JOIN Video ON Video.id = PlaylistItem.videoId WHERE playlistId = :playlistId ORDER BY datetime(publishedUtc) DESC")
     abstract fun videosInPlaylist(playlistId: PlaylistId): LiveData<List<Video>>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    abstract fun insertSeenVideos(seenVideos: List<SeenVideo>)
+
+    @Query("SELECT * FROM SeenVideo")
+    abstract fun seenVideos(): List<SeenVideo>
 }
 
 object DateConverter {

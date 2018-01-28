@@ -8,7 +8,7 @@ import android.arch.persistence.room.TypeConverters
     entities = [
         Post::class, Category::class, Tag::class, PostCategory::class, PostTag::class,
         User::class, CategorySubscription::class, TagSubscription::class, Video::class,
-        PlaylistItem::class
+        PlaylistItem::class, SeenVideo::class
     ], version = 1, exportSchema = false
 )
 @TypeConverters(DateConverter::class)

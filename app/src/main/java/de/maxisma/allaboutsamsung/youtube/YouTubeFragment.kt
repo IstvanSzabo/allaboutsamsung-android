@@ -27,7 +27,17 @@ import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import javax.inject.Inject
 
-class YouTubeFragment : BaseFragment<Nothing>() {
+/**
+ * Avoid that on first launch the user is notified about new
+ * videos even though he has installed it for the first time.
+ */
+private const val NOTIFY_NEW_VIDEOS_IF_LESS_THAN = 6
+
+class YouTubeFragment : BaseFragment<YouTubeFragment.InteractionListener>() {
+
+    interface InteractionListener {
+        fun notifyUnseenVideos(howMany: Int)
+    }
 
     @Inject
     lateinit var db: Db
@@ -92,10 +102,19 @@ class YouTubeFragment : BaseFragment<Nothing>() {
         }
     }
 
+    @MainThread
     private fun requestNewerVideos() {
-        debounceLoad { repo.requestNewerVideos().join() }
+        debounceLoad {
+            val unseenVideos = repo.requestNewerVideos().await()
+            repo.markAsSeen(unseenVideos).join()
+
+            if (unseenVideos.size in 1 until NOTIFY_NEW_VIDEOS_IF_LESS_THAN) {
+                listener.notifyUnseenVideos(unseenVideos.size)
+            }
+        }
     }
 
+    @MainThread
     private fun requestOlderVideos() {
         debounceLoad { repo.requestOlderVideos().join() }
     }

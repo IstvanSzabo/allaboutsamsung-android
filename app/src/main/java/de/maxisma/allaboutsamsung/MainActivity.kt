@@ -3,6 +3,7 @@ package de.maxisma.allaboutsamsung
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.support.design.widget.Snackbar
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentStatePagerAdapter
 import de.maxisma.allaboutsamsung.db.PostId
@@ -14,7 +15,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 fun newMainActivityIntent(context: Context) = Intent(context, MainActivity::class.java)
 
-class MainActivity : BaseActivity(), PostsFragment.InteractionListener {
+class MainActivity : BaseActivity(), PostsFragment.InteractionListener, YouTubeFragment.InteractionListener {
 
     /*
      * Features TODO:
@@ -23,7 +24,6 @@ class MainActivity : BaseActivity(), PostsFragment.InteractionListener {
      * - Analytics (article openings etc.)
      * - Featured
      * - Refresh in onResume after a while
-     * - YouTube channel (notify about new videos in app)
      * - Test offline access
      * - Ads
      * - Resolve warnings, code inspections
@@ -51,6 +51,10 @@ class MainActivity : BaseActivity(), PostsFragment.InteractionListener {
 
     override fun displayPost(postId: PostId) {
         startActivity(newPostActivityIntent(this, postId))
+    }
+
+    override fun notifyUnseenVideos(howMany: Int) {
+        Snackbar.make(mainRoot, resources.getQuantityString(R.plurals.new_videos, howMany), Snackbar.LENGTH_LONG).show()
     }
 }
 

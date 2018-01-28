@@ -24,4 +24,8 @@
     <string name="breaking_highlight">+++ Breaking +++</string>
     <string name="posts">Artikel</string>
     <string name="videos">Videos</string>
+    <plurals name="new_videos">
+        <item quantity="one">Es gibt ein neues Video!</item>
+        <item quantity="other">Es gibt %d neue Videos!</item>
+    </plurals>
 </resources>

@@ -104,3 +104,8 @@ data class Video(
     val publishedUtc: Date,
     val expiryDateUtc: Date
 )
+
+@Entity
+data class SeenVideo(
+    @PrimaryKey val id: VideoId
+)
