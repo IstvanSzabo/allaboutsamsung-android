@@ -135,7 +135,6 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
 
         Query.Empty.load()
         db.postDao.latestActiveBreakingPost().observe(this) { post ->
-            // TODO Onclick
             if (post == null) {
                 featured.visibility = View.GONE
             } else {
