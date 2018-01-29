@@ -22,7 +22,7 @@
     <string name="share">Teilen</string>
     <string name="share_post">Artikel teilen</string>
     <string name="breaking_highlight">+++ Breaking +++</string>
-    <string name="breaking_featured_template">+++ %1$s +++</string>
+    <string name="breaking_featured_template">+++ [Breaking] %1$s +++</string>
     <string name="posts">Artikel</string>
     <string name="videos">Videos</string>
     <plurals name="new_videos">
