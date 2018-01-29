@@ -22,10 +22,10 @@ class MainActivity : BaseActivity(), PostsFragment.InteractionListener, YouTubeF
      * - Small and large widget
      * - Honor theme + analytics
      * - Analytics (article openings etc.)
-     * - Featured
+     * - Feature breaking news <= 24h old
      * - Refresh in onResume after a while
      * - Test offline access
-     * - Ads
+     * - Ad inside article
      * - Resolve warnings, code inspections
      * - Documentation
      * - Test on older versions
