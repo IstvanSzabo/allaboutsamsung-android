@@ -134,6 +134,16 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
         postList.addOnScrollListener(infiniteScrollListener)
 
         Query.Empty.load()
+        db.postDao.latestActiveBreakingPost().observe(this) { post ->
+            // TODO Onclick
+            if (post == null) {
+                featured.visibility = View.GONE
+            } else {
+                featured.visibility = View.VISIBLE
+                featured.setOnClickListener { listener.displayPost(post.id) }
+                featured.text = getString(R.string.breaking_featured_template, post.title)
+            }
+        }
     }
 
     private fun Query.load() = launch(UI) {

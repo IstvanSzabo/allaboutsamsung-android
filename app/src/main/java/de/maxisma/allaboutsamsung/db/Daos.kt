@@ -8,6 +8,7 @@ import android.arch.persistence.room.OnConflictStrategy
 import android.arch.persistence.room.Query
 import android.arch.persistence.room.Transaction
 import android.arch.persistence.room.TypeConverter
+import de.maxisma.allaboutsamsung.BuildConfig
 import de.maxisma.allaboutsamsung.utils.Iso8601Utils
 import java.util.Date
 
@@ -57,12 +58,25 @@ abstract class PostDao {
     @Query("SELECT dateUtc FROM Post ORDER BY datetime(dateUtc) ASC LIMIT 1")
     abstract fun oldestDate(): Date?
 
-    @Query("""
+    @Query(
+        """
         DELETE FROM Post
         WHERE datetime(dbItemCreatedDateUtc) < datetime(:latestAcceptableDateUtc)
         OR datetime(dateUtc) < (SELECT min(datetime(dateUtc)) FROM Post WHERE datetime(dbItemCreatedDateUtc) < datetime(:latestAcceptableDateUtc))
-    """)
+    """
+    )
     abstract fun deleteExpired(latestAcceptableDateUtc: Date)
+
+    @Query(
+        """
+        SELECT Post.* FROM Post
+        JOIN PostCategory ON Post.id = PostCategory.postId
+        WHERE categoryId = ${BuildConfig.BREAKING_CATEGORY_ID} AND dateTime(dateUtc, '+1 day') >= datetime('now')
+        ORDER BY datetime(dateUtc) DESC
+        LIMIT 1
+        """
+    )
+    abstract fun latestActiveBreakingPost(): LiveData<Post?>
 }
 
 @Dao
@@ -202,11 +216,13 @@ abstract class VideoDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun insertPlaylistItems(playlistItems: List<PlaylistItem>)
 
-    @Query("""
+    @Query(
+        """
         DELETE FROM Video
         WHERE datetime(expiryDateUtc) < datetime('now')
         OR datetime(publishedUtc) < (SELECT min(datetime(publishedUtc)) FROM Video WHERE datetime(expiryDateUtc) < datetime('now'))
-    """)
+    """
+    )
     abstract fun deleteExpired()
 
     @Query("SELECT publishedUtc FROM PlaylistItem JOIN Video ON Video.id = PlaylistItem.videoId WHERE playlistId = :playlistId ORDER BY datetime(publishedUtc) ASC LIMIT 1")
