@@ -9,11 +9,20 @@ import android.view.ViewGroup
 import com.bumptech.glide.load.MultiTransformation
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
+import com.google.android.gms.ads.AdRequest
 import de.maxisma.allaboutsamsung.R
 import de.maxisma.allaboutsamsung.db.Post
 import de.maxisma.allaboutsamsung.utils.glide.GlideApp
 
-class PostsAdapter(var posts: List<PostViewModel> = emptyList(), private val onClick: (Post) -> Unit) : RecyclerView.Adapter<PostViewHolder>() {
+private const val VIEW_TYPE_AD = 0
+private const val VIEW_TYPE_POST = 1
+private const val ITEM_ID_AD = -1L
+
+class PostsAdapter(
+    var posts: List<PostViewModel> = emptyList(),
+    private val showAd: Boolean,
+    private val onClick: (Post) -> Unit
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     init {
         setHasStableIds(true)
@@ -21,7 +30,9 @@ class PostsAdapter(var posts: List<PostViewModel> = emptyList(), private val onC
 
     private lateinit var transformation: MultiTransformation<Bitmap>
 
-    override fun onBindViewHolder(holder: PostViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        if (holder !is PostViewHolder) return
+
         val postViewModel = posts[position]
         holder.itemView.setOnClickListener { onClick(postViewModel.post) }
         holder.title.text = postViewModel.post.title
@@ -42,13 +53,26 @@ class PostsAdapter(var posts: List<PostViewModel> = emptyList(), private val onC
         transformation = MultiTransformation<Bitmap>(DarkenTransformation(), RoundedCorners(dimensionPixelSize))
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PostViewHolder {
-        initTransformation(parent.context)
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.row_post, parent, false)
-        return PostViewHolder(view)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        return when (viewType) {
+            VIEW_TYPE_AD -> {
+                val view = LayoutInflater.from(parent.context).inflate(R.layout.row_ad, parent, false)
+                AdViewHolder(view).apply {
+                    adView.loadAd(AdRequest.Builder().build())
+                }
+            }
+            VIEW_TYPE_POST -> {
+                initTransformation(parent.context)
+                val view = LayoutInflater.from(parent.context).inflate(R.layout.row_post, parent, false)
+                PostViewHolder(view)
+            }
+            else -> throw IllegalArgumentException("Unknown viewType $viewType")
+        }
     }
 
-    override fun getItemCount() = posts.size
+    override fun getItemCount() = posts.size + (if (showAd) 1 else 0)
 
-    override fun getItemId(position: Int) = posts[position].post.id
+    override fun getItemId(position: Int) = if (getItemViewType(position) == VIEW_TYPE_AD) ITEM_ID_AD else posts[position - 1].post.id
+
+    override fun getItemViewType(position: Int) = if (showAd && position == 0) VIEW_TYPE_AD else VIEW_TYPE_POST
 }

@@ -6,6 +6,7 @@ import android.support.multidex.MultiDexApplication
 import android.support.v4.app.Fragment
 import com.crashlytics.android.Crashlytics
 import com.evernote.android.job.JobManager
+import com.google.android.gms.ads.MobileAds
 import de.maxisma.allaboutsamsung.scheduling.JobCreator
 import io.fabric.sdk.android.Fabric
 
@@ -17,7 +18,9 @@ class App : MultiDexApplication() {
     override fun onCreate() {
         super.onCreate()
         Fabric.with(this, Crashlytics())
-
+        if (BuildConfig.APPMOB_APP_ID != null) {
+            MobileAds.initialize(this, BuildConfig.APPMOB_APP_ID)
+        }
         JobManager.create(this).addJobCreator(JobCreator())
     }
 }

@@ -110,7 +110,8 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
 
         postsSwipeRefresh.setOnRefreshListener { requestNewerPosts() }
 
-        val adapter = PostsAdapter { listener.displayPost(it.id) }
+        val showAd = !BuildConfig.DEBUG && getString(R.string.appmobPostListAdId).isNotEmpty()
+        val adapter = PostsAdapter(showAd = showAd) { listener.displayPost(it.id) }
         val lm = LinearLayoutManager(context!!)
         postList.adapter = adapter
         postList.layoutManager = lm

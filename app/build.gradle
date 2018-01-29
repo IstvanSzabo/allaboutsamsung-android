@@ -28,6 +28,8 @@ android {
         buildConfigField "String", "COMMENTS_URL_TEMPLATE", "\"https://allaboutsamsung.de/wp-content/plugins/app-api/xml/comment.php?guid=[POST_ID]\""
         buildConfigField "String", "LEGAL_NOTICE_URL", "\"https://allaboutsamsung.de/impressum\""
         buildConfigField "String", "YOUTUBE_PLAYLIST_ID", "\"UU-JTjqB5yT9C8kdIJRCW2nQ\""
+        buildConfigField "String", "APPMOB_APP_ID", "\"ca-app-pub-5186136702634520~9544345137\""
+        resValue "string", "appmobPostListAdId", "ca-app-pub-5186136702634520/2021078335"
         buildConfigField "int", "BREAKING_CATEGORY_ID", "531"
         buildConfigField "int", "DEAL_TAG_ID", "342"
     }
@@ -59,7 +61,9 @@ dependencies {
     implementation "com.android.support.constraint:constraint-layout:1.0.2"
     implementation "com.android.support:customtabs:$supportVersion"
 
-    implementation "com.google.firebase:firebase-messaging:11.8.0"
+    def playServicesVersion = "11.8.0"
+    implementation "com.google.firebase:firebase-messaging:$playServicesVersion"
+    implementation "com.google.android.gms:play-services-ads:$playServicesVersion"
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
@@ -106,7 +110,7 @@ dependencies {
     }
 
     implementation 'com.evernote:android-job:1.2.2'
-    implementation "com.google.android.gms:play-services-gcm:11.8.0"
+    implementation "com.google.android.gms:play-services-gcm:$playServicesVersion"
 
     implementation "com.davemorrissey.labs:subsampling-scale-image-view:3.9.0"
     implementation "com.android.support:exifinterface:$supportVersion"
