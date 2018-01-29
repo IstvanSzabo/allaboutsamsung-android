@@ -30,10 +30,12 @@ class PostsAdapter(
 
     private lateinit var transformation: MultiTransformation<Bitmap>
 
+    private fun correctedPostPosition(position: Int) = position - (if (showAd) 1 else 0)
+
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (holder !is PostViewHolder) return
 
-        val postViewModel = posts[position]
+        val postViewModel = posts[correctedPostPosition(position)]
         holder.itemView.setOnClickListener { onClick(postViewModel.post) }
         holder.title.text = postViewModel.post.title
         holder.breakingView.visibility = if (postViewModel.isBreaking) View.VISIBLE else View.GONE
@@ -72,7 +74,11 @@ class PostsAdapter(
 
     override fun getItemCount() = posts.size + (if (showAd) 1 else 0)
 
-    override fun getItemId(position: Int) = if (getItemViewType(position) == VIEW_TYPE_AD) ITEM_ID_AD else posts[position - 1].post.id
+    override fun getItemId(position: Int) = if (getItemViewType(position) == VIEW_TYPE_AD) {
+        ITEM_ID_AD
+    } else {
+        posts[correctedPostPosition(position)].post.id
+    }
 
     override fun getItemViewType(position: Int) = if (showAd && position == 0) VIEW_TYPE_AD else VIEW_TYPE_POST
 }
