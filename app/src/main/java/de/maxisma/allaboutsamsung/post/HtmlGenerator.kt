@@ -8,21 +8,24 @@ import java.util.TimeZone
 
 private const val BODY_MARGIN = "8px"
 private const val LIGHT_TEXT_COLOR = "rgb(70, 70, 70)"
+private const val LIGHT_TEXT_COLOR_DARK_MODE = "rgb(180, 180, 180)"
 private const val DEFAULT_FONT_CONFIG = """
 font-family: 'Roboto', sans-serif;
 font-weight: 300;
 """
 
-private const val CSS = """
+private fun css(dark: Boolean = false) = """
     body {
         margin: $BODY_MARGIN;
         $DEFAULT_FONT_CONFIG
+        background-color: ${if (dark) "black" else "white"};
+        color: ${if (dark) "white" else "black"};
     }
     h1, h2, h3, h4, h5, h6 {
         $DEFAULT_FONT_CONFIG
     }
     p {
-        color: $LIGHT_TEXT_COLOR;
+        color: ${if (dark) LIGHT_TEXT_COLOR_DARK_MODE else LIGHT_TEXT_COLOR};
     }
     img {
         max-width: 100%;
@@ -52,7 +55,7 @@ private const val CSS = """
     .meta {
         margin-bottom: 0.25em;
         display: inline-block;
-        color: $LIGHT_TEXT_COLOR;
+        color: ${if (dark) LIGHT_TEXT_COLOR_DARK_MODE else LIGHT_TEXT_COLOR};
     }
     """
 
@@ -68,7 +71,7 @@ abstract class PostHtmlGenerator {
     <title>${post.title}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
-    <style type="text/css">$CSS</style>
+    <style type="text/css">${css()}</style>
 </head>
 <body>
 <h1>${post.title}</h1>
