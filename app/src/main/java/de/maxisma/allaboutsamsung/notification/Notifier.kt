@@ -12,6 +12,7 @@ import android.support.annotation.WorkerThread
 import android.support.v4.app.NotificationCompat
 import android.support.v4.app.TaskStackBuilder
 import android.support.v4.content.ContextCompat
+import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
 import com.evernote.android.job.Job
 import de.maxisma.allaboutsamsung.R
 import de.maxisma.allaboutsamsung.db.Db
@@ -23,6 +24,7 @@ import de.maxisma.allaboutsamsung.query.Query
 import de.maxisma.allaboutsamsung.query.newExecutor
 import de.maxisma.allaboutsamsung.rest.WordpressApi
 import de.maxisma.allaboutsamsung.utils.IOPool
+import de.maxisma.allaboutsamsung.utils.ellipsize
 import de.maxisma.allaboutsamsung.utils.glide.GlideApp
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
@@ -64,15 +66,21 @@ fun notifyAboutPost(postId: PostId, db: Db, api: WordpressApi, context: Context)
 
 private data class PostNotificationViewModel(val post: Post, val image: Bitmap, val textContent: String)
 
+private const val BITMAP_MAX_WIDTH = 1000
+private const val BITMAP_MAX_HEIGHT = 1000
+private const val MAX_CONTENT_LENGTH = 500
+
 @WorkerThread
 @Throws(ExecutionException::class)
 private fun Post.toNotificationViewModel(context: Context): PostNotificationViewModel {
     val bitmap = GlideApp.with(context)
         .asBitmap()
         .load(imageUrl)
+        .downsample(DownsampleStrategy.AT_MOST)
+        .override(BITMAP_MAX_WIDTH, BITMAP_MAX_HEIGHT)
         .submit()
         .get()
-    val textContent = Jsoup.parse(content).text()
+    val textContent = Jsoup.parse(content).text().ellipsize(MAX_CONTENT_LENGTH)
     return PostNotificationViewModel(this, bitmap, textContent)
 }
 
