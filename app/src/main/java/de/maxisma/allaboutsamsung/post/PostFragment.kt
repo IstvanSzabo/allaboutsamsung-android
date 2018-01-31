@@ -29,6 +29,8 @@ import de.maxisma.allaboutsamsung.db.PostId
 import de.maxisma.allaboutsamsung.gallery.Photo
 import de.maxisma.allaboutsamsung.gallery.extractPhotos
 import de.maxisma.allaboutsamsung.gallery.newGalleryActivityIntent
+import de.maxisma.allaboutsamsung.post.html.PostHtmlGenerator
+import de.maxisma.allaboutsamsung.post.html.obtainHtmlThemes
 import de.maxisma.allaboutsamsung.query.Query
 import de.maxisma.allaboutsamsung.query.newExecutor
 import de.maxisma.allaboutsamsung.rest.WordpressApi
@@ -100,6 +102,11 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        // Load default HTML to set background color
+        for (webView in arrayOf(postContentWebView, postCommentsWebView)) {
+            webView.loadData(postHtmlGenerator.generateEmptyHtml(theme), "text/html", Charsets.UTF_8.name())
+        }
+
         super.onViewCreated(view, savedInstanceState)
 
         postContentWebView.apply {
@@ -132,8 +139,6 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
                 postBottomNavigation.selectedItemId = postBottomNavigation.menu.getItem(position).itemId
             }
         })
-
-        // TODO Load default HTML to set background color
 
         val query = Query.Filter(onlyIds = listOf(postId))
         val executor = query.newExecutor(wordpressApi, db, ::displaySupportedError)

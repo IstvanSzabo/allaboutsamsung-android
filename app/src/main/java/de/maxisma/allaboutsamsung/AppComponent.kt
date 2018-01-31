@@ -6,7 +6,7 @@ import dagger.Component
 import de.maxisma.allaboutsamsung.categories.CategoryActivity
 import de.maxisma.allaboutsamsung.db.Db
 import de.maxisma.allaboutsamsung.post.PostFragment
-import de.maxisma.allaboutsamsung.post.PostHtmlGenerator
+import de.maxisma.allaboutsamsung.post.html.PostHtmlGenerator
 import de.maxisma.allaboutsamsung.posts.PostsFragment
 import de.maxisma.allaboutsamsung.rest.WordpressApi
 import de.maxisma.allaboutsamsung.settings.PreferenceFragment

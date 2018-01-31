@@ -8,8 +8,8 @@ import com.google.api.services.youtube.YouTube
 import dagger.Module
 import dagger.Provides
 import de.maxisma.allaboutsamsung.db.Db
-import de.maxisma.allaboutsamsung.post.AndroidPostHtmlGenerator
-import de.maxisma.allaboutsamsung.post.PostHtmlGenerator
+import de.maxisma.allaboutsamsung.post.html.AndroidPostHtmlGenerator
+import de.maxisma.allaboutsamsung.post.html.PostHtmlGenerator
 import de.maxisma.allaboutsamsung.rest.WordpressApi
 import de.maxisma.allaboutsamsung.rest.wordpressApi as retrofitWordpressApi
 

@@ -1,23 +1,19 @@
-package de.maxisma.allaboutsamsung.post
+package de.maxisma.allaboutsamsung.post.html
 
 import android.content.Context
 import android.graphics.Color
 import android.util.TypedValue
 import de.maxisma.allaboutsamsung.R
-import de.maxisma.allaboutsamsung.db.Post
-import java.text.DateFormat
-import java.util.TimeZone
-import android.support.annotation.ColorInt as ColorIntAnnotation
 
 typealias ColorInt = Int
 
 val ColorInt.hexString get() = String.format("#%06X", 0xFFFFFF and this)
 
 data class HtmlTheme(
-    @ColorIntAnnotation val lightTextColor: ColorInt,
-    @ColorIntAnnotation val backgroundColor: ColorInt,
-    @ColorIntAnnotation val defaultTextColor: ColorInt,
-    @ColorIntAnnotation val linkColor: ColorInt? = null
+    @android.support.annotation.ColorInt val lightTextColor: ColorInt,
+    @android.support.annotation.ColorInt val backgroundColor: ColorInt,
+    @android.support.annotation.ColorInt val defaultTextColor: ColorInt,
+    @android.support.annotation.ColorInt val linkColor: ColorInt? = null
 )
 
 fun Context.obtainHtmlThemes() = HtmlThemes(
@@ -51,7 +47,7 @@ font-family: 'Roboto', sans-serif;
 font-weight: 300;
 """
 
-private fun HtmlTheme.css() = """
+fun HtmlTheme.css() = """
     body {
         margin: $BODY_MARGIN;
         $DEFAULT_FONT_CONFIG
@@ -96,30 +92,3 @@ private fun HtmlTheme.css() = """
         color: ${lightTextColor.hexString};
     }
     """
-
-private val dateFormatter = (DateFormat.getDateInstance().clone() as DateFormat).apply {
-    timeZone = TimeZone.getDefault()
-}
-
-abstract class PostHtmlGenerator {
-    protected abstract fun formatAuthorName(authorName: String): String
-
-    fun generateHtml(post: Post, authorName: String, theme: HtmlTheme) = """<html>
-<head>
-    <title>${post.title}</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
-    <style type="text/css">${theme.css()}</style>
-</head>
-<body>
-<h1>${post.title}</h1>
-<span class="meta">${formatAuthorName(authorName)}, ${dateFormatter.format(post.dateUtc)}</span>
-${post.content}
-</body>
-</html>
-"""
-}
-
-class AndroidPostHtmlGenerator(private val context: Context) : PostHtmlGenerator() {
-    override fun formatAuthorName(authorName: String): String = context.getString(R.string.author_template, authorName)
-}
