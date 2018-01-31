@@ -16,8 +16,8 @@ val ColorInt.hexString get() = String.format("#%06X", 0xFFFFFF and this)
 data class HtmlTheme(
     @ColorIntAnnotation val lightTextColor: ColorInt,
     @ColorIntAnnotation val backgroundColor: ColorInt,
-    @ColorIntAnnotation val defaultTextColor: ColorInt
-// TODO Different link color for dark theme
+    @ColorIntAnnotation val defaultTextColor: ColorInt,
+    @ColorIntAnnotation val linkColor: ColorInt? = null
 // TODO Style everything
 )
 
@@ -33,7 +33,11 @@ fun Context.obtainHtmlThemes() = HtmlThemes(
             theme.resolveAttribute(R.attr.colorPrimaryDark, it, true)
             it.data
         },
-        defaultTextColor = Color.WHITE
+        defaultTextColor = Color.WHITE,
+        linkColor = TypedValue().let {
+            theme.resolveAttribute(R.attr.colorAccent, it, true)
+            it.data
+        }
     )
 )
 
@@ -82,6 +86,7 @@ private fun HtmlTheme.css() = """
     }
     a:link {
         text-decoration: none;
+        color: ${linkColor?.hexString ?: "unset"};
     }
     h1 {
         margin-bottom: 0.1em;
