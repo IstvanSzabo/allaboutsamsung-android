@@ -14,6 +14,7 @@ import de.maxisma.allaboutsamsung.db.Db
 import de.maxisma.allaboutsamsung.db.TagId
 import de.maxisma.allaboutsamsung.db.TagSubscription
 import de.maxisma.allaboutsamsung.notification.updatePushSubscription
+import de.maxisma.allaboutsamsung.utils.DbWriteDispatcher
 import de.maxisma.allaboutsamsung.utils.IOPool
 import kotlinx.coroutines.experimental.launch
 import javax.inject.Inject
@@ -31,7 +32,7 @@ class PreferenceActivity : AppCompatActivity() {
 }
 
 fun PreferenceHolder.updatePushSubscriptionsAccordingly(db: Db) {
-    launch(IOPool) {
+    launch(DbWriteDispatcher) {
         val pushCategories: Set<CategoryId> = when (pushTopics) {
             PushTopics.NONE, PushTopics.ALL -> emptySet()
             PushTopics.BREAKING -> setOf(BuildConfig.BREAKING_CATEGORY_ID)

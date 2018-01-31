@@ -8,6 +8,7 @@ import de.maxisma.allaboutsamsung.db.SeenVideo
 import de.maxisma.allaboutsamsung.db.Video
 import de.maxisma.allaboutsamsung.db.VideoId
 import de.maxisma.allaboutsamsung.db.importPlaylistResult
+import de.maxisma.allaboutsamsung.utils.DbWriteDispatcher
 import de.maxisma.allaboutsamsung.utils.IOPool
 import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.Job
@@ -34,14 +35,14 @@ class YouTubeRepository(
     private val pageTokens = mutableListOf<String>()
 
     init {
-        launch(IOPool) {
+        launch(DbWriteDispatcher) {
             mutex.withLock {
                 db.videoDao.deleteExpired()
             }
         }
     }
 
-    fun markAsSeen(unseenVideos: UnseenVideos) = launch(IOPool) {
+    fun markAsSeen(unseenVideos: UnseenVideos) = launch(DbWriteDispatcher) {
         mutex.withLock {
             db.videoDao.insertSeenVideos(unseenVideos.map { SeenVideo(it) })
         }
@@ -55,7 +56,9 @@ class YouTubeRepository(
             } else {
                 pageTokens += playlistResultDto.nextPageToken
             }
-            db.importPlaylistResult(playlistResultDto).join()
+            launch(DbWriteDispatcher) {
+                db.importPlaylistResult(playlistResultDto).join()
+            }.join()
 
             val seenVideos = db.videoDao.seenVideos().map { it.id }.toHashSet()
             playlistResultDto.playlist.map { it.videoId } - seenVideos
@@ -75,7 +78,9 @@ class YouTubeRepository(
                     break
                 }
             }
-            allResults.forEach { db.importPlaylistResult(it) }
+            launch(DbWriteDispatcher) {
+                allResults.forEach { db.importPlaylistResult(it) }
+            }
         }
     }
 

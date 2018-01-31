@@ -26,6 +26,7 @@ import de.maxisma.allaboutsamsung.rest.WordpressApi
 import de.maxisma.allaboutsamsung.rest.allCategories
 import de.maxisma.allaboutsamsung.rest.allTags
 import de.maxisma.allaboutsamsung.rest.allUsers
+import de.maxisma.allaboutsamsung.utils.DbWriteDispatcher
 import de.maxisma.allaboutsamsung.utils.IOPool
 import de.maxisma.allaboutsamsung.utils.SwitchableLiveData
 import de.maxisma.allaboutsamsung.utils.retry
@@ -188,19 +189,19 @@ private abstract class DbQueryExecutor(
         }
     }
 
-    final override fun requestNewerPosts() = launch(IOPool) {
+    final override fun requestNewerPosts() = launch(DbWriteDispatcher) {
         showExpiredThenUpdate(deleteAllExpired = true) {
             fetchPostsAndRelated()
         }
     }
 
-    final override fun requestOlderPosts() = launch(IOPool) {
+    final override fun requestOlderPosts() = launch(DbWriteDispatcher) {
         showExpiredThenUpdate {
             fetchPostsAndRelated(oldestPostDateUtc())
         }
     }
 
-    final override fun refresh(postId: PostId) = launch(IOPool) {
+    final override fun refresh(postId: PostId) = launch(DbWriteDispatcher) {
         fetchPostsAndRelated(onlyIds = listOf(postId))
     }
 }
