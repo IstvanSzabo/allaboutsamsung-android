@@ -122,7 +122,7 @@ private abstract class DbQueryExecutor(
 
     protected abstract suspend fun fetchPosts(beforeGmt: Date?, onlyIds: List<PostId>?): List<PostDto>
 
-    protected abstract suspend fun oldestNonExpiredPostDateUtc(): Date?
+    protected abstract suspend fun oldestPostDateUtc(): Date?
 
     protected open suspend fun onInsertedPosts(postIds: Set<PostId>) {}
 
@@ -166,15 +166,13 @@ private abstract class DbQueryExecutor(
         false
     }
 
-    private suspend fun showExpiredThenUpdate(deleteAllExpired: Boolean = false, updater: suspend (Date) -> Success) {
-        // Save it here so we don't delete data later that has just been fetched because an item above expired
-        val oldestAcceptableDataAgeUtc = oldestAcceptableDataAgeUtc
+    private suspend fun showExpiredThenUpdate(deleteAllExpired: Boolean = false, updater: suspend () -> Success) {
         // Show the user some stale data until we got new data
         displayedData.delegate = includingExpired
 
         val (countBefore, success, countAfter) = db.postDao.inTransaction {
             val countBefore = count()
-            val success = updater(oldestAcceptableDataAgeUtc)
+            val success = updater()
             val countAfter = count()
 
             Triple(countBefore, success, countAfter)
@@ -199,20 +197,8 @@ private abstract class DbQueryExecutor(
     }
 
     final override fun requestOlderPosts() = launch(DbWriteDispatcher) {
-        showExpiredThenUpdate { oldestAcceptableDataAgeUtc ->
-            val oldSize = displayedData.value?.size ?: 0
-            var newNonExpiredSize = -1
-
-            while (newNonExpiredSize <= oldSize) {
-                val success = fetchPostsAndRelated(oldestNonExpiredPostDateUtc())
-                val nextNewNonExpiredSize = db.postDao.countNonExpired(oldestAcceptableDataAgeUtc)
-                if (!success) return@showExpiredThenUpdate false
-                if (newNonExpiredSize == nextNewNonExpiredSize) return@showExpiredThenUpdate true
-
-                newNonExpiredSize = nextNewNonExpiredSize
-            }
-
-            true
+        showExpiredThenUpdate {
+            fetchPostsAndRelated(oldestPostDateUtc())
         }
     }
 
@@ -235,7 +221,7 @@ private class EmptyQueryExecutor(
         )
         .await()
 
-    override suspend fun oldestNonExpiredPostDateUtc() = db.postDao.oldestNonExpiredDate(oldestAcceptableDataAgeUtc)
+    override suspend fun oldestPostDateUtc() = db.postDao.oldestNonExpiredDate(oldestAcceptableDataAgeUtc)
 }
 
 private class FilterQueryExecutor(
@@ -267,6 +253,6 @@ private class FilterQueryExecutor(
         _data.postValue(db.postDao.posts(this.postIds))
     }
 
-    override suspend fun oldestNonExpiredPostDateUtc() = _data.value?.lastOrNull()?.dateUtc
+    override suspend fun oldestPostDateUtc() = _data.value?.lastOrNull()?.dateUtc
 
 }
