@@ -24,6 +24,7 @@ import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import paperparcel.PaperParcel
 import paperparcel.PaperParcelable
+import kotlin.math.max
 
 private const val EXTRA_PHOTOS = "photos"
 private const val EXTRA_SELECTED_PHOTO = "selected_photo"
@@ -41,7 +42,7 @@ class GalleryActivity : AppCompatActivity() {
 
         val photos = intent.getParcelableArrayListExtra<Photo>(EXTRA_PHOTOS)
         val selectedPhoto = intent.getParcelableExtra<Photo?>(EXTRA_SELECTED_PHOTO)
-        val selectedIndex = Math.max(0, photos.indexOf(selectedPhoto))
+        val selectedIndex = max(0, photos.indexOf(selectedPhoto))
 
         launch(UI) {
             val photoBar = galleryPhotoBar.configurePhotoBar(photos, onPhotoClick = { photo, photoBar ->

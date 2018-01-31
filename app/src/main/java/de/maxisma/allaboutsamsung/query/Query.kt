@@ -39,6 +39,7 @@ import kotlinx.coroutines.experimental.withTimeout
 import retrofit2.HttpException
 import java.io.IOException
 import java.util.Date
+import kotlin.math.max
 
 interface QueryExecutor {
     val query: Query
@@ -184,7 +185,7 @@ private abstract class DbQueryExecutor(
             // We delete up to countAfter - countBefore expired rows to try and only delete those that are not contained
             // in the result from the updater and thus have been deleted in WordPress. If no post was deleted,
             // then the difference between these variables will be 0.
-            val maxRowsToDelete = if (deleteAllExpired) Int.MAX_VALUE else Math.max(0, countAfter - countBefore)
+            val maxRowsToDelete = if (deleteAllExpired) Int.MAX_VALUE else max(0, countAfter - countBefore)
             db.postDao.deleteExpired(oldestAcceptableDataAgeUtc, maxRowsToDelete)
         }
     }
