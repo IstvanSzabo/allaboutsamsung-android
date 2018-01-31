@@ -3,4 +3,6 @@
     <declare-styleable name="ExtendedViewPager">
         <attr name="disableTouchPaging" format="boolean" />
     </declare-styleable>
+    <attr name="bottomNavigationBackground" format="color" />
+    <attr name="bottomNavigationItemColor" format="reference" />
 </resources>

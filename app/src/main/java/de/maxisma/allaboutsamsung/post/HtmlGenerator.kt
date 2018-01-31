@@ -1,31 +1,64 @@
 package de.maxisma.allaboutsamsung.post
 
 import android.content.Context
+import android.graphics.Color
+import android.util.TypedValue
 import de.maxisma.allaboutsamsung.R
 import de.maxisma.allaboutsamsung.db.Post
 import java.text.DateFormat
 import java.util.TimeZone
+import android.support.annotation.ColorInt as ColorIntAnnotation
+
+typealias ColorInt = Int
+
+val ColorInt.hexString get() = String.format("#%06X", 0xFFFFFF and this)
+
+data class HtmlTheme(
+    @ColorIntAnnotation val lightTextColor: ColorInt,
+    @ColorIntAnnotation val backgroundColor: ColorInt,
+    @ColorIntAnnotation val defaultTextColor: ColorInt
+// TODO Different link color for dark theme
+)
+
+fun Context.obtainHtmlThemes() = HtmlThemes(
+    lightTheme = HtmlTheme(
+        lightTextColor = 0x464646,
+        backgroundColor = Color.WHITE,
+        defaultTextColor = Color.BLACK
+    ),
+    darkTheme = HtmlTheme(
+        lightTextColor = 0xB4B4B4,
+        backgroundColor = TypedValue().let {
+            theme.resolveAttribute(R.attr.colorPrimaryDark, it, true)
+            it.data
+        },
+        defaultTextColor = Color.WHITE
+    )
+)
+
+data class HtmlThemes(
+    val lightTheme: HtmlTheme,
+    val darkTheme: HtmlTheme
+)
 
 private const val BODY_MARGIN = "8px"
-private const val LIGHT_TEXT_COLOR = "rgb(70, 70, 70)"
-private const val LIGHT_TEXT_COLOR_DARK_MODE = "rgb(180, 180, 180)"
 private const val DEFAULT_FONT_CONFIG = """
 font-family: 'Roboto', sans-serif;
 font-weight: 300;
 """
 
-private fun css(dark: Boolean = false) = """
+private fun HtmlTheme.css() = """
     body {
         margin: $BODY_MARGIN;
         $DEFAULT_FONT_CONFIG
-        background-color: ${if (dark) "black" else "white"};
-        color: ${if (dark) "white" else "black"};
+        background-color: ${backgroundColor.hexString};
+        color: ${defaultTextColor.hexString};
     }
     h1, h2, h3, h4, h5, h6 {
         $DEFAULT_FONT_CONFIG
     }
     p {
-        color: ${if (dark) LIGHT_TEXT_COLOR_DARK_MODE else LIGHT_TEXT_COLOR};
+        color: ${lightTextColor.hexString};
     }
     img {
         max-width: 100%;
@@ -55,7 +88,7 @@ private fun css(dark: Boolean = false) = """
     .meta {
         margin-bottom: 0.25em;
         display: inline-block;
-        color: ${if (dark) LIGHT_TEXT_COLOR_DARK_MODE else LIGHT_TEXT_COLOR};
+        color: ${lightTextColor.hexString};
     }
     """
 
@@ -66,12 +99,12 @@ private val dateFormatter = (DateFormat.getDateInstance().clone() as DateFormat)
 abstract class PostHtmlGenerator {
     protected abstract fun formatAuthorName(authorName: String): String
 
-    fun generateHtml(post: Post, authorName: String) = """<html>
+    fun generateHtml(post: Post, authorName: String, theme: HtmlTheme) = """<html>
 <head>
     <title>${post.title}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
-    <style type="text/css">${css()}</style>
+    <style type="text/css">${theme.css()}</style>
 </head>
 <body>
 <h1>${post.title}</h1>

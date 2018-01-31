@@ -32,6 +32,7 @@ import de.maxisma.allaboutsamsung.gallery.newGalleryActivityIntent
 import de.maxisma.allaboutsamsung.query.Query
 import de.maxisma.allaboutsamsung.query.newExecutor
 import de.maxisma.allaboutsamsung.rest.WordpressApi
+import de.maxisma.allaboutsamsung.settings.PreferenceHolder
 import de.maxisma.allaboutsamsung.utils.ExtendedWebChromeClient
 import de.maxisma.allaboutsamsung.utils.observe
 import de.maxisma.allaboutsamsung.utils.observeUntilFalse
@@ -60,9 +61,19 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
     @Inject
     lateinit var postHtmlGenerator: PostHtmlGenerator
 
+    @Inject
+    lateinit var preferenceHolder: PreferenceHolder
+
     private val postId: PostId by lazy { arguments!!.getLong(ARG_POST_ID) }
 
-    private val commentsUrl get() = BuildConfig.COMMENTS_URL_TEMPLATE.replace("[POST_ID]", postId.toString())
+    private val theme
+        get() = run {
+            val themes = context!!.obtainHtmlThemes()
+            if (preferenceHolder.useDarkTheme) themes.darkTheme else themes.lightTheme
+        }
+
+    private val commentsUrl
+        get() = BuildConfig.COMMENTS_URL_TEMPLATE.replace("[POST_ID]", postId.toString())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -122,6 +133,8 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
             }
         })
 
+        // TODO Load default HTML to set background color
+
         val query = Query.Filter(onlyIds = listOf(postId))
         val executor = query.newExecutor(wordpressApi, db, ::displaySupportedError)
         executor.requestNewerPosts()
@@ -136,11 +149,13 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
             postContentWebView.webViewClient = PostWebViewClient(post.extractPhotos())
             postContentWebView.loadDataWithBaseURL(
                 BuildConfig.WEBVIEW_BASE_URL,
-                postHtmlGenerator.generateHtml(post, authorName),
+                postHtmlGenerator.generateHtml(post, authorName, theme),
                 "text/html",
                 Charsets.UTF_8.name(),
                 null
             )
+
+            // TODO Inject stylesheet
             postCommentsWebView.loadUrl(commentsUrl)
         }
     }

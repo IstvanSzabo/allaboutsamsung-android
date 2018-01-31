@@ -30,4 +30,5 @@ interface AppComponent {
     fun inject(preferenceFragment: PreferenceFragment)
     fun inject(categoryActivity: CategoryActivity)
     fun inject(youTubeFragment: YouTubeFragment)
+    fun inject(baseActivity: BaseActivity)
 }

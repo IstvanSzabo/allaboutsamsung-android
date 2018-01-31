@@ -36,10 +36,15 @@ class MainActivity : BaseActivity(), PostsFragment.InteractionListener, YouTubeF
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (preferenceHolder.useDarkTheme) {
+            setTheme(R.style.AppTheme_NoActionBar_Dark)
+        }
+
         setContentView(R.layout.activity_main)
         setSupportActionBar(mainToolbar)
 
-        app.appComponent.preferenceHolder.updatePushSubscriptionsAccordingly(app.appComponent.db)
+        preferenceHolder.updatePushSubscriptionsAccordingly(app.appComponent.db)
 
         mainViewPager.adapter = MainAdapter(this, supportFragmentManager)
         mainTabLayout.setupWithViewPager(mainViewPager, true)
