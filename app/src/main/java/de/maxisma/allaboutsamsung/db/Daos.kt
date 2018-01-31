@@ -52,6 +52,15 @@ abstract class PostDao {
     @Query("SELECT count(*) FROM Post")
     abstract fun count(): Int
 
+    @Query(
+        """
+        SELECT count(*) FROM Post
+        WHERE datetime(dbItemCreatedDateUtc) >= datetime(:latestAcceptableDbItemCreatedDateUtc)
+        AND datetime(dateUtc) >= ifnull((SELECT min(datetime(dateUtc)) FROM Post WHERE datetime(dbItemCreatedDateUtc) < datetime(:latestAcceptableDbItemCreatedDateUtc)), datetime(0))
+    """
+    )
+    abstract fun countNonExpired(latestAcceptableDbItemCreatedDateUtc: Date): Int
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun insertPost(post: Post)
 
