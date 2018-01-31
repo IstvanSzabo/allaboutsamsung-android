@@ -6,7 +6,6 @@ import android.graphics.PointF
 import android.os.Bundle
 import android.support.v4.view.PagerAdapter
 import android.support.v4.view.ViewPager
-import android.support.v7.app.AppCompatActivity
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +13,7 @@ import android.widget.FrameLayout
 import android.widget.ProgressBar
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+import de.maxisma.allaboutsamsung.BaseActivity
 import de.maxisma.allaboutsamsung.R
 import de.maxisma.allaboutsamsung.utils.IOPool
 import de.maxisma.allaboutsamsung.utils.asArrayList
@@ -35,7 +35,7 @@ fun newGalleryActivityIntent(context: Context, photos: List<Photo>, selectedPhot
         putExtra(EXTRA_SELECTED_PHOTO, selectedPhoto)
     }
 
-class GalleryActivity : AppCompatActivity() {
+class GalleryActivity : BaseActivity(useDefaultMenu = false) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_gallery)

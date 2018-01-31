@@ -15,6 +15,9 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="bottomNavigationBackground">@color/darkColorPrimary</item>
         <item name="bottomNavigationItemColor">@drawable/bottom_navigation_item_color_dark</item>
+
+        <item name="android:windowBackground">@color/darkColorPrimaryDark</item>
+        <item name="android:textColor">@color/colorAccent</item>
     </style>
 
     <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
@@ -49,6 +52,16 @@
     </style>
 
     <style name="AppTheme.NoActionBar.PopupTheme.Dark" parent="ThemeOverlay.AppCompat.Dark">
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
+    <style name="AppTheme.Dialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:textColor">@android:color/black</item>
+    </style>
+
+    <style name="AppTheme.Dialog.Dark" parent="Theme.AppCompat.Dialog.Alert">
+        <item name="android:background">@color/darkColorPrimaryDark</item>
+        <item name="android:windowBackground">@color/darkColorPrimaryDark</item>
         <item name="android:textColor">@android:color/white</item>
     </style>
 

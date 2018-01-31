@@ -18,7 +18,6 @@ data class HtmlTheme(
     @ColorIntAnnotation val backgroundColor: ColorInt,
     @ColorIntAnnotation val defaultTextColor: ColorInt,
     @ColorIntAnnotation val linkColor: ColorInt? = null
-// TODO Style everything
 )
 
 fun Context.obtainHtmlThemes() = HtmlThemes(

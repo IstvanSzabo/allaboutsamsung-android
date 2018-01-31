@@ -37,7 +37,7 @@
         <activity
             android:name=".categories.CategoryActivity"
             android:label="@string/categories"
-            android:theme="@style/Theme.AppCompat.Light.Dialog.Alert" />
+            android:theme="@style/AppTheme.Dialog" />
 
         <service android:name=".notification.MessagingService">
             <intent-filter>

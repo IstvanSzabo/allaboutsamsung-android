@@ -41,6 +41,11 @@ class CategoryActivity : BaseActivity(useDefaultMenu = false) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (preferenceHolder.useDarkTheme) {
+            setTheme(R.style.AppTheme_Dialog_Dark)
+        }
+
         setContentView(R.layout.activity_category)
         app.appComponent.inject(this)
 
