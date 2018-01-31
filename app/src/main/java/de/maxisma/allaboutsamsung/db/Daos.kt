@@ -43,11 +43,28 @@ abstract class PostMetaDao {
 
 @Dao
 abstract class PostDao {
+
+    @Transaction
+    open suspend fun inTransactionUnsafe(f: suspend PostDao.() -> Any?): Any? {
+        return f()
+    }
+
+    @Query("SELECT count(*) FROM Post")
+    abstract fun count(): Int
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun insertPost(post: Post)
 
-    @Query("SELECT * FROM Post WHERE dateUtc >= datetime(:oldestThresholdUtc) ORDER BY datetime(dateUtc) DESC")
-    abstract fun posts(oldestThresholdUtc: Date): LiveData<List<Post>>
+    @Query(
+        """
+        SELECT * FROM Post
+        WHERE datetime(dateUtc) >= datetime(:oldestThresholdUtc)
+        AND datetime(dbItemCreatedDateUtc) >= datetime(:latestAcceptableDbItemCreatedDateUtc)
+        AND datetime(dateUtc) >= ifnull((SELECT min(datetime(dateUtc)) FROM Post WHERE datetime(dbItemCreatedDateUtc) < datetime(:latestAcceptableDbItemCreatedDateUtc)), datetime(0))
+        ORDER BY datetime(dateUtc) DESC
+        """
+    )
+    abstract fun posts(oldestThresholdUtc: Date, latestAcceptableDbItemCreatedDateUtc: Date): LiveData<List<Post>>
 
     @Query("SELECT * FROM Post WHERE id IN (:ids) ORDER BY datetime(dateUtc) DESC")
     abstract fun posts(ids: Set<PostId>): List<Post>
@@ -55,17 +72,28 @@ abstract class PostDao {
     @Query("SELECT * FROM Post WHERE id = :id")
     abstract fun post(id: PostId): LiveData<Post>
 
-    @Query("SELECT dateUtc FROM Post ORDER BY datetime(dateUtc) ASC LIMIT 1")
-    abstract fun oldestDate(): Date?
+    @Query(
+        """
+        SELECT min(dateUtc) FROM Post
+        WHERE datetime(dbItemCreatedDateUtc) >= datetime(:latestAcceptableDbItemCreatedDateUtc)
+        AND datetime(dateUtc) >= ifnull((SELECT min(datetime(dateUtc)) FROM Post WHERE datetime(dbItemCreatedDateUtc) < datetime(:latestAcceptableDbItemCreatedDateUtc)), datetime(0))
+    """
+    )
+    abstract fun oldestNonExpiredDate(latestAcceptableDbItemCreatedDateUtc: Date): Date?
 
     @Query(
         """
-        DELETE FROM Post
-        WHERE datetime(dbItemCreatedDateUtc) < datetime(:latestAcceptableDateUtc)
-        OR datetime(dateUtc) < (SELECT min(datetime(dateUtc)) FROM Post WHERE datetime(dbItemCreatedDateUtc) < datetime(:latestAcceptableDateUtc))
+        WITH CTE AS (
+            SELECT id FROM Post
+            WHERE datetime(dbItemCreatedDateUtc) < datetime(:latestAcceptableDateUtc)
+            OR datetime(dateUtc) < (SELECT min(datetime(dateUtc)) FROM Post WHERE datetime(dbItemCreatedDateUtc) < datetime(:latestAcceptableDateUtc))
+            ORDER BY datetime(dateUtc) DESC
+            LIMIT :maxRows
+        )
+        DELETE FROM Post WHERE id IN CTE
     """
     )
-    abstract fun deleteExpired(latestAcceptableDateUtc: Date)
+    abstract fun deleteExpired(latestAcceptableDateUtc: Date, maxRows: Int)
 
     @Query(
         """
@@ -78,6 +106,8 @@ abstract class PostDao {
     )
     abstract fun latestActiveBreakingPost(): LiveData<Post?>
 }
+
+suspend fun <T> PostDao.inTransaction(f: suspend PostDao.() -> T): T = inTransactionUnsafe(f) as T
 
 @Dao
 abstract class CategoryDao {

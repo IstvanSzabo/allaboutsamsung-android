@@ -16,6 +16,7 @@ import de.maxisma.allaboutsamsung.db.importCategoryDtos
 import de.maxisma.allaboutsamsung.db.importPostDtos
 import de.maxisma.allaboutsamsung.db.importTagDtos
 import de.maxisma.allaboutsamsung.db.importUserDtos
+import de.maxisma.allaboutsamsung.db.inTransaction
 import de.maxisma.allaboutsamsung.rest.CategoryIdsDto
 import de.maxisma.allaboutsamsung.rest.PostDto
 import de.maxisma.allaboutsamsung.rest.PostIdsDto
@@ -26,6 +27,7 @@ import de.maxisma.allaboutsamsung.rest.allCategories
 import de.maxisma.allaboutsamsung.rest.allTags
 import de.maxisma.allaboutsamsung.rest.allUsers
 import de.maxisma.allaboutsamsung.utils.IOPool
+import de.maxisma.allaboutsamsung.utils.SwitchableLiveData
 import de.maxisma.allaboutsamsung.utils.retry
 import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.Job
@@ -69,13 +71,36 @@ const val WORDPRESS_POSTS_PER_PAGE = 20
 private const val TIMEOUT_MS = 30_000L
 private const val POST_INFO_EXPIRY_MS = 15 * 60 * 1000L
 
+private typealias Success = Boolean
+
 private abstract class DbQueryExecutor(
     private val wordpressApi: WordpressApi,
     private val db: Db,
     private val onError: (Exception) -> Unit
 ) : QueryExecutor {
 
-    override val data: LiveData<List<Post>> = db.postDao.posts(oldestThresholdUtc = Date(0))
+    protected val oldestAcceptableDataAgeUtc: Date
+        get() = Date(System.currentTimeMillis() - POST_INFO_EXPIRY_MS)
+
+    private val nonExpired
+        get() = db.postDao.posts(
+            oldestThresholdUtc = Date(0),
+            latestAcceptableDbItemCreatedDateUtc = oldestAcceptableDataAgeUtc
+        )
+
+    // This has a custom getter because otherwise it is not updated while it has no subscriber.
+    // If we then subscribe again (because we switch from nonExpired), the LiveData
+    // first posts the outdated data (which may not have every item contained by nonExpired,
+    // thus causing the RecyclerView to jump) and only then updates and posts again.
+    private val includingExpired
+        get() = db.postDao.posts(
+            oldestThresholdUtc = Date(0),
+            latestAcceptableDbItemCreatedDateUtc = Date(0)
+        )
+
+    private var displayedData = SwitchableLiveData(nonExpired)
+
+    override val data: LiveData<List<Post>> = displayedData
 
     final override fun tagsForPost(postId: PostId): Deferred<List<Tag>> = async(IOPool) {
         db.postTagDao.tags(postId)
@@ -133,21 +158,47 @@ private abstract class DbQueryExecutor(
                 onInsertedPosts(posts.map { it.id }.toSet())
             }
         }
+        true
     } catch (e: Exception) {
         onError(e)
+        false
     }
 
-    private val oldestAcceptableDataAgeUtc: Date
-        get() = Date(System.currentTimeMillis() - POST_INFO_EXPIRY_MS)
+    private suspend fun showExpiredThenUpdate(updater: suspend () -> Success) {
+        // Show the user some stale data until we got new data
+        displayedData.delegate = includingExpired
+
+        // TODO Handle requestNewerPosts correctly
+
+        val (countBefore, success, countAfter) = db.postDao.inTransaction {
+            val countBefore = count()
+            val success = updater()
+            val countAfter = count()
+
+            Triple(countBefore, success, countAfter)
+        }
+
+        if (success) {
+            // Switch back to non-expired data to make the RecyclerView request more rows
+            // when scrolling down.
+            displayedData.delegate = nonExpired
+            // We delete up to countAfter - countBefore expired rows to try and only delete those that are not contained
+            // in the result from the updater and thus have been deleted in WordPress. If no post was deleted,
+            // then the difference between these variables will be 0.
+            db.postDao.deleteExpired(oldestAcceptableDataAgeUtc, maxRows = Math.max(0, countAfter - countBefore))
+        }
+    }
 
     final override fun requestNewerPosts() = launch(IOPool) {
-        db.postDao.deleteExpired(oldestAcceptableDataAgeUtc)
-        fetchPostsAndRelated()
+        showExpiredThenUpdate {
+            fetchPostsAndRelated()
+        }
     }
 
     final override fun requestOlderPosts() = launch(IOPool) {
-        db.postDao.deleteExpired(oldestAcceptableDataAgeUtc)
-        fetchPostsAndRelated(oldestPostDateUtc())
+        showExpiredThenUpdate {
+            fetchPostsAndRelated(oldestPostDateUtc())
+        }
     }
 
     final override fun refresh(postId: PostId) = launch(IOPool) {
@@ -169,7 +220,7 @@ private class EmptyQueryExecutor(
         )
         .await()
 
-    override suspend fun oldestPostDateUtc() = db.postDao.oldestDate()
+    override suspend fun oldestPostDateUtc() = db.postDao.oldestNonExpiredDate(oldestAcceptableDataAgeUtc)
 }
 
 private class FilterQueryExecutor(
