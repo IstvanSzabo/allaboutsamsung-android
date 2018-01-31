@@ -164,11 +164,9 @@ private abstract class DbQueryExecutor(
         false
     }
 
-    private suspend fun showExpiredThenUpdate(updater: suspend () -> Success) {
+    private suspend fun showExpiredThenUpdate(deleteAllExpired: Boolean = false, updater: suspend () -> Success) {
         // Show the user some stale data until we got new data
         displayedData.delegate = includingExpired
-
-        // TODO Handle requestNewerPosts correctly
 
         val (countBefore, success, countAfter) = db.postDao.inTransaction {
             val countBefore = count()
@@ -185,12 +183,13 @@ private abstract class DbQueryExecutor(
             // We delete up to countAfter - countBefore expired rows to try and only delete those that are not contained
             // in the result from the updater and thus have been deleted in WordPress. If no post was deleted,
             // then the difference between these variables will be 0.
-            db.postDao.deleteExpired(oldestAcceptableDataAgeUtc, maxRows = Math.max(0, countAfter - countBefore))
+            val maxRowsToDelete = if (deleteAllExpired) Int.MAX_VALUE else Math.max(0, countAfter - countBefore)
+            db.postDao.deleteExpired(oldestAcceptableDataAgeUtc, maxRowsToDelete)
         }
     }
 
     final override fun requestNewerPosts() = launch(IOPool) {
-        showExpiredThenUpdate {
+        showExpiredThenUpdate(deleteAllExpired = true) {
             fetchPostsAndRelated()
         }
     }
