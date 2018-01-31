@@ -16,7 +16,6 @@ import de.maxisma.allaboutsamsung.db.importCategoryDtos
 import de.maxisma.allaboutsamsung.db.importPostDtos
 import de.maxisma.allaboutsamsung.db.importTagDtos
 import de.maxisma.allaboutsamsung.db.importUserDtos
-import de.maxisma.allaboutsamsung.db.inTransaction
 import de.maxisma.allaboutsamsung.rest.CategoryIdsDto
 import de.maxisma.allaboutsamsung.rest.PostDto
 import de.maxisma.allaboutsamsung.rest.PostIdsDto
@@ -39,7 +38,6 @@ import kotlinx.coroutines.experimental.withTimeout
 import retrofit2.HttpException
 import java.io.IOException
 import java.util.Date
-import kotlin.math.max
 
 interface QueryExecutor {
     val query: Query
@@ -122,8 +120,6 @@ private abstract class DbQueryExecutor(
 
     protected abstract suspend fun fetchPosts(beforeGmt: Date?, onlyIds: List<PostId>?): List<PostDto>
 
-    protected abstract suspend fun oldestPostDateUtc(): Date?
-
     protected open suspend fun onInsertedPosts(postIds: Set<PostId>) {}
 
     private suspend fun fetchPostsAndRelated(beforeGmt: Date? = null, onlyIds: List<PostId>? = null) = try {
@@ -166,39 +162,33 @@ private abstract class DbQueryExecutor(
         false
     }
 
-    private suspend fun showExpiredThenUpdate(deleteAllExpired: Boolean = false, updater: suspend () -> Success) {
+    private suspend fun showExpiredThenUpdate(deleteExpired: Boolean = false, updater: suspend (Date?) -> Success) {
+        val oldestDateOnScreen = data.value?.minBy { it.dateUtc }?.dateUtc
+
         // Show the user some stale data until we got new data
         displayedData.delegate = includingExpired
 
-        val (countBefore, success, countAfter) = db.postDao.inTransaction {
-            val countBefore = count()
-            val success = updater()
-            val countAfter = count()
-
-            Triple(countBefore, success, countAfter)
-        }
-
-        if (success) {
+        val success = updater(oldestDateOnScreen)
+        if (success && deleteExpired) {
             // Switch back to non-expired data to make the RecyclerView request more rows
             // when scrolling down.
             displayedData.delegate = nonExpired
-            // We delete up to countAfter - countBefore expired rows to try and only delete those that are not contained
-            // in the result from the updater and thus have been deleted in WordPress. If no post was deleted,
-            // then the difference between these variables will be 0.
-            val maxRowsToDelete = if (deleteAllExpired) Int.MAX_VALUE else max(0, countAfter - countBefore)
-            db.postDao.deleteExpired(oldestAcceptableDataAgeUtc, maxRowsToDelete)
+            db.postDao.deleteExpired(oldestAcceptableDataAgeUtc)
         }
     }
 
     final override fun requestNewerPosts() = launch(DbWriteDispatcher) {
-        showExpiredThenUpdate(deleteAllExpired = true) {
+        showExpiredThenUpdate(deleteExpired = true) {
             fetchPostsAndRelated()
         }
     }
 
     final override fun requestOlderPosts() = launch(DbWriteDispatcher) {
-        showExpiredThenUpdate {
-            fetchPostsAndRelated(oldestPostDateUtc())
+        // Here we don't delete expired posts, because this can lead to jumping effects
+        // in the RecyclerView. Expired data is only cleared when new posts are
+        // successfully fetched in requestNewerPosts().
+        showExpiredThenUpdate { oldestDateOnScreen ->
+            fetchPostsAndRelated(oldestDateOnScreen)
         }
     }
 
@@ -221,7 +211,6 @@ private class EmptyQueryExecutor(
         )
         .await()
 
-    override suspend fun oldestPostDateUtc() = db.postDao.oldestNonExpiredDate(oldestAcceptableDataAgeUtc)
 }
 
 private class FilterQueryExecutor(
@@ -252,7 +241,5 @@ private class FilterQueryExecutor(
         this.postIds += postIds
         _data.postValue(db.postDao.posts(this.postIds))
     }
-
-    override suspend fun oldestPostDateUtc() = _data.value?.lastOrNull()?.dateUtc
 
 }

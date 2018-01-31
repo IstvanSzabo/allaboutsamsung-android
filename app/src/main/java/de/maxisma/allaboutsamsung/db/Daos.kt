@@ -44,14 +44,6 @@ abstract class PostMetaDao {
 @Dao
 abstract class PostDao {
 
-    @Transaction
-    open suspend fun inTransactionUnsafe(f: suspend PostDao.() -> Any?): Any? {
-        return f()
-    }
-
-    @Query("SELECT count(*) FROM Post")
-    abstract fun count(): Int
-
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun insertPost(post: Post)
 
@@ -83,17 +75,12 @@ abstract class PostDao {
 
     @Query(
         """
-        WITH CTE AS (
-            SELECT id FROM Post
-            WHERE datetime(dbItemCreatedDateUtc) < datetime(:latestAcceptableDateUtc)
-            OR datetime(dateUtc) < (SELECT min(datetime(dateUtc)) FROM Post WHERE datetime(dbItemCreatedDateUtc) < datetime(:latestAcceptableDateUtc))
-            ORDER BY datetime(dateUtc) DESC
-            LIMIT :maxRows
-        )
-        DELETE FROM Post WHERE id IN CTE
+        DELETE FROM Post
+        WHERE datetime(dbItemCreatedDateUtc) < datetime(:latestAcceptableDateUtc)
+        OR datetime(dateUtc) < (SELECT min(datetime(dateUtc)) FROM Post WHERE datetime(dbItemCreatedDateUtc) < datetime(:latestAcceptableDateUtc))
     """
     )
-    abstract fun deleteExpired(latestAcceptableDateUtc: Date, maxRows: Int)
+    abstract fun deleteExpired(latestAcceptableDateUtc: Date)
 
     @Query(
         """
@@ -106,8 +93,6 @@ abstract class PostDao {
     )
     abstract fun latestActiveBreakingPost(): LiveData<Post?>
 }
-
-suspend fun <T> PostDao.inTransaction(f: suspend PostDao.() -> T): T = inTransactionUnsafe(f) as T
 
 @Dao
 abstract class CategoryDao {
