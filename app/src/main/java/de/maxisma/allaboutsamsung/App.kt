@@ -18,9 +18,12 @@ class App : MultiDexApplication() {
     override fun onCreate() {
         super.onCreate()
         Fabric.with(this, Crashlytics())
+
+        @Suppress("SENSELESS_COMPARISON")
         if (BuildConfig.APPMOB_APP_ID != null) {
             MobileAds.initialize(this, BuildConfig.APPMOB_APP_ID)
         }
+
         JobManager.create(this).addJobCreator(JobCreator())
     }
 }
