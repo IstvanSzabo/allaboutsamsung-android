@@ -75,15 +75,6 @@ abstract class PostDao {
 
     @Query(
         """
-        DELETE FROM Post
-        WHERE datetime(dbItemCreatedDateUtc) < datetime(:latestAcceptableDateUtc)
-        OR datetime(dateUtc) < (SELECT min(datetime(dateUtc)) FROM Post WHERE datetime(dbItemCreatedDateUtc) < datetime(:latestAcceptableDateUtc))
-    """
-    )
-    abstract fun deleteExpired(latestAcceptableDateUtc: Date)
-
-    @Query(
-        """
         SELECT Post.* FROM Post
         JOIN PostCategory ON Post.id = PostCategory.postId
         WHERE categoryId = ${BuildConfig.BREAKING_CATEGORY_ID} AND dateTime(dateUtc, '+1 day') >= datetime('now')

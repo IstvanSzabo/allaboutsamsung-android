@@ -162,23 +162,22 @@ private abstract class DbQueryExecutor(
         false
     }
 
-    private suspend fun showExpiredThenUpdate(deleteExpired: Boolean = false, updater: suspend (Date?) -> Success) {
+    private suspend fun showExpiredThenUpdate(hideExpiredAfterUpdate: Boolean = false, updater: suspend (Date?) -> Success) {
         val oldestDateOnScreen = data.value?.minBy { it.dateUtc }?.dateUtc
 
         // Show the user some stale data until we got new data
         displayedData.delegate = includingExpired
 
         val success = updater(oldestDateOnScreen)
-        if (success && deleteExpired) {
+        if (success && hideExpiredAfterUpdate) {
             // Switch back to non-expired data to make the RecyclerView request more rows
             // when scrolling down.
             displayedData.delegate = nonExpired
-            db.postDao.deleteExpired(oldestAcceptableDataAgeUtc)
         }
     }
 
     final override fun requestNewerPosts() = launch(DbWriteDispatcher) {
-        showExpiredThenUpdate(deleteExpired = true) {
+        showExpiredThenUpdate(hideExpiredAfterUpdate = true) {
             fetchPostsAndRelated()
         }
     }
@@ -199,7 +198,7 @@ private abstract class DbQueryExecutor(
 
 private class EmptyQueryExecutor(
     private val wordpressApi: WordpressApi,
-    private val db: Db,
+    db: Db,
     onError: (Exception) -> Unit
 ) : DbQueryExecutor(wordpressApi, db, onError) {
     override val query = Query.Empty
