@@ -18,6 +18,7 @@ data class HtmlTheme(
     @ColorIntAnnotation val backgroundColor: ColorInt,
     @ColorIntAnnotation val defaultTextColor: ColorInt
 // TODO Different link color for dark theme
+// TODO Style everything
 )
 
 fun Context.obtainHtmlThemes() = HtmlThemes(
