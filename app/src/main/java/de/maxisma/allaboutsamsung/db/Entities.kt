@@ -94,7 +94,7 @@ data class User(
 )
 data class PlaylistItem(
     val playlistId: PlaylistId,
-    val videoId: VideoId
+    @ColumnInfo(index = true) val videoId: VideoId
 )
 
 @Entity
