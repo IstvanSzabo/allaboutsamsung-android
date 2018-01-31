@@ -2,6 +2,7 @@ package de.maxisma.allaboutsamsung
 
 import android.net.Uri
 import android.os.Bundle
+import android.support.annotation.StyleRes
 import android.support.customtabs.CustomTabsIntent
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
@@ -16,15 +17,34 @@ abstract class BaseActivity(private val useDefaultMenu: Boolean = true) : AppCom
     @Inject
     lateinit var preferenceHolder: PreferenceHolder
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    private var wasDarkThemeEnabled = false
 
-        app.appComponent.inject(this)
+    override fun onPause() {
+        super.onPause()
+        wasDarkThemeEnabled = preferenceHolder.useDarkTheme
+    }
 
-        if (preferenceHolder.useDarkTheme) {
-            setTheme(R.style.AppTheme_Dark)
+    override fun onResume() {
+        super.onResume()
+        if (wasDarkThemeEnabled != preferenceHolder.useDarkTheme) {
+            recreate()
         }
     }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        app.appComponent.inject(this)
+
+        wasDarkThemeEnabled = preferenceHolder.useDarkTheme
+        val darkThemeToUse = darkThemeToUse
+        if (darkThemeToUse != null && preferenceHolder.useDarkTheme) {
+            setTheme(darkThemeToUse)
+        }
+
+        super.onCreate(savedInstanceState)
+    }
+
+    @StyleRes
+    protected open val darkThemeToUse: Int? = R.style.AppTheme_Dark
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         if (useDefaultMenu) {

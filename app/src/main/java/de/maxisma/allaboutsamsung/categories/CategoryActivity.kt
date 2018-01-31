@@ -39,12 +39,10 @@ class CategoryActivity : BaseActivity(useDefaultMenu = false) {
     @Inject
     lateinit var db: Db
 
+    override val darkThemeToUse = R.style.AppTheme_Dialog_Dark
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        if (preferenceHolder.useDarkTheme) {
-            setTheme(R.style.AppTheme_Dialog_Dark)
-        }
 
         setContentView(R.layout.activity_category)
         app.appComponent.inject(this)

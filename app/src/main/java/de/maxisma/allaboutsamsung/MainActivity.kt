@@ -34,12 +34,10 @@ class MainActivity : BaseActivity(), PostsFragment.InteractionListener, YouTubeF
      * - Check for memory leaks
      */
 
+    override val darkThemeToUse = R.style.AppTheme_NoActionBar_Dark
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        if (preferenceHolder.useDarkTheme) {
-            setTheme(R.style.AppTheme_NoActionBar_Dark)
-        }
 
         setContentView(R.layout.activity_main)
         setSupportActionBar(mainToolbar)
