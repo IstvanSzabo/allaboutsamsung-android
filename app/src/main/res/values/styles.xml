@@ -9,7 +9,7 @@
         <item name="bottomNavigationItemColor">@null</item>
     </style>
 
-    <style name="AppTheme.Dark" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme.Dark" parent="Theme.AppCompat">
         <item name="colorPrimary">@color/darkColorPrimary</item>
         <item name="colorPrimaryDark">@color/darkColorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
@@ -34,11 +34,11 @@
         <item name="colorPrimaryDark">@color/darkColorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
 
-        <item name="popupTheme">@style/AppTheme.NoActionBar.PopupTheme</item>
         <item name="colorControlNormal">@android:color/white</item>
         <item name="android:textColorPrimary">@android:color/white</item>
         <item name="titleTextColor">@android:color/white</item>
         <item name="subtitleTextColor">@android:color/white</item>
+        <item name="popupTheme">@style/AppTheme.NoActionBar.PopupTheme.Dark</item>
 
         <item name="android:windowBackground">@color/darkColorPrimaryDark</item>
         <item name="android:textColor">@color/colorAccent</item>
@@ -46,6 +46,10 @@
 
     <style name="AppTheme.NoActionBar.PopupTheme">
         <item name="android:textColor">@android:color/black</item>
+    </style>
+
+    <style name="AppTheme.NoActionBar.PopupTheme.Dark" parent="ThemeOverlay.AppCompat.Dark">
+        <item name="android:textColor">@android:color/white</item>
     </style>
 
     <style name="BigDialog" parent="android:Theme.Dialog">
