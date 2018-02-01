@@ -18,7 +18,7 @@ abstract class PostHtmlGenerator {
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
-    <style type="text/css">${theme.css()}</style>
+    <style type="text/css">${theme.postCss()}</style>
 </head>
 <body>
 </body>
@@ -30,7 +30,7 @@ abstract class PostHtmlGenerator {
     <title>${post.title}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
-    <style type="text/css">${theme.css()}</style>
+    <style type="text/css">${theme.postCss()}</style>
 </head>
 <body>
 <h1>${post.title}</h1>

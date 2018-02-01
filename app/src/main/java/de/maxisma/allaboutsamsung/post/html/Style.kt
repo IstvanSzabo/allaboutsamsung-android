@@ -47,7 +47,7 @@ font-family: 'Roboto', sans-serif;
 font-weight: 300;
 """
 
-fun HtmlTheme.css() = """
+fun HtmlTheme.postCss() = """
     body {
         margin: $BODY_MARGIN;
         $DEFAULT_FONT_CONFIG

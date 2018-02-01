@@ -142,10 +142,9 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
 
         val query = Query.Filter(onlyIds = listOf(postId))
         val executor = query.newExecutor(wordpressApi, db, ::displaySupportedError)
-        executor.requestNewerPosts()
 
         db.postMetaDao.postWithAuthorName(postId).observe(this) { postWithAuthorName ->
-            val (post, authorName) = postWithAuthorName ?: return@observe
+            val (post, authorName) = postWithAuthorName ?: return@observe run { executor.requestNewerPosts() }
 
             if (post.dbItemCreatedDateUtc.time + POST_DETAIL_EXPIRY_MS < System.currentTimeMillis()) {
                 executor.refresh(postId)
@@ -160,7 +159,7 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
                 null
             )
 
-            // TODO Inject stylesheet
+            // TODO Customized stylesheet
             postCommentsWebView.loadUrl(commentsUrl)
         }
     }
