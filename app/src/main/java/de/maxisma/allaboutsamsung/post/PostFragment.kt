@@ -30,6 +30,7 @@ import de.maxisma.allaboutsamsung.gallery.Photo
 import de.maxisma.allaboutsamsung.gallery.extractPhotos
 import de.maxisma.allaboutsamsung.gallery.newGalleryActivityIntent
 import de.maxisma.allaboutsamsung.post.html.PostHtmlGenerator
+import de.maxisma.allaboutsamsung.post.html.generateAnalyticsJs
 import de.maxisma.allaboutsamsung.post.html.obtainHtmlThemes
 import de.maxisma.allaboutsamsung.query.Query
 import de.maxisma.allaboutsamsung.query.newExecutor
@@ -152,10 +153,12 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
                 executor.refresh(postId)
             }
 
+            val analyticsJs = if (preferenceHolder.allowAnalytics) post.generateAnalyticsJs() else ""
+
             postContentWebView.webViewClient = PostWebViewClient(post.extractPhotos())
             postContentWebView.loadDataWithBaseURL(
                 BuildConfig.WEBVIEW_BASE_URL,
-                postHtmlGenerator.generateHtml(post, authorName, theme),
+                postHtmlGenerator.generateHtml(post, authorName, theme, analyticsJs),
                 "text/html",
                 Charsets.UTF_8.name(),
                 null

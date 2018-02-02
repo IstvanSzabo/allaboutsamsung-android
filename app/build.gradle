@@ -29,6 +29,7 @@ android {
         buildConfigField "String", "LEGAL_NOTICE_URL", "\"https://allaboutsamsung.de/impressum\""
         buildConfigField "String", "YOUTUBE_PLAYLIST_ID", "\"UU-JTjqB5yT9C8kdIJRCW2nQ\""
         buildConfigField "String", "APPMOB_APP_ID", "\"ca-app-pub-5186136702634520~9544345137\""
+        buildConfigField "String", "GOOGLE_ANALYTICS_ID", "\"UA-24939508-1\""
         resValue "string", "appmobPostListAdId", "ca-app-pub-5186136702634520/2021078335"
         buildConfigField "int", "BREAKING_CATEGORY_ID", "531"
         buildConfigField "int", "DEAL_TAG_ID", "342"

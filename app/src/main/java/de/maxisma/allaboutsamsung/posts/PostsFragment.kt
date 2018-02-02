@@ -26,9 +26,11 @@ import de.maxisma.allaboutsamsung.query.QueryExecutor
 import de.maxisma.allaboutsamsung.query.WORDPRESS_POSTS_PER_PAGE
 import de.maxisma.allaboutsamsung.query.newExecutor
 import de.maxisma.allaboutsamsung.rest.WordpressApi
+import de.maxisma.allaboutsamsung.settings.PreferenceHolder
 import de.maxisma.allaboutsamsung.utils.IOPool
 import de.maxisma.allaboutsamsung.utils.dpToPx
 import de.maxisma.allaboutsamsung.utils.observe
+import de.maxisma.allaboutsamsung.utils.trackLandingLoad
 import kotlinx.android.synthetic.main.fragment_posts.*
 import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.Job
@@ -51,6 +53,9 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
 
     @Inject
     lateinit var wordpressApi: WordpressApi
+
+    @Inject
+    lateinit var preferenceHolder: PreferenceHolder
 
     private var currentLoadingJob: Job? = null
     private var currentExecutor: QueryExecutor? = null
@@ -156,6 +161,10 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
         currentExecutor = executor
         requestNewerPosts()
         activity?.title = description.await()
+
+        if (preferenceHolder.allowAnalytics) {
+            trackLandingLoad(this@PostsFragment.context!!)
+        }
     }
 
     private fun PostsAdapter.updateWith(posts: List<Post>, executor: QueryExecutor) = launch(UI) {
