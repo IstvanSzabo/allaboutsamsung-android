@@ -158,6 +158,7 @@ private abstract class DbQueryExecutor(
         }
         true
     } catch (e: Exception) {
+        e.printStackTrace()
         onError(e)
         false
     }

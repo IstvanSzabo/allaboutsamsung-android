@@ -51,15 +51,20 @@ private fun injectCss(html: String, css: String): String {
 
 fun WebView.loadCommentsFor(postId: PostId, httpClient: OkHttpClient, theme: HtmlTheme, onError: (Exception) -> Unit) {
     launch(UI) {
-        val commentsUrl = commentsUrl(postId)
-        val html = httpClient.retriedDownloadWithTimeout(commentsUrl).await().body()!!.string()
-        val injectedHtml = injectCss(html, theme.commentsCss())
-        loadDataWithBaseURL(
-            commentsUrl,
-            injectedHtml,
-            "text/html",
-            Charsets.UTF_8.name(),
-            null
-        )
+        try {
+            val commentsUrl = commentsUrl(postId)
+            val html = httpClient.retriedDownloadWithTimeout(commentsUrl).await().body()!!.string()
+            val injectedHtml = injectCss(html, theme.commentsCss())
+            loadDataWithBaseURL(
+                commentsUrl,
+                injectedHtml,
+                "text/html",
+                Charsets.UTF_8.name(),
+                null
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            onError(e)
+        }
     }
 }
