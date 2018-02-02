@@ -10,6 +10,7 @@ import de.maxisma.allaboutsamsung.db.VideoId
 import de.maxisma.allaboutsamsung.db.importPlaylistResult
 import de.maxisma.allaboutsamsung.utils.DbWriteDispatcher
 import de.maxisma.allaboutsamsung.utils.IOPool
+import de.maxisma.allaboutsamsung.utils.retry
 import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.async
@@ -53,18 +54,20 @@ class YouTubeRepository(
     fun requestNewerVideos(): Deferred<UnseenVideos> = async(IOPool) {
         mutex.withLock {
             try {
-                val playlistResultDto = youTube.downloadPlaylist(apiKey, playlistId).await()
-                if (pageTokens.isNotEmpty()) {
-                    pageTokens[0] = playlistResultDto.nextPageToken
-                } else {
-                    pageTokens += playlistResultDto.nextPageToken
-                }
-                launch(DbWriteDispatcher) {
-                    db.importPlaylistResult(playlistResultDto).join()
-                }.join()
+                retry(IOException::class) {
+                    val playlistResultDto = youTube.downloadPlaylist(apiKey, playlistId).await()
+                    if (pageTokens.isNotEmpty()) {
+                        pageTokens[0] = playlistResultDto.nextPageToken
+                    } else {
+                        pageTokens += playlistResultDto.nextPageToken
+                    }
+                    launch(DbWriteDispatcher) {
+                        db.importPlaylistResult(playlistResultDto).join()
+                    }.join()
 
-                val seenVideos = db.videoDao.seenVideos().map { it.id }.toHashSet()
-                playlistResultDto.playlist.map { it.videoId } - seenVideos
+                    val seenVideos = db.videoDao.seenVideos().map { it.id }.toHashSet()
+                    playlistResultDto.playlist.map { it.videoId } - seenVideos
+                }
             } catch (e: IOException) {
                 e.printStackTrace()
                 onError(e)
@@ -76,19 +79,21 @@ class YouTubeRepository(
     fun requestOlderVideos(): Job = launch(IOPool) {
         mutex.withLock {
             try {
-                val oldestDateDb = db.videoDao.oldestDateInPlaylist(playlistId).time
-                val allResults = mutableListOf<PlaylistResultDto>()
-                while (true) {
-                    val results = youTube.downloadPlaylist(apiKey, playlistId, pageTokens.lastOrNull()).await()
-                    allResults += results
-                    pageTokens += results.nextPageToken
-                    if (results.playlist.any { it.utcEpochMs < oldestDateDb }) {
-                        // We finally fetched a video older than the currently oldest one
-                        break
+                retry(IOException::class) {
+                    val oldestDateDb = db.videoDao.oldestDateInPlaylist(playlistId).time
+                    val allResults = mutableListOf<PlaylistResultDto>()
+                    while (true) {
+                        val results = youTube.downloadPlaylist(apiKey, playlistId, pageTokens.lastOrNull()).await()
+                        allResults += results
+                        pageTokens += results.nextPageToken
+                        if (results.playlist.any { it.utcEpochMs < oldestDateDb }) {
+                            // We finally fetched a video older than the currently oldest one
+                            break
+                        }
                     }
-                }
-                launch(DbWriteDispatcher) {
-                    allResults.forEach { db.importPlaylistResult(it) }
+                    launch(DbWriteDispatcher) {
+                        allResults.forEach { db.importPlaylistResult(it) }
+                    }
                 }
             } catch (e: IOException) {
                 e.printStackTrace()
