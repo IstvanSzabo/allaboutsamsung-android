@@ -8,6 +8,7 @@ import de.maxisma.allaboutsamsung.db.Db
 import de.maxisma.allaboutsamsung.post.PostFragment
 import de.maxisma.allaboutsamsung.post.html.PostHtmlGenerator
 import de.maxisma.allaboutsamsung.posts.PostsFragment
+import de.maxisma.allaboutsamsung.rest.AdApi
 import de.maxisma.allaboutsamsung.rest.WordpressApi
 import de.maxisma.allaboutsamsung.settings.PreferenceFragment
 import de.maxisma.allaboutsamsung.settings.PreferenceHolder
@@ -26,6 +27,7 @@ interface AppComponent {
     val preferenceHolder: PreferenceHolder
     val youTube: YouTube
     val httpClient: OkHttpClient
+    val adApi: AdApi
 
     fun inject(postsFragment: PostsFragment)
     fun inject(postFragment: PostFragment)

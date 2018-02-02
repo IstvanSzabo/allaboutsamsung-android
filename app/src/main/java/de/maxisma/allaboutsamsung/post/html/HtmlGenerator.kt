@@ -3,6 +3,7 @@ package de.maxisma.allaboutsamsung.post.html
 import android.content.Context
 import de.maxisma.allaboutsamsung.BuildConfig
 import de.maxisma.allaboutsamsung.R
+import de.maxisma.allaboutsamsung.ad.contentWithAd
 import de.maxisma.allaboutsamsung.db.Post
 import okhttp3.HttpUrl
 import java.text.DateFormat
@@ -27,7 +28,7 @@ abstract class PostHtmlGenerator {
 </html>
 """
 
-    fun generateHtml(post: Post, authorName: String, theme: HtmlTheme, analyticsJs: String) = """<html>
+    fun generateHtml(post: Post, authorName: String, theme: HtmlTheme, analyticsJs: String, adHtml: String) = """<html>
 <head>
     <title>${post.title}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -37,7 +38,7 @@ abstract class PostHtmlGenerator {
 <body>
 <h1>${post.title}</h1>
 <span class="meta">${formatAuthorName(authorName)}, ${dateFormatter.format(post.dateUtc)}</span>
-${post.content}
+${post.contentWithAd(adHtml)}
 
 <script type="text/javascript">
 $analyticsJs

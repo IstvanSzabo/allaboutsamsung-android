@@ -10,10 +10,12 @@ import dagger.Provides
 import de.maxisma.allaboutsamsung.db.Db
 import de.maxisma.allaboutsamsung.post.html.AndroidPostHtmlGenerator
 import de.maxisma.allaboutsamsung.post.html.PostHtmlGenerator
+import de.maxisma.allaboutsamsung.rest.AdApi
 import de.maxisma.allaboutsamsung.rest.WordpressApi
 import de.maxisma.allaboutsamsung.rest.httpClient
 import okhttp3.OkHttpClient
 import de.maxisma.allaboutsamsung.rest.wordpressApi as retrofitWordpressApi
+import de.maxisma.allaboutsamsung.rest.adApi as retrofitAdApi
 
 @Module
 class AppModule(private val app: App) {
@@ -34,6 +36,9 @@ class AppModule(private val app: App) {
 
     @Provides
     fun httpClient(): OkHttpClient = httpClient
+
+    @Provides
+    fun adApi(): AdApi = retrofitAdApi
 
     @Provides
     fun youTube(): YouTube {

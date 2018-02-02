@@ -15,10 +15,12 @@ import com.github.pwittchen.infinitescroll.library.InfiniteScrollListener
 import de.maxisma.allaboutsamsung.BaseFragment
 import de.maxisma.allaboutsamsung.BuildConfig
 import de.maxisma.allaboutsamsung.R
+import de.maxisma.allaboutsamsung.ad.updateAdHtml
 import de.maxisma.allaboutsamsung.app
 import de.maxisma.allaboutsamsung.categories.categoryActivityResult
 import de.maxisma.allaboutsamsung.categories.newCategoryActivityIntent
 import de.maxisma.allaboutsamsung.db.Db
+import de.maxisma.allaboutsamsung.db.KeyValueStore
 import de.maxisma.allaboutsamsung.db.Post
 import de.maxisma.allaboutsamsung.db.PostId
 import de.maxisma.allaboutsamsung.query.Query
@@ -56,6 +58,9 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
 
     @Inject
     lateinit var preferenceHolder: PreferenceHolder
+
+    @Inject
+    lateinit var keyValueStore: KeyValueStore
 
     private var currentLoadingJob: Job? = null
     private var currentExecutor: QueryExecutor? = null
@@ -161,6 +166,8 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
         currentExecutor = executor
         requestNewerPosts()
         activity?.title = description.await()
+
+        keyValueStore.updateAdHtml()
 
         if (preferenceHolder.allowAnalytics) {
             trackLandingLoad(this@PostsFragment.context!!)

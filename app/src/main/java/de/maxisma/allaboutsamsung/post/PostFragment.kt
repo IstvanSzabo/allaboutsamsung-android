@@ -25,6 +25,7 @@ import de.maxisma.allaboutsamsung.BuildConfig
 import de.maxisma.allaboutsamsung.R
 import de.maxisma.allaboutsamsung.app
 import de.maxisma.allaboutsamsung.db.Db
+import de.maxisma.allaboutsamsung.db.KeyValueStore
 import de.maxisma.allaboutsamsung.db.PostId
 import de.maxisma.allaboutsamsung.gallery.Photo
 import de.maxisma.allaboutsamsung.gallery.extractPhotos
@@ -71,6 +72,9 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
 
     @Inject
     lateinit var httpClient: OkHttpClient
+
+    @Inject
+    lateinit var keyValueStore: KeyValueStore
 
     private val postId: PostId by lazy { arguments!!.getLong(ARG_POST_ID) }
 
@@ -158,7 +162,7 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
             postContentWebView.webViewClient = PostWebViewClient(post.extractPhotos())
             postContentWebView.loadDataWithBaseURL(
                 BuildConfig.WEBVIEW_BASE_URL,
-                postHtmlGenerator.generateHtml(post, authorName, theme, analyticsJs),
+                postHtmlGenerator.generateHtml(post, authorName, theme, analyticsJs, keyValueStore.adHtml ?: ""),
                 "text/html",
                 Charsets.UTF_8.name(),
                 null
