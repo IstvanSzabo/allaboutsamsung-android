@@ -8,6 +8,7 @@ import com.crashlytics.android.Crashlytics
 import com.evernote.android.job.JobManager
 import com.google.android.gms.ads.MobileAds
 import de.maxisma.allaboutsamsung.scheduling.JobCreator
+import de.maxisma.allaboutsamsung.settings.migrateFromV4
 import io.fabric.sdk.android.Fabric
 
 class App : MultiDexApplication() {
@@ -17,6 +18,9 @@ class App : MultiDexApplication() {
 
     override fun onCreate() {
         super.onCreate()
+
+        appComponent.preferenceHolder.migrateFromV4(this)
+
         Fabric.with(this, Crashlytics())
 
         @Suppress("SENSELESS_COMPARISON")

@@ -27,7 +27,6 @@ class MainActivity : BaseActivity(), PostsFragment.InteractionListener, YouTubeF
      * - Resolve warnings, code inspections
      * - Documentation
      * - Test on older versions
-     * - Automatic settings migration and/or setup wizard
      * - Rotation
      * - Send app version header
      * - Check for memory leaks
