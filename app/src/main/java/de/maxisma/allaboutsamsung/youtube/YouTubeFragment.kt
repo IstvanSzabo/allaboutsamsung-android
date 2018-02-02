@@ -53,7 +53,7 @@ class YouTubeFragment : BaseFragment<YouTubeFragment.InteractionListener>() {
         super.onCreate(savedInstanceState)
         app.appComponent.inject(this)
 
-        repo = YouTubeRepository(db, youTube, BuildConfig.YOUTUBE_API_KEY, BuildConfig.YOUTUBE_PLAYLIST_ID)
+        repo = YouTubeRepository(db, youTube, BuildConfig.YOUTUBE_API_KEY, BuildConfig.YOUTUBE_PLAYLIST_ID, ::displaySupportedError)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
