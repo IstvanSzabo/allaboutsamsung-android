@@ -30,6 +30,7 @@ class MainActivity : BaseActivity(), PostsFragment.InteractionListener, YouTubeF
      * - Rotation
      * - Send app version header
      * - Check for memory leaks
+     * - Tablet UI
      */
 
     override val darkThemeToUse = R.style.AppTheme_NoActionBar_Dark
