@@ -55,7 +55,7 @@ private fun generateAnalyticsJs(accountId: String, relativeUrl: String) = """
 var _gaq = _gaq || [];
 _gaq.push(['_setAccount', '$accountId']);
 _gaq.push(['_gat._anonymizeIp']);
-_gaq.push(['_setCustomVar', 1, 'MobileApp', 'Android-${BuildConfig.VERSION_NAME}']);
+_gaq.push(['_setCustomVar', 1, 'MobileApp', 'AndroidApp-${BuildConfig.VERSION_NAME}']);
 _gaq.push(['_trackPageview', '$relativeUrl']);
 (function() {
     var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
