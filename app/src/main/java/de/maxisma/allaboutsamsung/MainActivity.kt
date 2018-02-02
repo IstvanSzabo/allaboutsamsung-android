@@ -20,8 +20,7 @@ class MainActivity : BaseActivity(), PostsFragment.InteractionListener, YouTubeF
     /*
      * Features TODO:
      * - Small and large widget
-     * - Honor theme + analytics
-     * - Analytics (article openings etc.)
+     * - Analytics (article openings etc.) (if enabled)
      * - Refresh in onResume after a while
      * - Test offline access
      * - Ad inside article
