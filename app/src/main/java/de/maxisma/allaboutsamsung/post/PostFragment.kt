@@ -34,12 +34,14 @@ import de.maxisma.allaboutsamsung.post.html.obtainHtmlThemes
 import de.maxisma.allaboutsamsung.query.Query
 import de.maxisma.allaboutsamsung.query.newExecutor
 import de.maxisma.allaboutsamsung.rest.WordpressApi
+import de.maxisma.allaboutsamsung.rest.loadCommentsFor
 import de.maxisma.allaboutsamsung.settings.PreferenceHolder
 import de.maxisma.allaboutsamsung.utils.ExtendedWebChromeClient
 import de.maxisma.allaboutsamsung.utils.observe
 import de.maxisma.allaboutsamsung.utils.observeUntilFalse
 import kotlinx.android.synthetic.main.fragment_post.*
 import okhttp3.HttpUrl
+import okhttp3.OkHttpClient
 import javax.inject.Inject
 
 private const val ARG_POST_ID = "post_id"
@@ -66,6 +68,9 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
     @Inject
     lateinit var preferenceHolder: PreferenceHolder
 
+    @Inject
+    lateinit var httpClient: OkHttpClient
+
     private val postId: PostId by lazy { arguments!!.getLong(ARG_POST_ID) }
 
     private val theme
@@ -73,9 +78,6 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
             val themes = context!!.obtainHtmlThemes()
             if (preferenceHolder.useDarkTheme) themes.darkTheme else themes.lightTheme
         }
-
-    private val commentsUrl
-        get() = BuildConfig.COMMENTS_URL_TEMPLATE.replace("[POST_ID]", postId.toString())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -159,8 +161,7 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
                 null
             )
 
-            // TODO Customized stylesheet
-            postCommentsWebView.loadUrl(commentsUrl)
+            postCommentsWebView.loadCommentsFor(postId, httpClient, theme, onError = ::displaySupportedError)
         }
     }
 

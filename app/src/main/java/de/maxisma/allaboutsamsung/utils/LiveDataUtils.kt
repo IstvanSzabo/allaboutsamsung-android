@@ -5,7 +5,7 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.Transformations
 
-inline fun <T> LiveData<T>.observe(owner: LifecycleOwner, crossinline observer: (T?) -> Unit) =
+fun <T> LiveData<T>.observe(owner: LifecycleOwner, observer: (T?) -> Unit) =
     observe(owner, Observer { observer(it) })
 
 inline fun <T> LiveData<T>.observeUntilFalse(owner: LifecycleOwner? = null, crossinline observer: (T?) -> Boolean) {

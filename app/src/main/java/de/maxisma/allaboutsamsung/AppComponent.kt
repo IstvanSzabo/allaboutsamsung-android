@@ -12,6 +12,7 @@ import de.maxisma.allaboutsamsung.rest.WordpressApi
 import de.maxisma.allaboutsamsung.settings.PreferenceFragment
 import de.maxisma.allaboutsamsung.settings.PreferenceHolder
 import de.maxisma.allaboutsamsung.youtube.YouTubeFragment
+import okhttp3.OkHttpClient
 import javax.inject.Singleton
 
 @Component(modules = [(AppModule::class)])
@@ -24,6 +25,7 @@ interface AppComponent {
     val postHtmlGenerator: PostHtmlGenerator
     val preferenceHolder: PreferenceHolder
     val youTube: YouTube
+    val httpClient: OkHttpClient
 
     fun inject(postsFragment: PostsFragment)
     fun inject(postFragment: PostFragment)

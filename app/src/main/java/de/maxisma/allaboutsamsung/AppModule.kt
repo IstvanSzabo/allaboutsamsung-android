@@ -11,6 +11,8 @@ import de.maxisma.allaboutsamsung.db.Db
 import de.maxisma.allaboutsamsung.post.html.AndroidPostHtmlGenerator
 import de.maxisma.allaboutsamsung.post.html.PostHtmlGenerator
 import de.maxisma.allaboutsamsung.rest.WordpressApi
+import de.maxisma.allaboutsamsung.rest.httpClient
+import okhttp3.OkHttpClient
 import de.maxisma.allaboutsamsung.rest.wordpressApi as retrofitWordpressApi
 
 @Module
@@ -29,6 +31,9 @@ class AppModule(private val app: App) {
 
     @Provides
     fun postHtmlGenerator(): PostHtmlGenerator = AndroidPostHtmlGenerator(app)
+
+    @Provides
+    fun httpClient(): OkHttpClient = httpClient
 
     @Provides
     fun youTube(): YouTube {

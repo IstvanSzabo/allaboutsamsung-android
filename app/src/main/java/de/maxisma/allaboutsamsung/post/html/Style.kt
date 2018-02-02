@@ -47,6 +47,17 @@ font-family: 'Roboto', sans-serif;
 font-weight: 300;
 """
 
+fun HtmlTheme.commentsCss() = """
+    *, html body {
+        background-color: ${backgroundColor.hexString};
+        color: ${defaultTextColor.hexString}
+    }
+    a:link {
+        text-decoration: none;
+        color: ${linkColor?.hexString ?: "unset"};
+    }
+"""
+
 fun HtmlTheme.postCss() = """
     body {
         margin: $BODY_MARGIN;
