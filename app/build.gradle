@@ -86,7 +86,7 @@ dependencies {
     implementation "com.squareup.retrofit2:converter-moshi:$retrofitVersion"
     implementation "com.jakewharton.retrofit:retrofit2-kotlin-coroutines-experimental-adapter:1.0.0"
 
-    def coroutinesVersion = "0.21"
+    def coroutinesVersion = "0.22.1"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
 
@@ -98,7 +98,7 @@ dependencies {
 
     implementation "org.jsoup:jsoup:1.11.2"
 
-    def glideVersion = "4.4.0"
+    def glideVersion = "4.6.1"
     implementation "com.github.bumptech.glide:glide:$glideVersion"
     kapt "com.github.bumptech.glide:compiler:$glideVersion"
 
@@ -128,7 +128,7 @@ dependencies {
         exclude group: 'org.apache.httpcomponents'
         exclude group: "com.google.code.findbugs"
     }
-    implementation('com.google.apis:google-api-services-youtube:v3-rev190-1.23.0') {
+    implementation('com.google.apis:google-api-services-youtube:v3-rev191-1.23.0') {
         exclude group: 'org.apache.httpcomponents'
         exclude group: "com.google.code.findbugs"
     }
