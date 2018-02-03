@@ -28,6 +28,9 @@ class MainActivity : BaseActivity(), PostsFragment.InteractionListener, YouTubeF
      * - Send app version header
      * - Check for memory leaks
      * - Tablet UI
+     * - Link handler
+     * - Maintain iframe aspect ratio in PostFragment
+     * - Look into why search may have no effect in some situations
      */
 
     override val darkThemeToUse = R.style.AppTheme_NoActionBar_Dark
