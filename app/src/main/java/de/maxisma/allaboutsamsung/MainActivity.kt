@@ -31,6 +31,7 @@ class MainActivity : BaseActivity(), PostsFragment.InteractionListener, YouTubeF
      * - Link handler
      * - Maintain iframe aspect ratio in PostFragment
      * - Look into why search may have no effect in some situations
+     * - Color links inside h2 https://allaboutsamsung.de/2018/02/samsung-galaxy-s8-s8-in-coral-blue-und-rose-pink-bei-saturn-im-angebot-deal/
      */
 
     override val darkThemeToUse = R.style.AppTheme_NoActionBar_Dark
