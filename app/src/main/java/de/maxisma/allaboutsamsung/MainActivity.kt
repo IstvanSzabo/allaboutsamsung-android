@@ -34,6 +34,7 @@ class MainActivity : BaseActivity(), PostsFragment.InteractionListener, YouTubeF
      * - Color links inside h2 https://allaboutsamsung.de/2018/02/samsung-galaxy-s8-s8-in-coral-blue-und-rose-pink-bei-saturn-im-angebot-deal/
      * - Make overflow menu blue in dark theme
      * - Move legal notice to settings
+     * - Fix notification logo tint on Samsung?
      */
 
     override val darkThemeToUse = R.style.AppTheme_NoActionBar_Dark
