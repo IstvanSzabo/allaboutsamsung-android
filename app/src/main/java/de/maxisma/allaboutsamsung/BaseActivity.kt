@@ -57,11 +57,6 @@ abstract class BaseActivity(private val useDefaultMenu: Boolean = true) : AppCom
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.preferences -> startActivity(newPreferencesActivityIntent(this))
-            R.id.legal_notice -> CustomTabsIntent.Builder()
-                .setShowTitle(true)
-                .setToolbarColor(ContextCompat.getColor(this, R.color.colorPrimary))
-                .build()
-                .launchUrl(this, LEGAL_NOTICE_URL.toUri())
         }
         return super.onOptionsItemSelected(item)
     }

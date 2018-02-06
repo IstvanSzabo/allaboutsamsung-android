@@ -34,6 +34,13 @@
 
         <activity android:name=".settings.PreferenceActivity" />
 
+        <activity android:name=".LegalNoticeActivity">
+            <intent-filter>
+                <action android:name="de.maxisma.allaboutsamsung.ViewLegalNotice" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
         <activity
             android:name=".categories.CategoryActivity"
             android:label="@string/categories"

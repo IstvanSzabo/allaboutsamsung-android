@@ -26,4 +26,8 @@
         android:defaultValue="false"
         android:key="pushDeals"
         android:title="@string/push_deals" />
+
+    <Preference android:title="@string/legal_notice">
+        <intent android:action="de.maxisma.allaboutsamsung.ViewLegalNotice" />
+    </Preference>
 </PreferenceScreen>
