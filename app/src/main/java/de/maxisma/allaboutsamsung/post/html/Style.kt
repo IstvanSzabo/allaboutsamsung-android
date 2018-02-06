@@ -16,6 +16,8 @@ data class HtmlTheme(
     @android.support.annotation.ColorInt val backgroundColor: ColorInt,
     @android.support.annotation.ColorInt val defaultTextColor: ColorInt,
     @android.support.annotation.ColorInt val adBackgroundColor: ColorInt,
+    @android.support.annotation.ColorInt val highlightBackgroundColor: ColorInt,
+    @android.support.annotation.ColorInt val highlightForegroundColor: ColorInt,
     @android.support.annotation.ColorInt val linkColor: ColorInt? = null
 )
 
@@ -24,13 +26,17 @@ fun Context.obtainHtmlThemes() = HtmlThemes(
         lightTextColor = 0x464646,
         backgroundColor = Color.WHITE,
         defaultTextColor = Color.BLACK,
-        adBackgroundColor = 0xededed
+        adBackgroundColor = 0xededed,
+        highlightBackgroundColor = retrieveColor(R.attr.colorPrimary),
+        highlightForegroundColor = Color.WHITE
     ),
     darkTheme = HtmlTheme(
         lightTextColor = 0xB4B4B4,
         backgroundColor = retrieveColor(R.attr.colorPrimaryDark),
         defaultTextColor = Color.WHITE,
         adBackgroundColor = retrieveColor(R.attr.colorPrimaryDark).darken(),
+        highlightBackgroundColor = retrieveColor(R.attr.colorPrimaryDark).darken(),
+        highlightForegroundColor = 0xB4B4B4,
         linkColor = retrieveColor(R.attr.colorAccent)
     )
 )
@@ -115,5 +121,19 @@ fun HtmlTheme.postCss() = """
         margin-bottom: 0.25em;
         display: inline-block;
         color: ${lightTextColor.hexString};
+    }
+    blockquote.highlight {
+        background-color: ${highlightBackgroundColor.hexString};
+        margin-left: -$BODY_MARGIN;
+        margin-right: -$BODY_MARGIN;
+        padding: 2em;
+        color: ${highlightForegroundColor.hexString};
+        font-style: normal;
+        font-family: inherit;
+        font-weight: inherit;
+    }
+    blockquote em {
+        color: ${highlightForegroundColor.hexString};
+        font-style: normal;
     }
     """

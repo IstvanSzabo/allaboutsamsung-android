@@ -33,7 +33,6 @@ class MainActivity : BaseActivity(), PostsFragment.InteractionListener, YouTubeF
      * - Look into why search may have no effect in some situations
      * - Make overflow menu blue in dark theme
      * - Fix notification logo tint on Samsung?
-     * - Style quotes (e.g. in NX2 article)
      */
 
     override val darkThemeToUse = R.style.AppTheme_NoActionBar_Dark
