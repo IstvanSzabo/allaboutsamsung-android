@@ -106,7 +106,7 @@ fun HtmlTheme.postCss() = """
     }
     a:link {
         text-decoration: none;
-        color: ${linkColor?.hexString ?: "unset"};
+        ${linkColor?.hexString?.let { "color: $it;" } ?: ""}
     }
     h1 {
         margin-bottom: 0.1em;
