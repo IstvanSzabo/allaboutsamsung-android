@@ -1,7 +1,6 @@
 package de.maxisma.allaboutsamsung.youtube
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.os.Looper
 import android.support.annotation.MainThread
@@ -9,6 +8,7 @@ import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.net.toUri
 import com.github.pwittchen.infinitescroll.library.InfiniteScrollListener
 import com.google.api.services.youtube.YouTube
 import de.maxisma.allaboutsamsung.BaseFragment
@@ -121,7 +121,7 @@ class YouTubeFragment : BaseFragment<YouTubeFragment.InteractionListener>() {
 
     private fun Video.fireIntent() {
         val url = "https://www.youtube.com/watch?v=$id"
-        startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+        startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
     }
 
 }

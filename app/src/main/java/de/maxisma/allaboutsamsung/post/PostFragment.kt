@@ -20,6 +20,7 @@ import android.view.ViewGroup
 import android.webkit.CookieManager
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
+import androidx.net.toUri
 import de.maxisma.allaboutsamsung.BaseFragment
 import de.maxisma.allaboutsamsung.BuildConfig
 import de.maxisma.allaboutsamsung.R
@@ -208,7 +209,7 @@ private class PostWebViewClient(private val photos: List<Photo>) : GlideCachingW
                     openCustomTab(view.context, url)
                 }
             }
-            "youtube." in HttpUrl.parse(url)?.host() ?: "" -> view.context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(url)))
+            "youtube." in HttpUrl.parse(url)?.host() ?: "" -> view.context.startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
             else -> openCustomTab(view.context, url)
         }
         return true

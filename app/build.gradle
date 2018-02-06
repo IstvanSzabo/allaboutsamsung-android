@@ -64,6 +64,8 @@ dependencies {
     implementation "com.android.support.constraint:constraint-layout:1.0.2"
     implementation "com.android.support:customtabs:$supportVersion"
 
+    implementation 'androidx.core:core-ktx:0.1'
+
     def playServicesVersion = "11.8.0"
     implementation "com.google.firebase:firebase-messaging:$playServicesVersion"
     implementation "com.google.android.gms:play-services-ads:$playServicesVersion"

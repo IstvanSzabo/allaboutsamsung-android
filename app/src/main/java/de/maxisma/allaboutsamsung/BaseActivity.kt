@@ -1,6 +1,5 @@
 package de.maxisma.allaboutsamsung
 
-import android.net.Uri
 import android.os.Bundle
 import android.support.annotation.StyleRes
 import android.support.customtabs.CustomTabsIntent
@@ -8,6 +7,8 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import androidx.net.toUri
+import de.maxisma.allaboutsamsung.BuildConfig.LEGAL_NOTICE_URL
 import de.maxisma.allaboutsamsung.settings.PreferenceHolder
 import de.maxisma.allaboutsamsung.settings.newPreferencesActivityIntent
 import javax.inject.Inject
@@ -60,7 +61,7 @@ abstract class BaseActivity(private val useDefaultMenu: Boolean = true) : AppCom
                 .setShowTitle(true)
                 .setToolbarColor(ContextCompat.getColor(this, R.color.colorPrimary))
                 .build()
-                .launchUrl(this, Uri.parse(BuildConfig.LEGAL_NOTICE_URL))
+                .launchUrl(this, LEGAL_NOTICE_URL.toUri())
         }
         return super.onOptionsItemSelected(item)
     }
