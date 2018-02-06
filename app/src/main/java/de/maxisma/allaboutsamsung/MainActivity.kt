@@ -35,6 +35,7 @@ class MainActivity : BaseActivity(), PostsFragment.InteractionListener, YouTubeF
      * - Make overflow menu blue in dark theme
      * - Move legal notice to settings
      * - Fix notification logo tint on Samsung?
+     * - Style quotes (e.g. in NX2 article)
      */
 
     override val darkThemeToUse = R.style.AppTheme_NoActionBar_Dark
