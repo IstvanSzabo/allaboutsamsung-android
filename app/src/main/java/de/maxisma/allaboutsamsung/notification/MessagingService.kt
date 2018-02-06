@@ -35,7 +35,7 @@ class MessagingService : FirebaseMessagingService() {
 
         val isDebug = DEBUG_TOPIC in extraTopics
 
-        if (isDebug || subscribedCategorySlugs.size > unsubCategories.size || subscribedTagSlugs.size > unsubTags.size) {
+        if (isDebug || categorySlugs.size > unsubCategories.size || tagSlugs.size > unsubTags.size) {
             scheduleNotificationJob(guid)
         }
     }
