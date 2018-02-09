@@ -100,7 +100,7 @@ dependencies {
 
     implementation "org.jsoup:jsoup:1.11.2"
 
-    def glideVersion = "4.6.1"
+    def glideVersion = "4.4.0" // Up to 4.6.1 seems to be buggy
     implementation "com.github.bumptech.glide:glide:$glideVersion"
     kapt "com.github.bumptech.glide:compiler:$glideVersion"
 
