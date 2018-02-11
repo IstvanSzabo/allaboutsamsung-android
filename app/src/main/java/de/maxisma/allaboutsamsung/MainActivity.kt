@@ -28,7 +28,7 @@ class MainActivity : BaseActivity(), PostsFragment.InteractionListener, YouTubeF
      * - Send app version header
      * - Check for memory leaks
      * - Tablet UI
-     * - Link handler
+     * - Link handler, also inside own WebViews
      * - Maintain iframe aspect ratio in PostFragment
      * - Look into why search may have no effect in some situations
      * - Make overflow menu blue in dark theme
