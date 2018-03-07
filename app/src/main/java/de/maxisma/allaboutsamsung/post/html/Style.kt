@@ -127,6 +127,8 @@ fun HtmlTheme.postCss() = """
         margin-left: -$BODY_MARGIN;
         margin-right: -$BODY_MARGIN;
         padding: 2em;
+    }
+    blockquote.highlight p {
         color: ${highlightForegroundColor.hexString};
         font-style: normal;
         font-family: inherit;
