@@ -5,16 +5,30 @@ import com.squareup.moshi.KotlinJsonAdapterFactory
 import com.squareup.moshi.Moshi
 import de.maxisma.allaboutsamsung.BuildConfig
 import kotlinx.coroutines.experimental.Deferred
+import kotlinx.coroutines.experimental.async
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
 
-interface AdApi {
+interface AppApi {
     @GET("ad")
     fun adForPost(): Deferred<AdDto>
+
+    @POST("url-to-id")
+    fun urlToId(@Body urlDto: UrlDto): Deferred<IdDto>
+}
+
+fun AppApi.urlToId(url: String) = async {
+    urlToId(UrlDto(url)).await().id
 }
 
 data class AdDto(val html: String)
+
+data class UrlDto(val url: String)
+
+data class IdDto(val id: Long)
 
 private val moshi = Moshi.Builder()
     .add(KotlinJsonAdapterFactory())
@@ -27,4 +41,4 @@ private val adRetrofit = Retrofit.Builder()
     .addConverterFactory(MoshiConverterFactory.create(moshi))
     .build()
 
-val adApi: AdApi = adRetrofit.create(AdApi::class.java)
+val appApi: AppApi = adRetrofit.create(AppApi::class.java)

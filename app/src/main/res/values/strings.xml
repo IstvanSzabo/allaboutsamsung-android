@@ -29,4 +29,5 @@
         <item quantity="one">Es gibt ein neues Video!</item>
         <item quantity="other">Es gibt %d neue Videos!</item>
     </plurals>
+    <string name="broken_connection">Verbindung fehlgeschlagen.</string>
 </resources>

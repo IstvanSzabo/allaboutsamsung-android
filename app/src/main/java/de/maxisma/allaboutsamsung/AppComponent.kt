@@ -5,10 +5,11 @@ import com.google.api.services.youtube.YouTube
 import dagger.Component
 import de.maxisma.allaboutsamsung.categories.CategoryActivity
 import de.maxisma.allaboutsamsung.db.Db
+import de.maxisma.allaboutsamsung.post.PostActivity
 import de.maxisma.allaboutsamsung.post.PostFragment
 import de.maxisma.allaboutsamsung.post.html.PostHtmlGenerator
 import de.maxisma.allaboutsamsung.posts.PostsFragment
-import de.maxisma.allaboutsamsung.rest.AdApi
+import de.maxisma.allaboutsamsung.rest.AppApi
 import de.maxisma.allaboutsamsung.rest.WordpressApi
 import de.maxisma.allaboutsamsung.settings.PreferenceFragment
 import de.maxisma.allaboutsamsung.settings.PreferenceHolder
@@ -27,7 +28,7 @@ interface AppComponent {
     val preferenceHolder: PreferenceHolder
     val youTube: YouTube
     val httpClient: OkHttpClient
-    val adApi: AdApi
+    val appApi: AppApi
 
     fun inject(postsFragment: PostsFragment)
     fun inject(postFragment: PostFragment)
@@ -35,4 +36,5 @@ interface AppComponent {
     fun inject(categoryActivity: CategoryActivity)
     fun inject(youTubeFragment: YouTubeFragment)
     fun inject(baseActivity: BaseActivity)
+    fun inject(postActivity: PostActivity)
 }

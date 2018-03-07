@@ -35,6 +35,10 @@ android {
         resValue "string", "appmobPostListAdId", "ca-app-pub-5186136702634520/2021078335"
         buildConfigField "int", "BREAKING_CATEGORY_ID", "531"
         buildConfigField "int", "DEAL_TAG_ID", "342"
+
+        manifestPlaceholders = [
+                hostName: "allaboutsamsung.de"
+        ]
     }
     buildTypes {
         release {

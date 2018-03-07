@@ -4,7 +4,7 @@ import com.squareup.moshi.JsonDataException
 import com.squareup.moshi.JsonEncodingException
 import de.maxisma.allaboutsamsung.db.KeyValueStore
 import de.maxisma.allaboutsamsung.db.Post
-import de.maxisma.allaboutsamsung.rest.adApi
+import de.maxisma.allaboutsamsung.rest.appApi
 import de.maxisma.allaboutsamsung.utils.retry
 import kotlinx.coroutines.experimental.TimeoutCancellationException
 import kotlinx.coroutines.experimental.launch
@@ -38,7 +38,7 @@ fun KeyValueStore.updateAdHtml() = launch {
             TimeoutCancellationException::class
         ) {
             withTimeout(10_000) {
-                adHtml = adApi.adForPost().await().html
+                adHtml = appApi.adForPost().await().html
             }
         }
     } catch (e: Exception) {
