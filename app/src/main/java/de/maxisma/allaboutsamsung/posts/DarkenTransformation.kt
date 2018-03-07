@@ -19,7 +19,7 @@ class DarkenTransformation : BitmapTransformation() {
         val new = pool.get(min(outWidth, toTransform.width), min(outHeight, toTransform.height), Bitmap.Config.RGB_565)
         val canvas = Canvas(new)
         canvas.drawBitmap(toTransform, 0f, 0f, Paint())
-        canvas.drawColor(Color.argb(128, 0, 0, 0))
+        canvas.drawColor(Color.argb(100, 0, 0, 0))
         return new
     }
 
