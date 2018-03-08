@@ -59,16 +59,16 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 
-    implementation 'com.android.support:multidex:1.0.2'
+    implementation 'com.android.support:multidex:1.0.3'
 
-    def supportVersion = "27.0.2"
+    def supportVersion = "27.1.0"
     implementation "com.android.support:appcompat-v7:$supportVersion"
     implementation "com.android.support:recyclerview-v7:$supportVersion"
     implementation "com.android.support:design:$supportVersion"
     implementation "com.android.support.constraint:constraint-layout:1.0.2"
     implementation "com.android.support:customtabs:$supportVersion"
 
-    implementation 'androidx.core:core-ktx:0.1'
+    implementation 'androidx.core:core-ktx:0.2'
 
     def playServicesVersion = "11.8.0"
     implementation "com.google.firebase:firebase-messaging:$playServicesVersion"
@@ -96,11 +96,11 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
 
-    def archVersion = "1.0.0"
+    def archVersion = "1.1.0"
     implementation "android.arch.lifecycle:extensions:$archVersion"
     kapt "android.arch.lifecycle:compiler:$archVersion"
-    implementation "android.arch.persistence.room:runtime:$archVersion"
-    kapt "android.arch.persistence.room:compiler:$archVersion"
+    implementation "android.arch.persistence.room:runtime:1.0.0"
+    kapt "android.arch.persistence.room:compiler:1.0.0"
 
     implementation "org.jsoup:jsoup:1.11.2"
 
@@ -115,7 +115,7 @@ dependencies {
     implementation "com.github.pwittchen:infinitescroll:0.0.1"
 
     implementation('com.crashlytics.sdk.android:crashlytics:2.8.0@aar') {
-        transitive = true;
+        transitive = true
     }
 
     implementation 'com.evernote:android-job:1.2.2'
