@@ -53,6 +53,7 @@
 
     <style name="AppTheme.NoActionBar.PopupTheme.Dark" parent="ThemeOverlay.AppCompat.Dark">
         <item name="android:textColor">@android:color/white</item>
+        <item name="android:background">@color/darkColorPrimaryDark</item>
     </style>
 
     <style name="AppTheme.Dialog" parent="Theme.AppCompat.Light.Dialog.Alert">
