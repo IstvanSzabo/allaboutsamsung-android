@@ -32,7 +32,6 @@ class MainActivity : BaseActivity(), PostsFragment.InteractionListener, YouTubeF
      * - Documentation
      * - Test on older versions
      * - Rotation
-     * - Check for memory leaks
      * - Tablet UI
      * - Look into why search may have no effect in some situations
      * - Fix notification logo tint on Samsung? Fix implemented, to be tested.
