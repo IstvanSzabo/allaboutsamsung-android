@@ -19,7 +19,6 @@ class MainActivity : BaseActivity(), PostsFragment.InteractionListener, YouTubeF
 
     /*
      * Features TODO:
-     * - Refresh in onResume after a while
      * - Resolve warnings, code inspections
      * - Documentation
      * - Test on older versions

@@ -44,6 +44,8 @@ import javax.inject.Inject
 
 private const val REQUEST_CODE_CATEGORY = 0
 
+private const val RELOAD_AFTER_MS = 30 * 60 * 1000L
+
 class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
 
     interface InteractionListener {
@@ -131,9 +133,7 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
             override fun onScrolledToEnd(firstVisibleItemPosition: Int) {
                 if (currentLoadingJob?.isActive != true) {
                     currentLoadingJob = launch(UI) {
-                        postsSwipeRefresh.isRefreshing = true
-                        currentExecutor?.requestOlderPosts()?.join()
-                        postsSwipeRefresh.isRefreshing = false
+                        requestOlderPosts()
                         // Debounce UI interaction
                         delay(500)
                     }
@@ -192,10 +192,32 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
             }
         }
 
-    private fun requestNewerPosts() = launch(UI) {
-        postsSwipeRefresh.isRefreshing = true
-        currentExecutor?.requestNewerPosts()?.join()
-        postsSwipeRefresh.isRefreshing = false
+    private var lastLoadTimeMs = -1L
+
+    private fun requestNewerPosts(): Job {
+        lastLoadTimeMs = System.currentTimeMillis()
+        return launch(UI) {
+            postsSwipeRefresh.isRefreshing = true
+            currentExecutor?.requestNewerPosts()?.join()
+            postsSwipeRefresh.isRefreshing = false
+        }
+    }
+
+    private fun requestOlderPosts(): Job {
+        lastLoadTimeMs = System.currentTimeMillis()
+        return launch(UI) {
+            postsSwipeRefresh.isRefreshing = true
+            currentExecutor?.requestOlderPosts()?.join()
+            postsSwipeRefresh.isRefreshing = false
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        if (lastLoadTimeMs + RELOAD_AFTER_MS < System.currentTimeMillis()) {
+            requestNewerPosts()
+        }
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
