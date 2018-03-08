@@ -27,7 +27,6 @@ class MainActivity : BaseActivity(), PostsFragment.InteractionListener, YouTubeF
      * - Rotation
      * - Check for memory leaks
      * - Tablet UI
-     * - Maintain iframe aspect ratio in PostFragment
      * - Look into why search may have no effect in some situations
      * - Make overflow menu blue in dark theme
      * - Fix notification logo tint on Samsung? Fix implemented, to be tested.

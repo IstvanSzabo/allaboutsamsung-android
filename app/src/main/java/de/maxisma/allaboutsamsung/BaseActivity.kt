@@ -7,6 +7,7 @@ import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import android.webkit.WebView
 import androidx.net.toUri
 import de.maxisma.allaboutsamsung.BuildConfig.LEGAL_NOTICE_URL
 import de.maxisma.allaboutsamsung.settings.PreferenceHolder

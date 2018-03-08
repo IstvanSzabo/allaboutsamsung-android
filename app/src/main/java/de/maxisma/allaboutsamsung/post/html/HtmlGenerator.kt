@@ -43,6 +43,21 @@ ${post.contentWithAd(adHtml)}
 <script type="text/javascript">
 $analyticsJs
 </script>
+<script type="text/javascript">
+function resizeIframes() {
+    var iframes = document.getElementsByTagName("iframe");
+    for (var i = 0; i < iframes.length; i++) {
+        var ifr = iframes[i];
+        var aspect = ifr.width / ifr.height;
+        var newHeight = (1 / aspect) * ifr.clientWidth;
+        ifr.style.height = newHeight;
+    }
+}
+
+window.onload = function() {
+    resizeIframes();
+}
+</script>
 </body>
 </html>
 """
