@@ -32,7 +32,13 @@ class PostsWidgetProvider : AppWidgetProvider() {
         }
     }
 
-    override fun onDeleted(context: Context, appWidgetIds: IntArray) {
-        super.onDeleted(context, appWidgetIds)
+    override fun onEnabled(context: Context?) {
+        super.onEnabled(context)
+        scheduleWidgetJob()
+    }
+
+    override fun onDisabled(context: Context?) {
+        super.onDisabled(context)
+        unscheduleWidgetJob()
     }
 }
