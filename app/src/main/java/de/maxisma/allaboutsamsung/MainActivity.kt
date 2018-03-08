@@ -6,12 +6,21 @@ import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentStatePagerAdapter
+import de.maxisma.allaboutsamsung.db.Db
 import de.maxisma.allaboutsamsung.db.PostId
 import de.maxisma.allaboutsamsung.post.newPostActivityIntent
 import de.maxisma.allaboutsamsung.posts.PostsFragment
 import de.maxisma.allaboutsamsung.settings.updatePushSubscriptionsAccordingly
+import de.maxisma.allaboutsamsung.utils.DbWriteDispatcher
 import de.maxisma.allaboutsamsung.youtube.YouTubeFragment
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.launch
+import java.util.Date
+import javax.inject.Inject
+
+private val oldestAllowedDbPostCreatedDate =
+    Date(System.currentTimeMillis() - 14L * 24 * 60 * 60 * 1000)
 
 fun newMainActivityIntent(context: Context) = Intent(context, MainActivity::class.java)
 
@@ -29,6 +38,9 @@ class MainActivity : BaseActivity(), PostsFragment.InteractionListener, YouTubeF
      * - Fix notification logo tint on Samsung? Fix implemented, to be tested.
      */
 
+    @Inject
+    lateinit var db: Db
+
     override val darkThemeToUse = R.style.AppTheme_NoActionBar_Dark
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -37,10 +49,15 @@ class MainActivity : BaseActivity(), PostsFragment.InteractionListener, YouTubeF
         setContentView(R.layout.activity_main)
         setSupportActionBar(mainToolbar)
 
-        preferenceHolder.updatePushSubscriptionsAccordingly(app.appComponent.db)
+        app.appComponent.inject(this)
 
-        mainViewPager.adapter = MainAdapter(this, supportFragmentManager)
-        mainTabLayout.setupWithViewPager(mainViewPager, true)
+        launch(UI) {
+            launch(DbWriteDispatcher) { db.postDao.deleteExpired(oldestAllowedDbPostCreatedDate) }.join()
+            preferenceHolder.updatePushSubscriptionsAccordingly(app.appComponent.db)
+
+            mainViewPager.adapter = MainAdapter(this@MainActivity, supportFragmentManager)
+            mainTabLayout.setupWithViewPager(mainViewPager, true)
+        }
     }
 
     override fun displayPost(postId: PostId) {

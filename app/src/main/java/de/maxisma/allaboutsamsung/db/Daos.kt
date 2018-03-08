@@ -47,6 +47,9 @@ abstract class PostDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     abstract fun insertPost(post: Post)
 
+    @Query("DELETE FROM Post WHERE dbItemCreatedDateUtc < datetime(:oldestAllowedDate)")
+    abstract fun deleteExpired(oldestAllowedDate: Date)
+
     @Query(
         """
         SELECT * FROM Post

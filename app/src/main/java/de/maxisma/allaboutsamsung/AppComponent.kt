@@ -39,4 +39,5 @@ interface AppComponent {
     fun inject(baseActivity: BaseActivity)
     fun inject(postActivity: PostActivity)
     fun inject(postsWidgetRemoteViewsFactory: PostsWidgetRemoteViewsFactory)
+    fun inject(mainActivity: MainActivity)
 }
