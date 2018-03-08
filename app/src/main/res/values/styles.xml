@@ -1,7 +1,7 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme.Light" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
@@ -16,42 +16,35 @@
         <item name="bottomNavigationBackground">@color/darkColorPrimary</item>
         <item name="bottomNavigationItemColor">@drawable/bottom_navigation_item_color_dark</item>
 
+        <item name="colorControlNormal">@android:color/white</item>
+        <item name="android:textColorPrimary">@android:color/white</item>
+        <item name="titleTextColor">@android:color/white</item>
+        <item name="subtitleTextColor">@android:color/white</item>
+        <item name="popupTheme">@style/AppTheme.PopupTheme.Dark</item>
+
         <item name="android:windowBackground">@color/darkColorPrimaryDark</item>
         <item name="android:textColor">@color/colorAccent</item>
     </style>
 
-    <style name="AppTheme.NoActionBar" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="AppTheme" parent="Theme.AppCompat.Light">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-
-        <item name="popupTheme">@style/AppTheme.NoActionBar.PopupTheme</item>
-        <item name="colorControlNormal">@android:color/white</item>
-        <item name="android:textColorPrimary">@android:color/white</item>
-        <item name="titleTextColor">@android:color/white</item>
-        <item name="subtitleTextColor">@android:color/white</item>
-    </style>
-
-    <style name="AppTheme.NoActionBar.Dark" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="colorPrimary">@color/darkColorPrimary</item>
-        <item name="colorPrimaryDark">@color/darkColorPrimaryDark</item>
-        <item name="colorAccent">@color/colorAccent</item>
+        <item name="bottomNavigationBackground">@null</item>
+        <item name="bottomNavigationItemColor">@null</item>
 
         <item name="colorControlNormal">@android:color/white</item>
         <item name="android:textColorPrimary">@android:color/white</item>
         <item name="titleTextColor">@android:color/white</item>
         <item name="subtitleTextColor">@android:color/white</item>
-        <item name="popupTheme">@style/AppTheme.NoActionBar.PopupTheme.Dark</item>
-
-        <item name="android:windowBackground">@color/darkColorPrimaryDark</item>
-        <item name="android:textColor">@color/colorAccent</item>
+        <item name="popupTheme">@style/AppTheme.PopupTheme</item>
     </style>
 
-    <style name="AppTheme.NoActionBar.PopupTheme">
+    <style name="AppTheme.PopupTheme">
         <item name="android:textColor">@android:color/black</item>
     </style>
 
-    <style name="AppTheme.NoActionBar.PopupTheme.Dark" parent="ThemeOverlay.AppCompat.Dark">
+    <style name="AppTheme.PopupTheme.Dark" parent="ThemeOverlay.AppCompat.Dark">
         <item name="android:textColor">@android:color/white</item>
         <item name="android:background">@color/darkColorPrimaryDark</item>
     </style>

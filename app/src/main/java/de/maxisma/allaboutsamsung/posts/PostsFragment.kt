@@ -50,6 +50,7 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
 
     interface InteractionListener {
         fun displayPost(postId: PostId)
+        fun onDisplayedPostsChanged(posts: List<Post>)
     }
 
     @Inject
@@ -160,7 +161,9 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
         val executor = newExecutor(wordpressApi, db, ::displaySupportedError)
         val adapter = postList.adapter as PostsAdapter
         executor.data.observe(this@PostsFragment) {
-            adapter.updateWith(it ?: emptyList(), executor)
+            val displayedPosts = it ?: emptyList()
+            adapter.updateWith(displayedPosts, executor)
+            listener.onDisplayedPostsChanged(displayedPosts)
         }
 
         currentExecutor = executor

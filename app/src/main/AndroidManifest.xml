@@ -18,9 +18,7 @@
             android:name="io.fabric.ApiKey"
             android:value="d8f9e14466d9fd3a25fc2f77f76ed4dc43cb84cc" />
 
-        <activity
-            android:name=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -48,7 +46,9 @@
 
         <activity android:name=".gallery.GalleryActivity" />
 
-        <activity android:name=".settings.PreferenceActivity" />
+        <activity
+            android:name=".settings.PreferenceActivity"
+            android:theme="@style/AppTheme.Light" />
 
         <activity android:name=".LegalNoticeActivity">
             <intent-filter>
