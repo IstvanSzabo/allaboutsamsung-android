@@ -3,6 +3,7 @@ package de.maxisma.allaboutsamsung
 import android.content.Context
 import com.google.api.services.youtube.YouTube
 import dagger.Component
+import de.maxisma.allaboutsamsung.appwidget.PostsWidgetRemoteViewsFactory
 import de.maxisma.allaboutsamsung.categories.CategoryActivity
 import de.maxisma.allaboutsamsung.db.Db
 import de.maxisma.allaboutsamsung.post.PostActivity
@@ -37,4 +38,5 @@ interface AppComponent {
     fun inject(youTubeFragment: YouTubeFragment)
     fun inject(baseActivity: BaseActivity)
     fun inject(postActivity: PostActivity)
+    fun inject(postsWidgetRemoteViewsFactory: PostsWidgetRemoteViewsFactory)
 }

@@ -28,12 +28,14 @@ import de.maxisma.allaboutsamsung.rest.allUsers
 import de.maxisma.allaboutsamsung.utils.DbWriteDispatcher
 import de.maxisma.allaboutsamsung.utils.IOPool
 import de.maxisma.allaboutsamsung.utils.SwitchableLiveData
+import de.maxisma.allaboutsamsung.utils.observeUntilFalse
 import de.maxisma.allaboutsamsung.utils.retry
 import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.TimeoutCancellationException
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.sync.Mutex
 import kotlinx.coroutines.experimental.withTimeout
 import retrofit2.HttpException
 import java.io.IOException
@@ -42,6 +44,7 @@ import java.util.Date
 interface QueryExecutor {
     val query: Query
     val data: LiveData<List<Post>>
+    suspend fun dataImmediate(): List<Post>
 
     fun tagById(tagId: TagId): Deferred<Tag>
     fun categoryById(categoryId: CategoryId): Deferred<Category>
@@ -194,6 +197,18 @@ private abstract class DbQueryExecutor(
 
     final override fun refresh(postId: PostId) = launch(DbWriteDispatcher) {
         fetchPostsAndRelated(onlyIds = listOf(postId))
+    }
+
+    override suspend fun dataImmediate(): List<Post> {
+        val mutex = Mutex(locked = true)
+        lateinit var currentData: List<Post>
+        data.observeUntilFalse {
+            currentData = it ?: return@observeUntilFalse true
+            mutex.unlock()
+            false
+        }
+        mutex.lock()
+        return currentData
     }
 }
 

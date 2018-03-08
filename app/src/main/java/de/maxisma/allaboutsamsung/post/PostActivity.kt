@@ -29,6 +29,10 @@ fun newPostActivityIntent(context: Context, postId: PostId) = Intent(context, Po
     putExtra(EXTRA_POST_ID, postId)
 }
 
+fun newPostActivityIntentTemplate(context: Context) = Intent(context, PostActivity::class.java)
+
+fun newPostActivityFillInIntent(postId: PostId) = Intent().apply { putExtra(EXTRA_POST_ID, postId) }
+
 class PostActivity : BaseActivity() {
 
     @Inject

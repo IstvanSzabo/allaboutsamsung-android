@@ -19,7 +19,7 @@ class MainActivity : BaseActivity(), PostsFragment.InteractionListener, YouTubeF
 
     /*
      * Features TODO:
-     * - Small and large widget
+     * - Auto-update widget
      * - Refresh in onResume after a while
      * - Resolve warnings, code inspections
      * - Documentation
