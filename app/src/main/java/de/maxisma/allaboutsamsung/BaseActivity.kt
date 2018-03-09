@@ -1,8 +1,10 @@
 package de.maxisma.allaboutsamsung
 
+import android.os.Build
 import android.os.Bundle
 import android.support.annotation.StyleRes
 import android.support.v7.app.AppCompatActivity
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import de.maxisma.allaboutsamsung.settings.PreferenceHolder
@@ -36,6 +38,19 @@ abstract class BaseActivity(private val useDefaultMenu: Boolean = true) : AppCom
         super.onResume()
         if (wasDarkThemeEnabled != preferenceHolder.useDarkTheme) {
             recreate()
+            Log.d("BaseActivity", "recreate() $this")
+        }
+    }
+
+    override fun recreate() {
+        // For some reason, Android calls onPause directly after onResume on older versions
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
+            super.recreate()
+        } else {
+            val app = applicationContext
+            val intent = intent
+            finish()
+            app.startActivity(intent)
         }
     }
 

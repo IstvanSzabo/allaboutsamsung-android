@@ -34,7 +34,6 @@ class MainActivity : BaseActivity(), PostsFragment.InteractionListener, YouTubeF
     /*
      * Features TODO:
      * - Documentation
-     * - Test on older versions
      * - Look into why search may have no effect in some situations
      */
 
