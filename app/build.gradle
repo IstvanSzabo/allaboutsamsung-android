@@ -26,7 +26,7 @@ android {
 
         buildConfigField "String", "WEBVIEW_BASE_URL", "\"https://allaboutsamsung.de\""
         buildConfigField "String", "REST_BASE_URL", "\"https://allaboutsamsung.de/wp-json/wp/v2/\""
-        buildConfigField "String", "AD_BASE_URL", "\"https://allaboutsamsung.de/wp-json/app-api/v1/\""
+        buildConfigField "String", "APP_API_BASE_URL", "\"https://allaboutsamsung.de/wp-json/app-api/v1/\""
         buildConfigField "String", "COMMENTS_URL_TEMPLATE", "\"https://allaboutsamsung.de/wp-content/plugins/app-api/xml/comment.php?guid=[POST_ID]\""
         buildConfigField "String", "LEGAL_NOTICE_URL", "\"https://allaboutsamsung.de/impressum\""
         buildConfigField "String", "YOUTUBE_PLAYLIST_ID", "\"UU-JTjqB5yT9C8kdIJRCW2nQ\""

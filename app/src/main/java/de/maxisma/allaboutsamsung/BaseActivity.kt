@@ -4,7 +4,6 @@ import android.os.Build
 import android.os.Bundle
 import android.support.annotation.StyleRes
 import android.support.v7.app.AppCompatActivity
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import de.maxisma.allaboutsamsung.settings.PreferenceHolder
@@ -38,7 +37,6 @@ abstract class BaseActivity(private val useDefaultMenu: Boolean = true) : AppCom
         super.onResume()
         if (wasDarkThemeEnabled != preferenceHolder.useDarkTheme) {
             recreate()
-            Log.d("BaseActivity", "recreate() $this")
         }
     }
 
