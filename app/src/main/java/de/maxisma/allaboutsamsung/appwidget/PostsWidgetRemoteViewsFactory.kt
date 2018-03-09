@@ -6,6 +6,7 @@ import android.widget.RemoteViewsService
 import de.maxisma.allaboutsamsung.R
 import de.maxisma.allaboutsamsung.app
 import de.maxisma.allaboutsamsung.db.Db
+import de.maxisma.allaboutsamsung.db.KeyValueStore
 import de.maxisma.allaboutsamsung.db.Post
 import de.maxisma.allaboutsamsung.post.newPostActivityFillInIntent
 import de.maxisma.allaboutsamsung.query.Query
@@ -28,6 +29,9 @@ class PostsWidgetRemoteViewsFactory(private val context: Context) : RemoteViewsS
     @Inject
     lateinit var db: Db
 
+    @Inject
+    lateinit var keyValueStore: KeyValueStore
+
     @Volatile
     private var posts = emptyList<Post>()
 
@@ -41,7 +45,7 @@ class PostsWidgetRemoteViewsFactory(private val context: Context) : RemoteViewsS
 
     override fun onDataSetChanged() = runBlocking {
         val query = Query.Empty
-        val executor = query.newExecutor(wordpressApi, db, { TODO("Handle error") })
+        val executor = query.newExecutor(wordpressApi, db, keyValueStore, { TODO("Handle error") })
         executor.requestNewerPosts().join()
         posts = executor.dataImmediate()
     }

@@ -4,8 +4,12 @@ import com.evernote.android.job.Job
 import com.evernote.android.job.JobRequest
 import com.evernote.android.job.util.support.PersistableBundleCompat
 import de.maxisma.allaboutsamsung.app
+import de.maxisma.allaboutsamsung.db.Db
+import de.maxisma.allaboutsamsung.db.KeyValueStore
 import de.maxisma.allaboutsamsung.db.PostId
 import de.maxisma.allaboutsamsung.notification.notifyAboutPost
+import de.maxisma.allaboutsamsung.rest.WordpressApi
+import javax.inject.Inject
 
 const val NOTIFICATION_JOB_TAG = "notification_job"
 private const val EXTRA_POST_ID = "post_id"
@@ -23,12 +27,22 @@ fun scheduleNotificationJob(postId: PostId) {
 }
 
 class NotificationJob : Job() {
+
+    @Inject
+    lateinit var db: Db
+
+    @Inject
+    lateinit var api: WordpressApi
+
+    @Inject
+    lateinit var keyValueStore: KeyValueStore
+
     override fun onRunJob(params: Params): Result {
         val postId: PostId = params.extras.getLong(EXTRA_POST_ID, -1)
         require(postId != -1L) { "Invalid postId!" }
 
-        val db = context.app.appComponent.db
-        val api = context.app.appComponent.wordpressApi
-        return notifyAboutPost(postId, db, api, context)
+        context.app.appComponent.inject(this)
+
+        return notifyAboutPost(postId, db, api, context, keyValueStore)
     }
 }

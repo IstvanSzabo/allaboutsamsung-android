@@ -16,9 +16,9 @@ import de.maxisma.allaboutsamsung.R
 import de.maxisma.allaboutsamsung.app
 import de.maxisma.allaboutsamsung.db.Category
 import de.maxisma.allaboutsamsung.db.CategoryId
-import de.maxisma.allaboutsamsung.db.Db
 import de.maxisma.allaboutsamsung.utils.observe
 import kotlinx.android.synthetic.main.activity_category.*
+import kotlinx.coroutines.experimental.launch
 import javax.inject.Inject
 
 private const val RESULT_CATEGORY_ID = "category_id"
@@ -37,7 +37,7 @@ class CategoryActivity : BaseActivity(useDefaultMenu = false) {
     data class Result(val categoryId: CategoryId?)
 
     @Inject
-    lateinit var db: Db
+    lateinit var categoryCache: CategoryCache
 
     override val darkThemeToUse = R.style.AppTheme_Dialog_Dark
 
@@ -51,7 +51,7 @@ class CategoryActivity : BaseActivity(useDefaultMenu = false) {
 
         categoryList.layoutManager = LinearLayoutManager(this)
 
-        db.categoryDao.categories().observe(this) {
+        categoryCache.categories().observe(this) {
             it ?: return@observe
 
             categoryList.adapter = CategoryAdapter(createVirtualCategoryList(it), onClick = {
@@ -59,6 +59,8 @@ class CategoryActivity : BaseActivity(useDefaultMenu = false) {
                 finish()
             })
         }
+
+        launch { categoryCache.refreshIfNeeded() }
     }
 
     private fun createVirtualCategoryList(dbCategories: List<Category>) =

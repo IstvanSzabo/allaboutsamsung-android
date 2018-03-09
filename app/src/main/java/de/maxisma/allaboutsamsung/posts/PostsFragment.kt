@@ -159,7 +159,7 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
     private fun Query.load() = launch(UI) {
         currentExecutor?.data?.removeObservers(this@PostsFragment)
 
-        val executor = newExecutor(wordpressApi, db, ::displaySupportedError)
+        val executor = newExecutor(wordpressApi, db, keyValueStore, ::displaySupportedError)
         val adapter = postList.adapter as PostsAdapter
         executor.data.observe(this@PostsFragment) {
             val displayedPosts = it ?: emptyList()

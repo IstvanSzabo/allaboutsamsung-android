@@ -149,7 +149,7 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
         })
 
         val query = Query.Filter(onlyIds = listOf(postId))
-        val executor = query.newExecutor(wordpressApi, db, ::displaySupportedError)
+        val executor = query.newExecutor(wordpressApi, db, keyValueStore, ::displaySupportedError)
 
         db.postMetaDao.postWithAuthorName(postId).observe(this) { postWithAuthorName ->
             val (post, authorName) = postWithAuthorName ?: return@observe run { executor.requestNewerPosts() }

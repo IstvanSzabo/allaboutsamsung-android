@@ -16,6 +16,7 @@ import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
 import com.evernote.android.job.Job
 import de.maxisma.allaboutsamsung.R
 import de.maxisma.allaboutsamsung.db.Db
+import de.maxisma.allaboutsamsung.db.KeyValueStore
 import de.maxisma.allaboutsamsung.db.Post
 import de.maxisma.allaboutsamsung.db.PostId
 import de.maxisma.allaboutsamsung.newMainActivityIntent
@@ -33,7 +34,7 @@ import java.util.concurrent.ExecutionException
 import java.util.concurrent.Semaphore
 
 @WorkerThread
-fun notifyAboutPost(postId: PostId, db: Db, api: WordpressApi, context: Context): Job.Result {
+fun notifyAboutPost(postId: PostId, db: Db, api: WordpressApi, context: Context, keyValueStore: KeyValueStore): Job.Result {
     val barrier = Semaphore(0)
     var result = Job.Result.SUCCESS
 
@@ -44,7 +45,7 @@ fun notifyAboutPost(postId: PostId, db: Db, api: WordpressApi, context: Context)
     }
 
     val query = Query.Filter(onlyIds = listOf(postId))
-    val executor = query.newExecutor(api, db, onError = ::reschedule)
+    val executor = query.newExecutor(api, db, keyValueStore, onError = ::reschedule)
     launch(UI) {
         executor.requestNewerPosts().join()
 

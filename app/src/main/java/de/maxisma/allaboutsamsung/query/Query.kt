@@ -7,6 +7,7 @@ import com.squareup.moshi.JsonEncodingException
 import de.maxisma.allaboutsamsung.db.Category
 import de.maxisma.allaboutsamsung.db.CategoryId
 import de.maxisma.allaboutsamsung.db.Db
+import de.maxisma.allaboutsamsung.db.KeyValueStore
 import de.maxisma.allaboutsamsung.db.Post
 import de.maxisma.allaboutsamsung.db.PostId
 import de.maxisma.allaboutsamsung.db.Tag
@@ -65,9 +66,9 @@ sealed class Query {
     ) : Query()
 }
 
-fun Query.newExecutor(wordpressApi: WordpressApi, db: Db, onError: (Exception) -> Unit): QueryExecutor = when (this) {
-    Query.Empty -> EmptyQueryExecutor(wordpressApi, db, onError)
-    is Query.Filter -> FilterQueryExecutor(this, wordpressApi, db, onError)
+fun Query.newExecutor(wordpressApi: WordpressApi, db: Db, keyValueStore: KeyValueStore, onError: (Exception) -> Unit): QueryExecutor = when (this) {
+    Query.Empty -> EmptyQueryExecutor(wordpressApi, db, keyValueStore, onError)
+    is Query.Filter -> FilterQueryExecutor(this, wordpressApi, keyValueStore, db, onError)
 }
 
 const val WORDPRESS_POSTS_PER_PAGE = 20
@@ -79,6 +80,7 @@ private typealias Success = Boolean
 private abstract class DbQueryExecutor(
     private val wordpressApi: WordpressApi,
     private val db: Db,
+    private val keyValueStore: KeyValueStore,
     private val onError: (Exception) -> Unit
 ) : QueryExecutor {
 
@@ -139,7 +141,9 @@ private abstract class DbQueryExecutor(
                 val categories = if (missingCategoryIds.isEmpty()) {
                     emptyList()
                 } else {
-                    wordpressApi.allCategories(CategoryIdsDto(missingCategoryIds)).await()
+                    // onlyIds = null to fetch *all* categories from the server.
+                    // We need them anyway for CategoryActivity
+                    wordpressApi.allCategories(onlyIds = null).await()
                 }
                 val tags = if (missingTagIds.isEmpty()) {
                     emptyList()
@@ -151,6 +155,8 @@ private abstract class DbQueryExecutor(
                 } else {
                     wordpressApi.allUsers(UserIdsDto(missingUserIds)).await()
                 }
+
+                keyValueStore.lastCategoryRefreshMs = System.currentTimeMillis()
                 db.importCategoryDtos(categories)
                 db.importTagDtos(tags)
                 db.importUserDtos(users)
@@ -215,8 +221,9 @@ private abstract class DbQueryExecutor(
 private class EmptyQueryExecutor(
     private val wordpressApi: WordpressApi,
     db: Db,
+    keyValueStore: KeyValueStore,
     onError: (Exception) -> Unit
-) : DbQueryExecutor(wordpressApi, db, onError) {
+) : DbQueryExecutor(wordpressApi, db, keyValueStore, onError) {
     override val query = Query.Empty
     override suspend fun fetchPosts(beforeGmt: Date?, onlyIds: List<PostId>?) = wordpressApi
         .posts(
@@ -231,9 +238,10 @@ private class EmptyQueryExecutor(
 private class FilterQueryExecutor(
     override val query: Query.Filter,
     private val wordpressApi: WordpressApi,
+    keyValueStore: KeyValueStore,
     private val db: Db,
     onError: (Exception) -> Unit
-) : DbQueryExecutor(wordpressApi, db, onError) {
+) : DbQueryExecutor(wordpressApi, db, keyValueStore, onError) {
 
     private val postIds = mutableSetOf<PostId>()
     private val _data = MutableLiveData<List<Post>>()
