@@ -20,6 +20,7 @@ import de.maxisma.allaboutsamsung.db.Video
 import de.maxisma.allaboutsamsung.posts.SpacingItemDecoration
 import de.maxisma.allaboutsamsung.utils.dpToPx
 import de.maxisma.allaboutsamsung.utils.observe
+import de.maxisma.allaboutsamsung.utils.toStyledTitle
 import kotlinx.android.synthetic.main.fragment_youtube.*
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.UI
@@ -79,7 +80,7 @@ class YouTubeFragment : BaseFragment<YouTubeFragment.InteractionListener>() {
         videoList.addOnScrollListener(infiniteScrollListener)
 
         repo.videos.observe(this) {
-            adapter.videos = it ?: return@observe
+            adapter.videos = it?.map { VideoViewModel(it, it.title.toStyledTitle(context!!)) } ?: return@observe
             adapter.notifyDataSetChanged()
         }
 

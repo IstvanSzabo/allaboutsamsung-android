@@ -8,4 +8,5 @@
     <color name="transparent_black">#bd000000</color>
     <color name="light_gray">#cacaca</color>
     <color name="lighter_gray">#e2e2e2</color>
+    <color name="titleBackgroundColor">#80000000</color>
 </resources>

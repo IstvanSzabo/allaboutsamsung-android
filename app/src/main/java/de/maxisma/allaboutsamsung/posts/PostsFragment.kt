@@ -32,6 +32,7 @@ import de.maxisma.allaboutsamsung.settings.PreferenceHolder
 import de.maxisma.allaboutsamsung.utils.IOPool
 import de.maxisma.allaboutsamsung.utils.dpToPx
 import de.maxisma.allaboutsamsung.utils.observe
+import de.maxisma.allaboutsamsung.utils.toStyledTitle
 import de.maxisma.allaboutsamsung.utils.trackLandingLoad
 import kotlinx.android.synthetic.main.fragment_posts.*
 import kotlinx.coroutines.experimental.Deferred
@@ -178,12 +179,20 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
     }
 
     private fun PostsAdapter.updateWith(posts: List<Post>, executor: QueryExecutor) = launch(UI) {
+        getContext() ?: return@launch
+
         this@updateWith.posts = posts.toPostViewModels(executor)
         notifyDataSetChanged()
     }
 
     private suspend fun Iterable<Post>.toPostViewModels(executor: QueryExecutor) =
-        map { PostViewModel(it, isBreaking = BuildConfig.BREAKING_CATEGORY_ID in executor.categoriesForPost(it.id).await().map { it.id }) }
+        map {
+            PostViewModel(
+                it,
+                isBreaking = BuildConfig.BREAKING_CATEGORY_ID in executor.categoriesForPost(it.id).await().map { it.id },
+                styledString = it.title.toStyledTitle(context!!)
+            )
+        }
 
     private val Query.description: Deferred<String>
         get() = when (this) {

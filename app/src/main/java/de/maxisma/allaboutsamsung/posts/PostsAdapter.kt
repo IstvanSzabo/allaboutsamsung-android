@@ -7,11 +7,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import com.bumptech.glide.load.MultiTransformation
+import com.bumptech.glide.load.Transformation
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.google.android.gms.ads.AdRequest
 import de.maxisma.allaboutsamsung.R
 import de.maxisma.allaboutsamsung.db.Post
+import de.maxisma.allaboutsamsung.utils.applyStyledTitle
 import de.maxisma.allaboutsamsung.utils.glide.GlideApp
 
 private const val VIEW_TYPE_AD = 0
@@ -28,7 +31,7 @@ class PostsAdapter(
         setHasStableIds(true)
     }
 
-    private lateinit var transformation: MultiTransformation<Bitmap>
+    private lateinit var transformation: Transformation<Bitmap>
 
     private fun correctedPostPosition(position: Int) = position - (if (showAd) 1 else 0)
 
@@ -37,12 +40,11 @@ class PostsAdapter(
 
         val postViewModel = posts[correctedPostPosition(position)]
         holder.itemView.setOnClickListener { onClick(postViewModel.post) }
-        holder.title.text = postViewModel.post.title
+        holder.title.applyStyledTitle(postViewModel.styledString)
         holder.breakingView.visibility = if (postViewModel.isBreaking) View.VISIBLE else View.GONE
 
         GlideApp.with(holder.itemView)
             .load(postViewModel.post.imageUrl)
-            .centerCrop()
             .transform(transformation)
             .transition(DrawableTransitionOptions.withCrossFade())
             .into(holder.image)
@@ -52,10 +54,11 @@ class PostsAdapter(
         if (::transformation.isInitialized) return
 
         val dimensionPixelSize = context.resources.getDimensionPixelSize(R.dimen.rounded_corner_radius)
-        transformation = MultiTransformation<Bitmap>(DarkenTransformation(), RoundedCorners(dimensionPixelSize))
+        transformation =MultiTransformation(CenterCrop(), RoundedCorners(dimensionPixelSize))
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        initTransformation(parent.context)
         return when (viewType) {
             VIEW_TYPE_AD -> {
                 val view = LayoutInflater.from(parent.context).inflate(R.layout.row_ad, parent, false)
@@ -64,7 +67,6 @@ class PostsAdapter(
                 }
             }
             VIEW_TYPE_POST -> {
-                initTransformation(parent.context)
                 val view = LayoutInflater.from(parent.context).inflate(R.layout.row_post, parent, false)
                 PostViewHolder(view)
             }
