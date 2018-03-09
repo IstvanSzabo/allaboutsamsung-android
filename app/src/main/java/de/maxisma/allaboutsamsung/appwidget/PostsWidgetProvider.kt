@@ -8,6 +8,7 @@ import android.content.Intent
 import android.net.Uri
 import android.widget.RemoteViews
 import de.maxisma.allaboutsamsung.R
+import de.maxisma.allaboutsamsung.newMainActivityIntent
 import de.maxisma.allaboutsamsung.post.newPostActivityIntentTemplate
 
 class PostsWidgetProvider : AppWidgetProvider() {
@@ -23,10 +24,14 @@ class PostsWidgetProvider : AppWidgetProvider() {
                 data = Uri.parse(toUri(Intent.URI_INTENT_SCHEME))
             }
 
+            val headerIntent = newMainActivityIntent(context)
+            val headerPendingIntent = PendingIntent.getActivity(context, 0, headerIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+
             val views = RemoteViews(context.packageName, R.layout.posts_widget)
             views.setPendingIntentTemplate(R.id.postsWidgetListView, pendingIntent)
             views.setRemoteAdapter(R.id.postsWidgetListView, serviceIntent)
-            // TODO views.setEmptyView(...)
+            views.setOnClickPendingIntent(R.id.postsWidgetHeader, headerPendingIntent)
+            views.setEmptyView(R.id.postsWidgetListView, R.id.postsWidgetEmptyView)
 
             appWidgetManager.updateAppWidget(appWidgetId, views)
         }

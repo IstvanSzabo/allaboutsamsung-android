@@ -13,6 +13,7 @@ import de.maxisma.allaboutsamsung.query.Query
 import de.maxisma.allaboutsamsung.query.newExecutor
 import de.maxisma.allaboutsamsung.rest.WordpressApi
 import de.maxisma.allaboutsamsung.utils.glide.GlideApp
+import kotlinx.coroutines.experimental.cancel
 import kotlinx.coroutines.experimental.runBlocking
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -39,15 +40,20 @@ class PostsWidgetRemoteViewsFactory(private val context: Context) : RemoteViewsS
         context.app.appComponent.inject(this)
     }
 
-    override fun getLoadingView() = null // TODO Should this use custom loading view?
+    override fun getLoadingView() = null
 
     override fun getItemId(position: Int) = posts[position].id
 
     override fun onDataSetChanged() = runBlocking {
         val query = Query.Empty
-        val executor = query.newExecutor(wordpressApi, db, keyValueStore, { TODO("Handle error") })
-        executor.requestNewerPosts().join()
-        posts = executor.dataImmediate()
+        val executor = query.newExecutor(wordpressApi, db, keyValueStore, { coroutineContext.cancel(it) })
+        try {
+            executor.requestNewerPosts().join()
+            posts = executor.dataImmediate()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            // Don't do anything, this is periodically run anyway
+        }
     }
 
     override fun hasStableIds() = true
