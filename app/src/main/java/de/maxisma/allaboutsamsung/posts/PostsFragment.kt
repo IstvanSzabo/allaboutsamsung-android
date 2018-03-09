@@ -42,8 +42,11 @@ import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import javax.inject.Inject
+import kotlin.math.min
 
 private const val REQUEST_CODE_CATEGORY = 0
+
+private const val STATE_LIST_POSITION = "list_position"
 
 private const val RELOAD_AFTER_MS = 30 * 60 * 1000L
 
@@ -76,6 +79,8 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
     }
 
     private lateinit var searchItem: MenuItem
+
+    private lateinit var layoutManager: LinearLayoutManager
 
     private val searchQueryListener = object : SearchView.OnQueryTextListener {
         override fun onQueryTextSubmit(query: String): Boolean {
@@ -125,12 +130,12 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
 
         val showAd = !BuildConfig.DEBUG && getString(R.string.appmobPostListAdId).isNotEmpty()
         val adapter = PostsAdapter(showAd = showAd) { listener.displayPost(it.id) }
-        val lm = LinearLayoutManager(context!!)
+        layoutManager = LinearLayoutManager(context!!)
         postList.adapter = adapter
-        postList.layoutManager = lm
+        postList.layoutManager = layoutManager
         postList.addItemDecoration(SpacingItemDecoration(horizontalSpacing = 8.dpToPx(), verticalSpacing = 8.dpToPx()))
 
-        val infiniteScrollListener = object : InfiniteScrollListener(WORDPRESS_POSTS_PER_PAGE, lm) {
+        val infiniteScrollListener = object : InfiniteScrollListener(WORDPRESS_POSTS_PER_PAGE, layoutManager) {
 
             override fun onScrolledToEnd(firstVisibleItemPosition: Int) {
                 if (currentLoadingJob?.isActive != true) {
@@ -144,7 +149,13 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
         }
         postList.addOnScrollListener(infiniteScrollListener)
 
-        Query.Empty.load()
+        val lastListPosition = if (savedInstanceState?.containsKey(STATE_LIST_POSITION) == true) {
+            savedInstanceState.getInt(STATE_LIST_POSITION)
+        } else {
+            null
+        }
+
+        Query.Empty.load(lastListPosition)
         db.postDao.latestActiveBreakingPost().observe(this) { post ->
             if (post == null) {
                 featured.visibility = View.GONE
@@ -156,7 +167,12 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
         }
     }
 
-    private fun Query.load() = launch(UI) {
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt(STATE_LIST_POSITION, layoutManager.findFirstVisibleItemPosition())
+    }
+
+    private fun Query.load(withListPosition: Int? = null) = launch(UI) {
         currentExecutor?.data?.removeObservers(this@PostsFragment)
 
         val executor = newExecutor(wordpressApi, db, keyValueStore, ::displaySupportedError)
@@ -168,7 +184,17 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
         }
 
         currentExecutor = executor
-        requestNewerPosts()
+        launch(UI) {
+            if (withListPosition != null) {
+                postList.setOnTouchListener { _, _ -> true }
+            }
+            requestNewerPosts(withListPosition).join()
+
+            if (withListPosition != null) {
+                postList.scrollToPosition(min(withListPosition, postList.adapter.itemCount))
+                postList.setOnTouchListener(null)
+            }
+        }
         activity?.title = description.await()
 
         keyValueStore.updateAdHtml()
@@ -206,11 +232,21 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
 
     private var lastLoadTimeMs = -1L
 
-    private fun requestNewerPosts(): Job {
+    private fun requestNewerPosts(includingIndex: Int? = null): Job {
+        val executor = currentExecutor ?: return launch { }
+
         lastLoadTimeMs = System.currentTimeMillis()
         return launch(UI) {
             postsSwipeRefresh.isRefreshing = true
-            currentExecutor?.requestNewerPosts()?.join()
+            executor.requestNewerPosts().join()
+
+            var lastCount = -1
+            while (postList.adapter.itemCount <= includingIndex ?: -1 && lastCount != postList.adapter.itemCount) {
+                // Abort loop if item count doesn't change anymore
+                lastCount = postList.adapter.itemCount
+
+                executor.requestOlderPosts().join()
+            }
             postsSwipeRefresh.isRefreshing = false
         }
     }

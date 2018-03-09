@@ -27,12 +27,15 @@ import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import javax.inject.Inject
+import kotlin.math.min
 
 /**
  * Avoid that on first launch the user is notified about new
  * videos even though he has installed it for the first time.
  */
 private const val NOTIFY_NEW_VIDEOS_IF_LESS_THAN = 6
+
+private const val STATE_LIST_POSITION = "list_position"
 
 class YouTubeFragment : BaseFragment<YouTubeFragment.InteractionListener>() {
 
@@ -61,34 +64,65 @@ class YouTubeFragment : BaseFragment<YouTubeFragment.InteractionListener>() {
         return inflater.inflate(R.layout.fragment_youtube, container, false)
     }
 
+    private lateinit var layoutManager: LinearLayoutManager
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         videosSwipeRefresh.setOnRefreshListener { requestNewerVideos() }
 
         val adapter = VideoAdapter { it.fireIntent() }
-        val lm = LinearLayoutManager(context!!)
+        layoutManager = LinearLayoutManager(context!!)
         videoList.adapter = adapter
-        videoList.layoutManager = lm
+        videoList.layoutManager = layoutManager
         videoList.addItemDecoration(SpacingItemDecoration(horizontalSpacing = 8.dpToPx(), verticalSpacing = 8.dpToPx()))
 
-        val infiniteScrollListener = object : InfiniteScrollListener(YOUTUBE_MAX_ITEMS_PER_REQUEST, lm) {
+        val infiniteScrollListener = object : InfiniteScrollListener(YOUTUBE_MAX_ITEMS_PER_REQUEST, layoutManager) {
             override fun onScrolledToEnd(firstVisibleItemPosition: Int) {
                 requestOlderVideos()
             }
         }
         videoList.addOnScrollListener(infiniteScrollListener)
 
+        val lastListPosition = if (savedInstanceState?.containsKey(STATE_LIST_POSITION) == true) {
+            savedInstanceState.getInt(STATE_LIST_POSITION)
+        } else {
+            null
+        }
+
         repo.videos.observe(this) {
             adapter.videos = it?.map { VideoViewModel(it, it.title.toStyledTitle(context!!)) } ?: return@observe
             adapter.notifyDataSetChanged()
         }
 
-        requestNewerVideos()
+        launch(UI) {
+            if (lastListPosition != null) {
+                videoList.setOnTouchListener { _, _ -> true }
+            }
+
+            requestNewerVideos().join()
+
+            if (lastListPosition != null) {
+                var lastCount = -1
+                while (videoList.adapter.itemCount <= lastListPosition && lastCount != videoList.adapter.itemCount) {
+                    // Abort loop if item count doesn't change anymore
+                    lastCount = videoList.adapter.itemCount
+
+                    requestOlderVideos().join()
+                }
+                videoList.scrollToPosition(min(lastListPosition, videoList.adapter.itemCount))
+                videoList.setOnTouchListener(null)
+            }
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt(STATE_LIST_POSITION, layoutManager.findFirstVisibleItemPosition())
     }
 
     @MainThread
-    private fun debounceLoad(f: suspend () -> Unit) {
+    private fun debounceLoad(f: suspend () -> Unit) = launch(UI) {
         require(Looper.getMainLooper() == Looper.myLooper()) { "Must be run on UI thread!" }
 
         if (currentLoadingJob?.isActive != true) {
@@ -100,25 +134,22 @@ class YouTubeFragment : BaseFragment<YouTubeFragment.InteractionListener>() {
                 // Debounce UI interaction
                 delay(500)
             }
+            currentLoadingJob?.join()
         }
     }
 
     @MainThread
-    private fun requestNewerVideos() {
-        debounceLoad {
-            val unseenVideos = repo.requestNewerVideos().await()
-            repo.markAsSeen(unseenVideos).join()
+    private fun requestNewerVideos() = debounceLoad {
+        val unseenVideos = repo.requestNewerVideos().await()
+        repo.markAsSeen(unseenVideos).join()
 
-            if (unseenVideos.size in 1 until NOTIFY_NEW_VIDEOS_IF_LESS_THAN) {
-                listener.notifyUnseenVideos(unseenVideos.size)
-            }
+        if (unseenVideos.size in 1 until NOTIFY_NEW_VIDEOS_IF_LESS_THAN) {
+            listener.notifyUnseenVideos(unseenVideos.size)
         }
     }
 
     @MainThread
-    private fun requestOlderVideos() {
-        debounceLoad { repo.requestOlderVideos().join() }
-    }
+    private fun requestOlderVideos() = debounceLoad { repo.requestOlderVideos().join() }
 
     private fun Video.fireIntent() {
         val url = "https://www.youtube.com/watch?v=$id"

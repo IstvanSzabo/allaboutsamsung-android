@@ -26,7 +26,9 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".post.PostActivity">
+        <activity
+            android:name=".post.PostActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 

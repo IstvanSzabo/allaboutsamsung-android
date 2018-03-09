@@ -37,7 +37,7 @@ class MainActivity : BaseActivity(), PostsFragment.InteractionListener, YouTubeF
      * - Resolve warnings, code inspections
      * - Documentation
      * - Test on older versions
-     * - Rotation
+     * - Cancel UI-affecting jobs onPause
      * - Look into why search may have no effect in some situations
      */
 
