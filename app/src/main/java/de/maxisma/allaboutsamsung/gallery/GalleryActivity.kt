@@ -29,6 +29,11 @@ import kotlin.math.max
 private const val EXTRA_PHOTOS = "photos"
 private const val EXTRA_SELECTED_PHOTO = "selected_photo"
 
+/**
+ * Creates an [Intent] that starts the gallery with the given list of [photos].
+ *
+ * @param selectedPhoto If non-null, the gallery focuses on this photo after launch
+ */
 fun newGalleryActivityIntent(context: Context, photos: List<Photo>, selectedPhoto: Photo? = null): Intent =
     Intent(context, GalleryActivity::class.java).apply {
         putParcelableArrayListExtra(EXTRA_PHOTOS, photos.asArrayList())
@@ -82,7 +87,14 @@ data class Photo(val smallImageUrl: String, val fullImageUrl: String) : PaperPar
     }
 }
 
-private class PhotoAdapter(private val photos: List<Photo>, private val onClick: () -> Unit, private val onZoomedInStateChanged: (Boolean) -> Unit) : PagerAdapter() {
+/**
+ * Each page is a photo that can be zoomed and clicked.
+ */
+private class PhotoAdapter(
+    private val photos: List<Photo>,
+    private val onClick: () -> Unit,
+    private val onZoomedInStateChanged: (Boolean) -> Unit
+) : PagerAdapter() {
 
     private fun photoView(context: Context, photo: Photo): View = FrameLayout(context).apply {
         layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)

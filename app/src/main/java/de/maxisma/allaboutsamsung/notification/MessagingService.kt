@@ -29,6 +29,8 @@ class MessagingService : FirebaseMessagingService() {
 
         val subscribedCategorySlugs = db.categoryDao.subscribedCategories().map { it.slug }.toHashSet()
         val subscribedTagSlugs = db.tagDao.subscribedTags().map { it.slug }.toHashSet()
+
+        // Let the server know about topics we are no longer interested in
         val unsubCategories = categorySlugs.filterNot { it in subscribedCategorySlugs }
         val unsubTags = tagSlugs.filterNot { it in subscribedTagSlugs }
         unsubscribe(unsubCategories, unsubTags, unsubscribeFromWildcard = !wildcardActive)

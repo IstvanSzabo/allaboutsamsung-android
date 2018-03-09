@@ -17,6 +17,10 @@ data class MissingMeta(
     val missingUserIds: Set<UserIdDto>
 )
 
+/**
+ * Returns any category, tag and user IDs currently not found in the local DB
+ * referenced by the given posts.
+ */
 fun Db.findMissingMeta(postDtos: List<PostDto>): MissingMeta {
     val knownCategoryIds = categoryDao.categoryIds().toHashSet()
     val knownTagIds = tagDao.tagIds().toHashSet()
@@ -27,6 +31,9 @@ fun Db.findMissingMeta(postDtos: List<PostDto>): MissingMeta {
     return MissingMeta(missingCategoryIds, missingTagIds, missingUserIds)
 }
 
+/**
+ * Convert DTOs into DB entities and upsert them.
+ */
 fun Db.importCategoryDtos(categoryDtos: List<CategoryDto>) {
     categoryDao.upsertCategories(
         categoryDtos.map {
@@ -41,6 +48,9 @@ fun Db.importCategoryDtos(categoryDtos: List<CategoryDto>) {
     )
 }
 
+/**
+ * Convert DTOs into DB entities and upsert them.
+ */
 fun Db.importTagDtos(tagDtos: List<TagDto>) {
     tagDao.upsertTags(
         tagDtos.map {
@@ -55,6 +65,9 @@ fun Db.importTagDtos(tagDtos: List<TagDto>) {
     )
 }
 
+/**
+ * Convert DTOs into DB entities and upsert them.
+ */
 fun Db.importPostDtos(postDtos: List<PostDto>) {
     val importDate = Date()
     val postsWithMeta = postDtos
@@ -82,10 +95,16 @@ fun Db.importPostDtos(postDtos: List<PostDto>) {
     postMetaDao.insertPostsWithMeta(postsWithMeta, postDao, postCategoryDao, postTagDao)
 }
 
+/**
+ * Convert DTOs into DB entities and upsert them.
+ */
 fun Db.importUserDtos(userDtos: List<UserDto>) {
     userDao.upsertUsers(userDtos.map { User(it.id, it.name) })
 }
 
+/**
+ * Finds the URL of the first image in the post HTML.
+ */
 fun String.firstImageUrlFromHtml(): String? = Jsoup.parse(this)
     .body()
     .getElementsByTag("img")

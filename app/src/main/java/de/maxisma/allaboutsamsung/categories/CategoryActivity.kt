@@ -24,8 +24,15 @@ import javax.inject.Inject
 private const val RESULT_CATEGORY_ID = "category_id"
 private const val RESULT_CATEGORY_ID_DEFAULT = -1
 
+/**
+ * Create an [Intent] launching a [CategoryActivity]. If started for a result,
+ * use [Intent.categoryActivityResult] to get the selected category.
+ */
 fun newCategoryActivityIntent(context: Context) = Intent(context, CategoryActivity::class.java)
 
+/**
+ * The category the user selected in [CategoryActivity], if any.
+ */
 val Intent.categoryActivityResult: CategoryActivity.Result
     get() {
         val id = getIntExtra(RESULT_CATEGORY_ID, RESULT_CATEGORY_ID_DEFAULT)
@@ -80,7 +87,11 @@ private class CategoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemV
     val categoryDescription: TextView = itemView.findViewById(R.id.categoryDescription)
 }
 
-private class CategoryAdapter(private val categories: List<VirtualCategory>, private val onClick: (CategoryId?) -> Unit) : RecyclerView.Adapter<CategoryViewHolder>() {
+private class CategoryAdapter(
+    private val categories: List<VirtualCategory>,
+    private val onClick: (CategoryId?) -> Unit
+) : RecyclerView.Adapter<CategoryViewHolder>() {
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CategoryViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.row_category, parent, false)
         return CategoryViewHolder(view)
@@ -98,12 +109,24 @@ private class CategoryAdapter(private val categories: List<VirtualCategory>, pri
         holder.categoryDescription.text = name
         holder.itemView.setOnClickListener { onClick(categories[position].categoryId) }
     }
+
 }
 
+/**
+ * See [DbCategory], [SyntheticAllCategory].
+ */
 private sealed class VirtualCategory {
     abstract val categoryId: CategoryId?
 
+    /**
+     * A category actually existing in the database.
+     */
     data class DbCategory(val name: String, override val categoryId: CategoryId) : VirtualCategory()
+
+    /**
+     * A category containing every post. This does not really exist,
+     * but is used to represent "All" in the list of categories.
+     */
     object SyntheticAllCategory : VirtualCategory() {
         override val categoryId: CategoryId? = null
         @StringRes

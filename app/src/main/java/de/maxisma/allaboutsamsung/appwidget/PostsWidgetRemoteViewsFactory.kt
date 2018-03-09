@@ -19,6 +19,9 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.math.min
 
+/**
+ * Maximum number of posts to show in the appwidget.
+ */
 private const val MAX_ITEMS = 10
 private const val IMAGE_DOWNLOAD_TIMEOUT_MS = 5000L
 

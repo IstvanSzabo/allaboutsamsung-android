@@ -7,6 +7,9 @@ import java.util.Date
 
 private const val EXPIRY_MS = 7 * 24 * 60 * 60 * 1000L
 
+/**
+ * Cache the playlist and referenced videos in the DB.
+ */
 fun Db.importPlaylistResult(playlistResultDto: PlaylistResultDto) = launch(DbWriteDispatcher) {
     val expiryDate = Date(System.currentTimeMillis() + EXPIRY_MS)
     val videos = playlistResultDto.playlist.map { Video(it.videoId, it.title, it.thumbnailUrl, Date(it.utcEpochMs), expiryDate) }

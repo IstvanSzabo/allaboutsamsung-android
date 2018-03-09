@@ -15,6 +15,9 @@ import java.util.Date
 
 /**
  * Emulates upsert. Needed because INSERT OR REPLACE causes row deletion -> foreign key constraint violation.
+ *
+ * @param insert A function that inserts the content.
+ * @param update A function that updates the content.
  */
 private inline fun <T> buildUpserter(crossinline insert: (T) -> Unit, crossinline update: (T) -> Unit) = { content: T ->
     insert(content)
@@ -66,6 +69,11 @@ abstract class PostDao {
     @Query("DELETE FROM Post WHERE dbItemCreatedDateUtc < datetime(:oldestAllowedDate)")
     abstract fun deleteExpired(oldestAllowedDate: Date)
 
+    /**
+     * Posts that were published before [oldestThresholdUtc] and were put into the cache not later than
+     * [latestAcceptableDbItemCreatedDateUtc]. Any posts that were published before these expired posts
+     * are also filtered out.
+     */
     @Query(
         """
         SELECT * FROM Post
@@ -92,6 +100,9 @@ abstract class PostDao {
     )
     abstract fun oldestNonExpiredDate(latestAcceptableDbItemCreatedDateUtc: Date): Date?
 
+    /**
+     * A recent post classified as breaking news, if any.
+     */
     @Query(
         """
         SELECT Post.* FROM Post
@@ -213,6 +224,9 @@ abstract class PostCategoryDao {
         insertPostCategories(categories)
     }
 
+    /**
+     * Categories of the given post.
+     */
     @Query("SELECT * FROM Category LEFT JOIN PostCategory ON Category.id = PostCategory.categoryId WHERE PostCategory.postId = :postId")
     abstract fun categories(postId: PostId): List<Category>
 }
@@ -231,6 +245,9 @@ abstract class PostTagDao {
         insertPostTags(tags)
     }
 
+    /**
+     * Tags for the given post.
+     */
     @Query("SELECT * FROM Tag LEFT JOIN PostTag ON Tag.id = PostTag.tagId WHERE PostTag.postId = :postId")
     abstract fun tags(postId: PostId): List<Tag>
 }
@@ -276,6 +293,9 @@ abstract class VideoDao {
 
     fun upsertPlaylistItems(playlistItems: List<PlaylistItem>) = playlistItemUpserter(playlistItems)
 
+    /**
+     * Delete expired videos and videos published before that to avoid inconsistent data.
+     */
     @Query(
         """
         DELETE FROM Video

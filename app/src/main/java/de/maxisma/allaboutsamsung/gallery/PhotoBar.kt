@@ -21,6 +21,10 @@ private const val PHOTOS_ON_SCREEN = 3
 private val OVERLAY_COLOR = Color.argb(75, 0, 0, 0)
 
 class PhotoBar(private val recyclerView: RecyclerView, private val photoViewModels: List<PhotoViewModel>) {
+
+    /**
+     * Fade out all but this photo.
+     */
     fun highlightPhoto(photo: Photo) {
         val vmIndex = photoViewModels.indexOfFirst { it.photo == photo }
         recyclerView.smoothScrollToPosition(vmIndex)
@@ -35,7 +39,9 @@ class PhotoViewModel(val photo: Photo, val isHighlighted: MutableLiveData<Boolea
 }
 
 /**
- * Sends exactly one [PhotoBar]
+ * Sends exactly one [PhotoBar]. It is created after the UI has been laid out, which is done
+ * because in [PhotoBarAdapter.onCreateViewHolder] the width of the bar needs to be known, as
+ * we want a fixed number of photos per screen.
  */
 fun RecyclerView.configurePhotoBar(photos: List<Photo>, onPhotoClick: (Photo, PhotoBar) -> Unit): ReceiveChannel<PhotoBar> = produce(UI) {
     if (width == 0) {
@@ -55,7 +61,10 @@ fun RecyclerView.configurePhotoBar(photos: List<Photo>, onPhotoClick: (Photo, Ph
 
 private class PhotoBarViewHolder(val imageView: ImageView, val overlayView: View, itemView: View) : RecyclerView.ViewHolder(itemView)
 
-private class PhotoBarAdapter(private val photoViewModels: List<PhotoViewModel>, private val onPhotoClick: (Photo) -> Unit) : RecyclerView.Adapter<PhotoBarViewHolder>() {
+private class PhotoBarAdapter(
+    private val photoViewModels: List<PhotoViewModel>,
+    private val onPhotoClick: (Photo) -> Unit
+) : RecyclerView.Adapter<PhotoBarViewHolder>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PhotoBarViewHolder {
         val container = FrameLayout(parent.context).apply {
             layoutParams = ViewGroup.LayoutParams(

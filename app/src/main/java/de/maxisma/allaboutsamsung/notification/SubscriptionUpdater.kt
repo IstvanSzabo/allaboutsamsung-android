@@ -21,6 +21,11 @@ const val DEBUG_TOPIC = "___DEBUG___"
 private fun categorySlugToTopic(slug: String) = "category~%$slug"
 private fun tagSlugToTopic(slug: String) = "tag~%$slug"
 
+/**
+ * Subscribe to the given [categories] and [tags] using Firebase topics.
+ *
+ * @param wildcard If true, subscribe to the wildcard topic that receives every post
+ */
 fun subscribe(categories: List<Category>, tags: List<Tag>, wildcard: Boolean) {
     launch(IOPool) {
         val fb = FirebaseMessaging.getInstance()
@@ -41,6 +46,9 @@ fun subscribe(categories: List<Category>, tags: List<Tag>, wildcard: Boolean) {
     }
 }
 
+/**
+ * See [subscribe]
+ */
 fun unsubscribe(categorySlugs: List<String> = emptyList(), tagSlugs: List<String> = emptyList(), unsubscribeFromWildcard: Boolean) {
     launch(IOPool) {
         val fb = FirebaseMessaging.getInstance()

@@ -71,6 +71,9 @@ private const val BITMAP_MAX_WIDTH = 1000
 private const val BITMAP_MAX_HEIGHT = 1000
 private const val MAX_CONTENT_LENGTH = 500
 
+/**
+ * Download the image, decode and ellipsize the content.
+ */
 @WorkerThread
 @Throws(ExecutionException::class)
 private fun Post.toNotificationViewModel(context: Context): PostNotificationViewModel {

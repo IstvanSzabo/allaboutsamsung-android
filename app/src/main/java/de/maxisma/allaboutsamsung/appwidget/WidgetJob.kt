@@ -10,6 +10,10 @@ import java.util.concurrent.TimeUnit
 
 const val WIDGET_JOB_TAG = "widget_job"
 
+/**
+ * Schedule a recurring job that triggers an appwidget update
+ * in appropriate situations.
+ */
 fun scheduleWidgetJob() {
     JobRequest.Builder(WIDGET_JOB_TAG)
         .setPeriodic(TimeUnit.HOURS.toMillis(1))
@@ -21,6 +25,9 @@ fun scheduleWidgetJob() {
         .schedule()
 }
 
+/**
+ * Cancel any recurring job that triggers appwidget updates.
+ */
 fun unscheduleWidgetJob() {
     JobManager.instance().cancelAllForTag(WIDGET_JOB_TAG)
 }

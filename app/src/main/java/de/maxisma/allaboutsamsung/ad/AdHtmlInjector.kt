@@ -14,8 +14,14 @@ import org.jsoup.nodes.Element
 import retrofit2.HttpException
 import java.io.IOException
 
+/**
+ * HTML id of the inserted ad
+ */
 const val AD_CONTAINER_ID = "injected-ad-container"
 
+/**
+ * Inject [adHtml] into the [Post.content] and return it.
+ */
 fun Post.contentWithAd(adHtml: String): String {
     val doc = Jsoup.parse(content)
     val thirdParagraph = doc.getElementsByTag("p").getOrNull(3) ?: return content
@@ -28,6 +34,9 @@ fun Post.contentWithAd(adHtml: String): String {
     return doc.outerHtml()
 }
 
+/**
+ * Fetch the current ad HTML from the server and save it in the [KeyValueStore].
+ */
 fun KeyValueStore.updateAdHtml() = launch {
     try {
         retry(
