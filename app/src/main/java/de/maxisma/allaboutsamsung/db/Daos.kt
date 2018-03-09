@@ -8,9 +8,18 @@ import android.arch.persistence.room.OnConflictStrategy
 import android.arch.persistence.room.Query
 import android.arch.persistence.room.Transaction
 import android.arch.persistence.room.TypeConverter
+import android.arch.persistence.room.Update
 import de.maxisma.allaboutsamsung.BuildConfig
 import de.maxisma.allaboutsamsung.utils.Iso8601Utils
 import java.util.Date
+
+/**
+ * Emulates upsert. Needed because INSERT OR REPLACE causes row deletion -> foreign key constraint violation.
+ */
+private inline fun <T> buildUpserter(crossinline insert: (T) -> Unit, crossinline update: (T) -> Unit) = { content: T ->
+    insert(content)
+    update(content)
+}
 
 data class PostWithMeta(
     val post: Post,
@@ -31,7 +40,7 @@ abstract class PostMetaDao {
             require(categories.all { it.postId == post.id })
             require(tags.all { it.postId == post.id })
 
-            postDao.insertPost(post)
+            postDao.upsertPost(post)
             postCategoryDao.replacePostCategories(post.id, categories)
             postTagDao.replacePostTags(post.id, tags)
         }
@@ -44,8 +53,15 @@ abstract class PostMetaDao {
 @Dao
 abstract class PostDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun insertPost(post: Post)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    protected abstract fun insertPost(post: Post)
+
+    @Update(onConflict = OnConflictStrategy.IGNORE)
+    protected abstract fun updatePost(post: Post)
+
+    private val upserter = buildUpserter(::insertPost, ::updatePost)
+
+    fun upsertPost(post: Post) = upserter(post)
 
     @Query("DELETE FROM Post WHERE dbItemCreatedDateUtc < datetime(:oldestAllowedDate)")
     abstract fun deleteExpired(oldestAllowedDate: Date)
@@ -93,8 +109,15 @@ abstract class CategoryDao {
     @Query("DELETE FROM Category WHERE id NOT IN (:categoryIds)")
     abstract fun deleteExcept(categoryIds: List<CategoryId>)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun insertCategories(categories: List<Category>)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    protected abstract fun insertCategories(categories: List<Category>)
+
+    @Update(onConflict = OnConflictStrategy.IGNORE)
+    protected abstract fun updateCategories(categories: List<Category>)
+
+    private val categoriesUpserter = buildUpserter(::insertCategories, ::updateCategories)
+
+    fun upsertCategories(categories: List<Category>) = categoriesUpserter(categories)
 
     @Query("SELECT id FROM Category")
     abstract fun categoryIds(): List<CategoryId>
@@ -135,8 +158,15 @@ abstract class TagDao {
     @Query("DELETE FROM Tag WHERE id NOT IN (:tagIds)")
     abstract fun deleteExcept(tagIds: List<TagId>)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun insertTags(tags: List<Tag>)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    protected abstract fun insertTags(tags: List<Tag>)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    protected abstract fun updateTags(tags: List<Tag>)
+
+    private val tagUpserter = buildUpserter(::insertTags, ::updateTags)
+
+    fun upsertTags(tags: List<Tag>) = tagUpserter(tags)
 
     @Query("SELECT id FROM Tag")
     abstract fun tagIds(): List<TagId>
@@ -207,8 +237,15 @@ abstract class PostTagDao {
 
 @Dao
 abstract class UserDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun insertUsers(users: List<User>)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    protected abstract fun insertUsers(users: List<User>)
+
+    @Update(onConflict = OnConflictStrategy.IGNORE)
+    protected abstract fun updateUsers(users: List<User>)
+
+    private val upserter = buildUpserter(::insertUsers, ::updateUsers)
+
+    fun upsertUsers(users: List<User>) = upserter(users)
 
     @Query("SELECT * FROM User WHERE id = :id")
     abstract fun user(id: UserId): User
@@ -219,11 +256,25 @@ abstract class UserDao {
 
 @Dao
 abstract class VideoDao {
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun insertVideos(videos: List<Video>)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    protected abstract fun insertVideos(videos: List<Video>)
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun insertPlaylistItems(playlistItems: List<PlaylistItem>)
+    @Update(onConflict = OnConflictStrategy.IGNORE)
+    protected abstract fun updateVideos(videos: List<Video>)
+
+    private val videoUpserter = buildUpserter(::insertVideos, ::updateVideos)
+
+    fun upsertVideos(videos: List<Video>) = videoUpserter(videos)
+
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    protected abstract fun insertPlaylistItems(playlistItems: List<PlaylistItem>)
+
+    @Update(onConflict = OnConflictStrategy.IGNORE)
+    protected abstract fun updatePlaylistItems(playlistItems: List<PlaylistItem>)
+
+    private val playlistItemUpserter = buildUpserter(::insertPlaylistItems, ::updatePlaylistItems)
+
+    fun upsertPlaylistItems(playlistItems: List<PlaylistItem>) = playlistItemUpserter(playlistItems)
 
     @Query(
         """
@@ -240,8 +291,15 @@ abstract class VideoDao {
     @Query("SELECT Video.* FROM PlaylistItem JOIN Video ON Video.id = PlaylistItem.videoId WHERE playlistId = :playlistId ORDER BY datetime(publishedUtc) DESC")
     abstract fun videosInPlaylist(playlistId: PlaylistId): LiveData<List<Video>>
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    abstract fun insertSeenVideos(seenVideos: List<SeenVideo>)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    protected abstract fun insertSeenVideos(seenVideos: List<SeenVideo>)
+
+    @Update(onConflict = OnConflictStrategy.IGNORE)
+    protected abstract fun updateSeenVideos(seenVideos: List<SeenVideo>)
+
+    private val seenVideosUpserter = buildUpserter(::insertSeenVideos, ::updateSeenVideos)
+
+    fun upsertSeenVideos(seenVideos: List<SeenVideo>) = seenVideosUpserter(seenVideos)
 
     @Query("SELECT * FROM SeenVideo")
     abstract fun seenVideos(): List<SeenVideo>

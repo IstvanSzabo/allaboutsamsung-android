@@ -28,7 +28,7 @@ fun Db.findMissingMeta(postDtos: List<PostDto>): MissingMeta {
 }
 
 fun Db.importCategoryDtos(categoryDtos: List<CategoryDto>) {
-    categoryDao.insertCategories(
+    categoryDao.upsertCategories(
         categoryDtos.map {
             Category(
                 id = it.id,
@@ -42,7 +42,7 @@ fun Db.importCategoryDtos(categoryDtos: List<CategoryDto>) {
 }
 
 fun Db.importTagDtos(tagDtos: List<TagDto>) {
-    tagDao.insertTags(
+    tagDao.upsertTags(
         tagDtos.map {
             Tag(
                 id = it.id,
@@ -83,7 +83,7 @@ fun Db.importPostDtos(postDtos: List<PostDto>) {
 }
 
 fun Db.importUserDtos(userDtos: List<UserDto>) {
-    userDao.insertUsers(userDtos.map { User(it.id, it.name) })
+    userDao.upsertUsers(userDtos.map { User(it.id, it.name) })
 }
 
 fun String.firstImageUrlFromHtml(): String? = Jsoup.parse(this)

@@ -47,7 +47,7 @@ class YouTubeRepository(
 
     fun markAsSeen(unseenVideos: UnseenVideos) = launch(DbWriteDispatcher) {
         mutex.withLock {
-            db.videoDao.insertSeenVideos(unseenVideos.map { SeenVideo(it) })
+            db.videoDao.upsertSeenVideos(unseenVideos.map { SeenVideo(it) })
         }
     }
 

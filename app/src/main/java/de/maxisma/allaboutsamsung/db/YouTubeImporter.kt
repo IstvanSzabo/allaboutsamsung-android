@@ -12,6 +12,6 @@ fun Db.importPlaylistResult(playlistResultDto: PlaylistResultDto) = launch(DbWri
     val videos = playlistResultDto.playlist.map { Video(it.videoId, it.title, it.thumbnailUrl, Date(it.utcEpochMs), expiryDate) }
     val playlistItems = videos.map { PlaylistItem(playlistResultDto.playlistId, it.id) }
 
-    videoDao.insertVideos(videos)
-    videoDao.insertPlaylistItems(playlistItems)
+    videoDao.upsertVideos(videos)
+    videoDao.upsertPlaylistItems(playlistItems)
 }
