@@ -76,6 +76,10 @@ fun HtmlTheme.commentsCss() = """
 """
 
 fun HtmlTheme.postCss() = """
+    html {
+        max-width: 500px;
+        margin: 0 auto;
+    }
     body {
         margin: $BODY_MARGIN;
         $DEFAULT_FONT_CONFIG
