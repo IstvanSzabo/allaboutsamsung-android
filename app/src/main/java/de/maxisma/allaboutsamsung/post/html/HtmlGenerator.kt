@@ -10,13 +10,23 @@ import java.text.DateFormat
 import java.util.TimeZone
 import android.support.annotation.ColorInt as ColorIntAnnotation
 
+/**
+ * Date formatter for displaying dates to the user
+ */
 private val dateFormatter = (DateFormat.getDateInstance().clone() as DateFormat).apply {
     timeZone = TimeZone.getDefault()
 }
 
 abstract class PostHtmlGenerator {
+
+    /**
+     * Format the author name in a user-facing manner
+     */
     protected abstract fun formatAuthorName(authorName: String): String
 
+    /**
+     * Website to show while loading a post
+     */
     fun generateEmptyHtml(theme: HtmlTheme) = """<html>
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,6 +38,12 @@ abstract class PostHtmlGenerator {
 </html>
 """
 
+    /**
+     * Generate the HTML to be displayed for the [post].
+     *
+     * @param analyticsJs The JS code to be run for analytics
+     * @param adHtml Ad HTML to inject in the post
+     */
     fun generateHtml(post: Post, authorName: String, theme: HtmlTheme, analyticsJs: String, adHtml: String) = """<html>
 <head>
     <title>${post.title}</title>
@@ -67,6 +83,9 @@ class AndroidPostHtmlGenerator(private val context: Context) : PostHtmlGenerator
     override fun formatAuthorName(authorName: String): String = context.getString(R.string.author_template, authorName)
 }
 
+/**
+ * Generate JS code that reports a visit to [relativeUrl] on the specified account
+ */
 private fun generateAnalyticsJs(accountId: String, relativeUrl: String) = """
 var _gaq = _gaq || [];
 _gaq.push(['_setAccount', '$accountId']);
@@ -80,11 +99,17 @@ _gaq.push(['_trackPageview', '$relativeUrl']);
 })();
 """
 
+/**
+ * Generate the tracking code for this post
+ */
 fun Post.generateAnalyticsJs() = generateAnalyticsJs(
     accountId = BuildConfig.GOOGLE_ANALYTICS_ID,
     relativeUrl = HttpUrl.parse(link)!!.encodedPath()
 )
 
+/**
+ * Generate the tracking code for the "main page"
+ */
 private fun generateLandingAnalyticsJs() = generateAnalyticsJs(BuildConfig.GOOGLE_ANALYTICS_ID, "/")
 fun generateLandingAnalyticsHtml() = """<html>
 <head>

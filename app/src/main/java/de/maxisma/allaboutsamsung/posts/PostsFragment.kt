@@ -47,6 +47,9 @@ private const val REQUEST_CODE_CATEGORY = 0
 
 private const val STATE_LIST_POSITION = "list_position"
 
+/**
+ * Consider data stale after this duration
+ */
 private const val RELOAD_AFTER_MS = 30 * 60 * 1000L
 
 class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
@@ -174,6 +177,15 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
         outState.putInt(STATE_LIST_POSITION, layoutManager.findFirstVisibleItemPosition())
     }
 
+    /**
+     * Replace [currentExecutor] with one corresponding to this query.
+     * Fetch the latest posts and update the [postList] adapter accordingly.
+     * Set the activity title to represent the query.
+     * Update ad HTML.
+     * Track main page load, as this corresponds to it.
+     *
+     * @param withListPosition If given, download as many posts as needed and scroll down to this position
+     */
     private fun Query.load(withListPosition: Int? = null) = uiLaunch {
         currentExecutor?.data?.removeObservers(this@PostsFragment)
 
@@ -206,6 +218,9 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
         }
     }
 
+    /**
+     * Map to ViewModels and load them into the adapter
+     */
     private fun PostsAdapter.updateWith(posts: List<Post>, executor: QueryExecutor) = uiLaunch {
         getContext() ?: return@uiLaunch
 
@@ -218,10 +233,13 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
             PostViewModel(
                 it,
                 isBreaking = BuildConfig.BREAKING_CATEGORY_ID in executor.categoriesForPost(it.id).await().map { it.id },
-                styledString = it.title.toStyledTitle(context!!)
+                styledTitle = it.title.toStyledTitle(context!!)
             )
         }
 
+    /**
+     * Generates a user-facing description of the query
+     */
     private val Query.description: Deferred<String>
         get() = when (this) {
             Query.Empty -> async { getString(R.string.app_name) }
@@ -234,6 +252,12 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
 
     private var lastLoadTimeMs = -1L
 
+    /**
+     * Use the [currentExecutor] to fetch updated posts. While doing so,
+     * show a loading animation.
+     *
+     * @param includingIndex If given, download as many posts as needed to reach this index
+     */
     private fun requestNewerPosts(includingIndex: Int? = null): Job {
         val executor = currentExecutor ?: return launch { }
 
@@ -253,6 +277,10 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
         }
     }
 
+    /**
+     * Use the [currentExecutor] to fetch older posts than currently displayed. While doing so,
+     * show a loading animation.
+     */
     private fun requestOlderPosts(): Job {
         lastLoadTimeMs = System.currentTimeMillis()
         return uiLaunch {

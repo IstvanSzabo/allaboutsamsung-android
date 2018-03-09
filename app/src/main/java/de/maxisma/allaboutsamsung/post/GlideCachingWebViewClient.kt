@@ -9,6 +9,10 @@ import android.webkit.WebViewClient
 import de.maxisma.allaboutsamsung.utils.glide.GlideApp
 import java.util.concurrent.ExecutionException
 
+/**
+ * A [WebViewClient] backed by Glide. Tries to retrieve images from its cache,
+ * otherwise falls back to the normal implementation.
+ */
 open class GlideCachingWebViewClient : WebViewClient() {
     private fun shouldInterceptRequestInternal(view: WebView, url: String): WebResourceResponse? {
         val file = try {

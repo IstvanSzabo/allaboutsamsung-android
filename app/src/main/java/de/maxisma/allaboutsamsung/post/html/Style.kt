@@ -64,6 +64,9 @@ font-family: 'Roboto', sans-serif;
 font-weight: 300;
 """
 
+/**
+ * CSS for the comments section
+ */
 fun HtmlTheme.commentsCss() = """
     *, html body {
         background-color: ${backgroundColor.hexString};
@@ -75,6 +78,9 @@ fun HtmlTheme.commentsCss() = """
     }
 """
 
+/**
+ * CSS for the post itself
+ */
 fun HtmlTheme.postCss() = """
     html {
         max-width: 500px;

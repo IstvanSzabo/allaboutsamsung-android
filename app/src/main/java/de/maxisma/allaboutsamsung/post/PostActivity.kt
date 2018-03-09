@@ -23,12 +23,23 @@ private const val TIMEOUT_MS = 20000
 
 private const val EXTRA_POST_ID = "post_id"
 
+/**
+ * Creates an [Intent] for displaying the specified post.
+ */
 fun newPostActivityIntent(context: Context, postId: PostId) = Intent(context, PostActivity::class.java).apply {
     putExtra(EXTRA_POST_ID, postId)
 }
 
+/**
+ * Empty [Intent] to be used as a template for PendingIntents in the posts appwidget.
+ *
+ * @see newPostActivityFillInIntent
+ */
 fun newPostActivityIntentTemplate(context: Context) = Intent(context, PostActivity::class.java)
 
+/**
+ * Intent to fill the template from [newPostActivityIntentTemplate]
+ */
 fun newPostActivityFillInIntent(postId: PostId) = Intent().apply { putExtra(EXTRA_POST_ID, postId) }
 
 class PostActivity : BaseActivity() {

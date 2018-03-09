@@ -40,7 +40,7 @@ class PostsAdapter(
 
         val postViewModel = posts[correctedPostPosition(position)]
         holder.itemView.setOnClickListener { onClick(postViewModel.post) }
-        holder.title.applyStyledTitle(postViewModel.styledString)
+        holder.title.applyStyledTitle(postViewModel.styledTitle)
         holder.breakingView.visibility = if (postViewModel.isBreaking) View.VISIBLE else View.GONE
 
         GlideApp.with(holder.itemView)
@@ -54,7 +54,7 @@ class PostsAdapter(
         if (::transformation.isInitialized) return
 
         val dimensionPixelSize = context.resources.getDimensionPixelSize(R.dimen.rounded_corner_radius)
-        transformation =MultiTransformation(CenterCrop(), RoundedCorners(dimensionPixelSize))
+        transformation = MultiTransformation(CenterCrop(), RoundedCorners(dimensionPixelSize))
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
