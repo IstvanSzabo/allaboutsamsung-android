@@ -34,7 +34,7 @@ fun Context.obtainHtmlThemes() = HtmlThemes(
         lightTextColor = 0xB4B4B4,
         backgroundColor = retrieveColor(R.attr.colorPrimaryDark),
         defaultTextColor = Color.WHITE,
-        adBackgroundColor = retrieveColor(R.attr.colorPrimaryDark).darken(),
+        adBackgroundColor = retrieveColor(R.attr.colorPrimaryDark).darken(factor = 0.4f),
         highlightBackgroundColor = retrieveColor(R.attr.colorPrimaryDark).darken(),
         highlightForegroundColor = 0xB4B4B4,
         linkColor = retrieveColor(R.attr.colorAccent)
