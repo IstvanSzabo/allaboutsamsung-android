@@ -33,7 +33,6 @@ class MainActivity : BaseActivity(), PostsFragment.InteractionListener, YouTubeF
 
     /*
      * Features TODO:
-     * - Resolve warnings, code inspections
      * - Documentation
      * - Test on older versions
      * - Look into why search may have no effect in some situations

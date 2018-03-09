@@ -3,7 +3,6 @@ package de.maxisma.allaboutsamsung.utils
 import android.content.res.Resources
 import android.view.View
 
-fun Int.pxToDp(): Int = (this / Resources.getSystem().displayMetrics.density).toInt()
 fun Int.dpToPx(): Int = (this * Resources.getSystem().displayMetrics.density).toInt()
 
 fun View.toggleVisibility(disabledState: Int = View.GONE) {

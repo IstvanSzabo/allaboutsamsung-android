@@ -9,7 +9,8 @@
         style="@style/MainContentWidthStyle"
         android:layout_height="200dp"
         android:layout_gravity="center_horizontal"
-        android:elevation="2dp">
+        android:elevation="2dp"
+        tools:ignore="UnusedAttribute">
 
         <ImageView
             android:id="@+id/rowPostBackground"

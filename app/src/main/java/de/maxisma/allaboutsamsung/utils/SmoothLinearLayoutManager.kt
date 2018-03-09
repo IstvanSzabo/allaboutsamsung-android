@@ -9,6 +9,7 @@ import android.util.DisplayMetrics
 
 private const val DEFAULT_MS_PER_INCH = 25f
 
+@Suppress("unused")
 class SmoothLinearLayoutManager : LinearLayoutManager {
 
     private val msPerInch: Float

@@ -14,8 +14,6 @@ import de.maxisma.allaboutsamsung.rest.AppApi
 import de.maxisma.allaboutsamsung.rest.urlToId
 import de.maxisma.allaboutsamsung.utils.retry
 import kotlinx.coroutines.experimental.TimeoutCancellationException
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.withTimeout
 import retrofit2.HttpException
 import java.io.IOException

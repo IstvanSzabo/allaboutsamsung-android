@@ -83,24 +83,28 @@ typealias CategoryIdDto = Int
 typealias TagIdDto = Int
 typealias UserIdDto = Int
 
+@Suppress("MemberVisibilityCanBePrivate")
 class TagIdsDto(
     val ids: Set<TagId>
 ) {
     override fun toString() = ids.joinToString(separator = ",")
 }
 
+@Suppress("MemberVisibilityCanBePrivate")
 class CategoryIdsDto(
     val ids: Set<CategoryId>
 ) {
     override fun toString() = ids.joinToString(separator = ",")
 }
 
+@Suppress("MemberVisibilityCanBePrivate")
 class PostIdsDto(
     val ids: Set<PostId>
 ) {
     override fun toString() = ids.joinToString(separator = ",")
 }
 
+@Suppress("MemberVisibilityCanBePrivate")
 class UserIdsDto(
     val ids: Set<UserIdDto>
 ) {

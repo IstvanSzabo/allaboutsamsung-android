@@ -76,6 +76,7 @@ class GalleryActivity : BaseActivity(useDefaultMenu = false) {
 @PaperParcel
 data class Photo(val smallImageUrl: String, val fullImageUrl: String) : PaperParcelable {
     companion object {
+        @Suppress("unused")
         @JvmField
         val CREATOR = PaperParcelPhoto.CREATOR
     }

@@ -20,7 +20,7 @@ import java.util.TimeZone;
  *
  * @see <a href="http://www.w3.org/TR/NOTE-datetime">this specification</a>
  */
-public final class Iso8601Utils {
+@SuppressWarnings("WeakerAccess") public final class Iso8601Utils {
   /** ID to represent the 'GMT' string */
   static final String GMT_ID = "GMT";
 
