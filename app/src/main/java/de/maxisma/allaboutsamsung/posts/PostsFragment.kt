@@ -99,7 +99,10 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
         inflater.inflate(R.menu.fragment_posts, menu)
 
         searchItem = menu.findItem(R.id.search)!!
-        (searchItem.actionView as SearchView).setOnQueryTextListener(searchQueryListener)
+        (searchItem.actionView as SearchView).apply {
+            queryHint = getString(R.string.search)
+            setOnQueryTextListener(searchQueryListener)
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
