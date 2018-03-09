@@ -44,7 +44,7 @@ class GalleryActivity : BaseActivity(useDefaultMenu = false) {
         val selectedPhoto = intent.getParcelableExtra<Photo?>(EXTRA_SELECTED_PHOTO)
         val selectedIndex = max(0, photos.indexOf(selectedPhoto))
 
-        launch(UI) {
+        uiLaunch {
             val photoBar = galleryPhotoBar.configurePhotoBar(photos, onPhotoClick = { photo, photoBar ->
                 galleryViewPager.currentItem = photos.indexOf(photo)
                 photoBar.highlightPhoto(photo)

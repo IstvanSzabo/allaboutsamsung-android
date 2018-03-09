@@ -23,9 +23,7 @@ import de.maxisma.allaboutsamsung.utils.observe
 import de.maxisma.allaboutsamsung.utils.toStyledTitle
 import kotlinx.android.synthetic.main.fragment_youtube.*
 import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
 import javax.inject.Inject
 import kotlin.math.min
 
@@ -95,7 +93,7 @@ class YouTubeFragment : BaseFragment<YouTubeFragment.InteractionListener>() {
             adapter.notifyDataSetChanged()
         }
 
-        launch(UI) {
+        uiLaunch {
             if (lastListPosition != null) {
                 videoList.setOnTouchListener { _, _ -> true }
             }
@@ -122,11 +120,11 @@ class YouTubeFragment : BaseFragment<YouTubeFragment.InteractionListener>() {
     }
 
     @MainThread
-    private fun debounceLoad(f: suspend () -> Unit) = launch(UI) {
+    private fun debounceLoad(f: suspend () -> Unit) = uiLaunch {
         require(Looper.getMainLooper() == Looper.myLooper()) { "Must be run on UI thread!" }
 
         if (currentLoadingJob?.isActive != true) {
-            currentLoadingJob = launch(UI) {
+            currentLoadingJob = uiLaunch {
                 videosSwipeRefresh.isRefreshing = true
                 f()
                 videosSwipeRefresh.isRefreshing = false

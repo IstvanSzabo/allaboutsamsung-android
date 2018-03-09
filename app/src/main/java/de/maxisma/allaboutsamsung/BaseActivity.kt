@@ -2,16 +2,16 @@ package de.maxisma.allaboutsamsung
 
 import android.os.Bundle
 import android.support.annotation.StyleRes
-import android.support.customtabs.CustomTabsIntent
-import android.support.v4.content.ContextCompat
 import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
-import android.webkit.WebView
-import androidx.net.toUri
-import de.maxisma.allaboutsamsung.BuildConfig.LEGAL_NOTICE_URL
 import de.maxisma.allaboutsamsung.settings.PreferenceHolder
 import de.maxisma.allaboutsamsung.settings.newPreferencesActivityIntent
+import kotlinx.coroutines.experimental.CancellationException
+import kotlinx.coroutines.experimental.CoroutineScope
+import kotlinx.coroutines.experimental.Job
+import kotlinx.coroutines.experimental.android.UI
+import kotlinx.coroutines.experimental.launch
 import javax.inject.Inject
 
 abstract class BaseActivity(private val useDefaultMenu: Boolean = true) : AppCompatActivity() {
@@ -22,6 +22,12 @@ abstract class BaseActivity(private val useDefaultMenu: Boolean = true) : AppCom
     private var wasDarkThemeEnabled = false
 
     override fun onPause() {
+        val cause = CancellationException("onPause")
+        synchronized(uiJobs) {
+            uiJobs.forEach { it.cancel(cause) }
+            uiJobs.clear()
+        }
+
         super.onPause()
         wasDarkThemeEnabled = preferenceHolder.useDarkTheme
     }
@@ -61,4 +67,22 @@ abstract class BaseActivity(private val useDefaultMenu: Boolean = true) : AppCom
         }
         return super.onOptionsItemSelected(item)
     }
+
+    private val uiJobs = mutableListOf<Job>()
+
+    fun uiLaunch(f: suspend CoroutineScope.() -> Unit): Job {
+        val job = launch(UI) { f() }
+
+        synchronized(uiJobs) {
+            uiJobs += job
+        }
+        job.invokeOnCompletion {
+            synchronized(uiJobs) {
+                uiJobs -= job
+            }
+        }
+
+        return launch { job.join() }
+    }
+
 }

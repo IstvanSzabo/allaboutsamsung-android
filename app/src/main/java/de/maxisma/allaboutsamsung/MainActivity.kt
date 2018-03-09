@@ -18,7 +18,6 @@ import de.maxisma.allaboutsamsung.utils.DbWriteDispatcher
 import de.maxisma.allaboutsamsung.youtube.YouTubeFragment
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.activity_main_common.*
-import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import java.util.Date
 import javax.inject.Inject
@@ -37,7 +36,6 @@ class MainActivity : BaseActivity(), PostsFragment.InteractionListener, YouTubeF
      * - Resolve warnings, code inspections
      * - Documentation
      * - Test on older versions
-     * - Cancel UI-affecting jobs onPause
      * - Look into why search may have no effect in some situations
      */
 
@@ -60,7 +58,7 @@ class MainActivity : BaseActivity(), PostsFragment.InteractionListener, YouTubeF
 
         app.appComponent.inject(this)
 
-        launch(UI) {
+        uiLaunch {
             launch(DbWriteDispatcher) { db.postDao.deleteExpired(oldestAllowedDbPostCreatedDate) }.join()
             preferenceHolder.updatePushSubscriptionsAccordingly(app.appComponent.db)
 

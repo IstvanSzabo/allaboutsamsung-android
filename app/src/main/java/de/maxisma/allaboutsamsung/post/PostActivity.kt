@@ -42,14 +42,14 @@ class PostActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         app.appComponent.inject(this)
 
-        launch(UI) {
+        uiLaunch {
             val postId = if (intent.data != null) {
                 try {
                     downloadPostId()
                 } catch (e: Exception) {
                     Toast.makeText(this@PostActivity, R.string.broken_connection, Toast.LENGTH_LONG).show()
                     finish()
-                    return@launch
+                    return@uiLaunch
                 }
             } else {
                 intent.getLongExtra(EXTRA_POST_ID, -1)

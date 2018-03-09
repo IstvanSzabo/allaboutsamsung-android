@@ -37,7 +37,6 @@ import de.maxisma.allaboutsamsung.utils.trackLandingLoad
 import kotlinx.android.synthetic.main.fragment_posts.*
 import kotlinx.coroutines.experimental.Deferred
 import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
@@ -139,7 +138,7 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
 
             override fun onScrolledToEnd(firstVisibleItemPosition: Int) {
                 if (currentLoadingJob?.isActive != true) {
-                    currentLoadingJob = launch(UI) {
+                    currentLoadingJob = uiLaunch {
                         requestOlderPosts()
                         // Debounce UI interaction
                         delay(500)
@@ -172,7 +171,7 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
         outState.putInt(STATE_LIST_POSITION, layoutManager.findFirstVisibleItemPosition())
     }
 
-    private fun Query.load(withListPosition: Int? = null) = launch(UI) {
+    private fun Query.load(withListPosition: Int? = null) = uiLaunch {
         currentExecutor?.data?.removeObservers(this@PostsFragment)
 
         val executor = newExecutor(wordpressApi, db, keyValueStore, ::displaySupportedError)
@@ -184,7 +183,7 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
         }
 
         currentExecutor = executor
-        launch(UI) {
+        uiLaunch {
             if (withListPosition != null) {
                 postList.setOnTouchListener { _, _ -> true }
             }
@@ -204,8 +203,8 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
         }
     }
 
-    private fun PostsAdapter.updateWith(posts: List<Post>, executor: QueryExecutor) = launch(UI) {
-        getContext() ?: return@launch
+    private fun PostsAdapter.updateWith(posts: List<Post>, executor: QueryExecutor) = uiLaunch {
+        getContext() ?: return@uiLaunch
 
         this@updateWith.posts = posts.toPostViewModels(executor)
         notifyDataSetChanged()
@@ -236,7 +235,7 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
         val executor = currentExecutor ?: return launch { }
 
         lastLoadTimeMs = System.currentTimeMillis()
-        return launch(UI) {
+        return uiLaunch {
             postsSwipeRefresh.isRefreshing = true
             executor.requestNewerPosts().join()
 
@@ -253,7 +252,7 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
 
     private fun requestOlderPosts(): Job {
         lastLoadTimeMs = System.currentTimeMillis()
-        return launch(UI) {
+        return uiLaunch {
             postsSwipeRefresh.isRefreshing = true
             currentExecutor?.requestOlderPosts()?.join()
             postsSwipeRefresh.isRefreshing = false
