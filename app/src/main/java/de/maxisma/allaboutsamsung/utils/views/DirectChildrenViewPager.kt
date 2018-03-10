@@ -6,6 +6,9 @@ import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
 
+/**
+ * An [ExtendedViewPager] to which children can be added in XML
+ */
 class DirectChildrenViewPager : ExtendedViewPager {
     constructor(context: Context) : super(context)
     constructor(context: Context, attributeSet: AttributeSet?) : super(context, attributeSet)

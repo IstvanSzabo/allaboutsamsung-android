@@ -6,6 +6,9 @@ import retrofit2.Retrofit
 import java.lang.reflect.Type
 import java.util.Date
 
+/**
+ * Supports ISO8601
+ */
 private object DateStringConverter: Converter<Date, String> {
     override fun convert(value: Date?): String? = if (value == null) null else Iso8601Utils.format(value)
 }

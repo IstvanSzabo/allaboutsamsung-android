@@ -11,6 +11,11 @@ data class PlaylistResultDto(val playlist: List<YouTubeVideoDto>, val nextPageTo
 
 const val YOUTUBE_MAX_ITEMS_PER_REQUEST = 20
 
+/**
+ * Download a subset of items belonging to this playlist.
+ *
+ * @param pageToken If null, load the first page. Otherwise load the page represented by this token.
+ */
 fun YouTube.downloadPlaylist(apiKey: String, playlistId: String, pageToken: String? = null): Deferred<PlaylistResultDto> = async(IOPool) {
     val playlist = playlistItems().list("id,snippet").apply {
         key = apiKey

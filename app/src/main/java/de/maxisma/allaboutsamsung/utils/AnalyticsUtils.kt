@@ -9,6 +9,9 @@ import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 
+/**
+ * Run JS that tracks a hit on the main page
+ */
 @SuppressLint("SetJavaScriptEnabled")
 fun trackLandingLoad(context: Context) {
     launch(UI) {

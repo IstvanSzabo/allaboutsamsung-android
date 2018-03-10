@@ -13,6 +13,11 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import de.maxisma.allaboutsamsung.R
 
+/**
+ * A [Dialog] showing a [WebView]. [onWebViewReady] is called as soon as it is ready for use.
+ *
+ * The [WebView] can execute JS.
+ */
 class WebViewDialog(context: Context, private val onWebViewReady: (WebView) -> Unit = {}): Dialog(context, R.style.BigDialog) {
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {

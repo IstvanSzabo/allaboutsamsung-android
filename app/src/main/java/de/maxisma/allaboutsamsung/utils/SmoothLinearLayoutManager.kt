@@ -9,6 +9,9 @@ import android.util.DisplayMetrics
 
 private const val DEFAULT_MS_PER_INCH = 25f
 
+/**
+ * A [LinearLayoutManager] that scrolls smoothly to items using [smoothScrollToPosition]
+ */
 @Suppress("unused")
 class SmoothLinearLayoutManager : LinearLayoutManager {
 

@@ -5,9 +5,12 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.Transformations
 
-fun <T> LiveData<T>.observe(owner: LifecycleOwner, observer: (T?) -> Unit) =
+inline fun <T> LiveData<T>.observe(owner: LifecycleOwner, crossinline observer: (T?) -> Unit) =
     observe(owner, Observer { observer(it) })
 
+/**
+ * Observe the data until the observer returns false or the [owner] does not want to receive updates anymore
+ */
 inline fun <T> LiveData<T>.observeUntilFalse(owner: LifecycleOwner? = null, crossinline observer: (T?) -> Boolean) {
     if (owner != null) {
         observe(owner, object : Observer<T> {

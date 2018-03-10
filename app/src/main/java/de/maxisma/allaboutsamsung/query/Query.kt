@@ -43,21 +43,58 @@ import java.io.IOException
 import java.util.Date
 
 interface QueryExecutor {
+    /**
+     * The [Query] representing the data of this executor
+     */
     val query: Query
+
+    /**
+     * Observable list of posts
+     */
     val data: LiveData<List<Post>>
+
+    /**
+     * Helper method to get the first non-null value of [data]
+     * immediately.
+     */
     suspend fun dataImmediate(): List<Post>
 
     fun tagById(tagId: TagId): Deferred<Tag>
     fun categoryById(categoryId: CategoryId): Deferred<Category>
     fun tagsForPost(postId: PostId): Deferred<List<Tag>>
     fun categoriesForPost(postId: PostId): Deferred<List<Category>>
+
+    /**
+     * Load the latest posts corresponding to the [query] from the server and import them into the database.
+     * In the meantime, show data stored currently in the database, even if it already expired.
+     */
     fun requestNewerPosts(): Job
+
+    /**
+     * Load posts older than the currently oldest post contained in [data] and import them. As with [requestNewerPosts],
+     * even expired data is shown to make the user see posts as soon as possible. To avoid jumping
+     * effects while scrolling down, in contrast to [requestNewerPosts] expired now-deleted posts will
+     * still be shown when this method completes.
+     */
     fun requestOlderPosts(): Job
+
+    /**
+     * Load the specified post and import it into the database. Needs to be a post
+     * that matches the query.
+     */
     fun refresh(postId: PostId): Job
 }
 
 sealed class Query {
+    /**
+     * A query that contains all posts
+     */
     object Empty : Query()
+
+    /**
+     * A filtered query. [string] refers to a free-text query.
+     * All conditions here are connecting using an AND operator.
+     */
     data class Filter(
         val string: String? = null,
         val onlyCategories: List<CategoryId>? = null,
@@ -66,6 +103,11 @@ sealed class Query {
     ) : Query()
 }
 
+/**
+ * Create a [QueryExecutor] for the given [Query]
+ *
+ * @param onError Called on any errors that happened while downloading posts using the returned [QueryExecutor]
+ */
 fun Query.newExecutor(wordpressApi: WordpressApi, db: Db, keyValueStore: KeyValueStore, onError: (Exception) -> Unit): QueryExecutor = when (this) {
     Query.Empty -> EmptyQueryExecutor(wordpressApi, db, keyValueStore, onError)
     is Query.Filter -> FilterQueryExecutor(this, wordpressApi, keyValueStore, db, onError)
@@ -123,11 +165,23 @@ private abstract class DbQueryExecutor(
         db.categoryDao.category(categoryId)!!
     }
 
+    /**
+     * Download posts corresponding to the [query] from the server
+     *
+     * The two conditions induced by the parameters are connecting using an AND operator.
+     *
+     * @param beforeGmt Only download posts published before this date
+     * @param onlyIds Only download posts having these IDs
+     */
     protected abstract suspend fun fetchPosts(beforeGmt: Date?, onlyIds: List<PostId>?): List<PostDto>
 
+    /**
+     * Called as soon as the posts with these IDs are imported into the DB,
+     * including any metadata.
+     */
     protected open suspend fun onInsertedPosts(postIds: Set<PostId>) {}
 
-    private suspend fun fetchPostsAndRelated(beforeGmt: Date? = null, onlyIds: List<PostId>? = null) = try {
+    private suspend fun fetchPostsAndRelated(beforeGmt: Date? = null, onlyIds: List<PostId>? = null): Success = try {
         retry(
             HttpException::class,
             JsonDataException::class,
@@ -172,6 +226,11 @@ private abstract class DbQueryExecutor(
         false
     }
 
+    /**
+     * Switch to data from the DB that even contains expired entries.
+     * Call [updater] with oldest date that was contained in [data] *before* switching to expired entries.
+     * If [hideExpiredAfterUpdate] is true, we afterwards switch back to non-expired data only.
+     */
     private suspend fun showExpiredThenUpdate(hideExpiredAfterUpdate: Boolean = false, updater: suspend (Date?) -> Success) {
         val oldestDateOnScreen = data.value?.minBy { it.dateUtc }?.dateUtc
 
@@ -205,7 +264,7 @@ private abstract class DbQueryExecutor(
         fetchPostsAndRelated(onlyIds = listOf(postId))
     }
 
-    override suspend fun dataImmediate(): List<Post> {
+    final override suspend fun dataImmediate(): List<Post> {
         val mutex = Mutex(locked = true)
         lateinit var currentData: List<Post>
         data.observeUntilFalse {

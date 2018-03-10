@@ -25,6 +25,9 @@ private const val TIMEOUT_MS = 30_000L
 
 private fun commentsUrl(postId: PostId) = BuildConfig.COMMENTS_URL_TEMPLATE.replace("[POST_ID]", postId.toString())
 
+/**
+ * Try to download the [commentsUrl] with an auto-retry mechanism
+ */
 private fun OkHttpClient.retriedDownloadWithTimeout(commentsUrl: String) = async {
     retry(
         HttpException::class,

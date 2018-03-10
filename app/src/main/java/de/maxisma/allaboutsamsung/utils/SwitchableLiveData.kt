@@ -5,6 +5,10 @@ import android.arch.lifecycle.Observer
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 
+/**
+ * [LiveData] that can be backed by a delegate that can be exchanged.
+ * When it is exchanged, observers are notified.
+ */
 class SwitchableLiveData<T>(delegate: LiveData<T>) : LiveData<T>() {
     var delegate = delegate
         set(value) {

@@ -33,6 +33,11 @@ import org.jsoup.Jsoup
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Semaphore
 
+/**
+ * Fetch the post for the [postId] into the DB and shows a notification for it.
+ *
+ * This method is blocking.
+ */
 @WorkerThread
 fun notifyAboutPost(postId: PostId, db: Db, api: WordpressApi, context: Context, keyValueStore: KeyValueStore): Job.Result {
     val barrier = Semaphore(0)

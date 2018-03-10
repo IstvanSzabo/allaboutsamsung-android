@@ -2,8 +2,6 @@ package de.maxisma.allaboutsamsung.youtube
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.Looper
-import android.support.annotation.MainThread
 import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
@@ -119,10 +117,10 @@ class YouTubeFragment : BaseFragment<YouTubeFragment.InteractionListener>() {
         outState.putInt(STATE_LIST_POSITION, layoutManager.findFirstVisibleItemPosition())
     }
 
-    @MainThread
+    /**
+     * Run [f] only if no other operation is currently running on [currentLoadingJob].
+     */
     private fun debounceLoad(f: suspend () -> Unit) = uiLaunch {
-        require(Looper.getMainLooper() == Looper.myLooper()) { "Must be run on UI thread!" }
-
         if (currentLoadingJob?.isActive != true) {
             currentLoadingJob = uiLaunch {
                 videosSwipeRefresh.isRefreshing = true
@@ -136,7 +134,10 @@ class YouTubeFragment : BaseFragment<YouTubeFragment.InteractionListener>() {
         }
     }
 
-    @MainThread
+    /**
+     * Refresh the video list from YouTube. If there are new videos,
+     * notify the user about it.
+     */
     private fun requestNewerVideos() = debounceLoad {
         val unseenVideos = repo.requestNewerVideos().await()
         repo.markAsSeen(unseenVideos).join()
@@ -146,9 +147,14 @@ class YouTubeFragment : BaseFragment<YouTubeFragment.InteractionListener>() {
         }
     }
 
-    @MainThread
+    /**
+     * Request older pages
+     */
     private fun requestOlderVideos() = debounceLoad { repo.requestOlderVideos().join() }
 
+    /**
+     * Start the YouTube app for the [Video]
+     */
     private fun Video.fireIntent() {
         val url = "https://www.youtube.com/watch?v=$id"
         startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))

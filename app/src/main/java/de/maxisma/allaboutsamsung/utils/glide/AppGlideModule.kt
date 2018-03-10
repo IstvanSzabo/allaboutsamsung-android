@@ -16,5 +16,4 @@ class AppGlideModule : AppGlideModule() {
                 .error(R.drawable.ic_error_black_24dp)
         )
     }
-
 }

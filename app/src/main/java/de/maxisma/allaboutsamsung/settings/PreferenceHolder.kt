@@ -5,6 +5,11 @@ import android.content.SharedPreferences
 import android.preference.PreferenceManager
 import javax.inject.Inject
 
+// TODO Migrate to use KoreferenceModel like KeyValueStore
+
+/**
+ * Holds the values stored by the [PreferenceFragment]
+ */
 class PreferenceHolder @Inject constructor(context: Context) {
     private val prefs = PreferenceManager.getDefaultSharedPreferences(context)
 
@@ -39,6 +44,9 @@ class PreferenceHolder @Inject constructor(context: Context) {
 
     private val listeners: MutableMap<() -> Unit, SharedPreferences.OnSharedPreferenceChangeListener> = mutableMapOf()
 
+    /**
+     * [f] is notified about any changes made to the preferences contained by this [PreferenceHolder]
+     */
     fun registerListener(f: () -> Unit) {
         val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, _ -> f() }
         listeners[f] = listener

@@ -8,14 +8,22 @@ import android.view.MotionEvent
 import de.maxisma.allaboutsamsung.R
 import de.maxisma.allaboutsamsung.utils.use
 
+/**
+ * A [ViewPager] with extra features.
+ *
+ * @see disableTouchPaging
+ */
 open class ExtendedViewPager : ViewPager {
 
+    /**
+     * Whether touches should be blocked or not
+     */
     var disableTouchPaging = false
 
     constructor(context: Context) : super(context)
 
     constructor(context: Context, attrs: AttributeSet?) : super(context, attrs) {
-        disableTouchPaging = context.theme.obtainStyledAttributes(attrs, R.styleable.ExtendedViewPager,0,0).use {
+        disableTouchPaging = context.theme.obtainStyledAttributes(attrs, R.styleable.ExtendedViewPager, 0, 0).use {
             it.getBoolean(R.styleable.ExtendedViewPager_disableTouchPaging, disableTouchPaging)
         }
     }

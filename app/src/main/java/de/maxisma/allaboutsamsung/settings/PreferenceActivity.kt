@@ -30,6 +30,9 @@ class PreferenceActivity : BaseActivity(useDefaultMenu = false) {
     }
 }
 
+/**
+ * Check the user's notification preferences and update Firebase topic subscriptions
+ */
 fun PreferenceHolder.updatePushSubscriptionsAccordingly(db: Db) {
     launch(DbWriteDispatcher) {
         val pushCategories: Set<CategoryId> = when (pushTopics) {
@@ -46,6 +49,10 @@ fun PreferenceHolder.updatePushSubscriptionsAccordingly(db: Db) {
     }
 }
 
+/**
+ * Shows [R.xml.preferences] and updates push topic subscriptions
+ * whenever notification settings change
+ */
 class PreferenceFragment : PreferenceFragment() {
     @Inject
     lateinit var db: Db

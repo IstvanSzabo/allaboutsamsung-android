@@ -31,11 +31,7 @@ fun newMainActivityIntent(context: Context) = Intent(context, MainActivity::clas
 
 class MainActivity : BaseActivity(), PostsFragment.InteractionListener, YouTubeFragment.InteractionListener {
 
-    /*
-     * Features TODO:
-     * - Documentation
-     * - Look into why search may have no effect in some situations
-     */
+    // TODO Look into why search may have no effect in some situations
 
     @Inject
     lateinit var db: Db

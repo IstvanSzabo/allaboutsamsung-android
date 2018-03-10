@@ -21,6 +21,9 @@ import java.io.IOException
 
 typealias UnseenVideos = List<VideoId>
 
+/**
+ * Handles downloading and DB caching
+ */
 class YouTubeRepository(
     private val db: Db,
     private val youTube: YouTube,
@@ -45,12 +48,20 @@ class YouTubeRepository(
         }
     }
 
+    /**
+     * Set that the user has seen these videos and does not need to be notified about them anymore
+     */
     fun markAsSeen(unseenVideos: UnseenVideos) = launch(DbWriteDispatcher) {
         mutex.withLock {
             db.videoDao.upsertSeenVideos(unseenVideos.map { SeenVideo(it) })
         }
     }
 
+    /**
+     * Refresh the DB cache from YouTube.
+     *
+     * @return Videos that have been newly added to the DB and have thus not been seen by the user yet
+     */
     fun requestNewerVideos(): Deferred<UnseenVideos> = async(IOPool) {
         mutex.withLock {
             try {
@@ -76,6 +87,9 @@ class YouTubeRepository(
         }
     }
 
+    /**
+     * Download and import videos older than the currently oldest one stored in the DB.
+     */
     fun requestOlderVideos(): Job = launch(IOPool) {
         mutex.withLock {
             try {

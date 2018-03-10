@@ -6,6 +6,12 @@ import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.widget.ProgressBar
 
+/**
+ * A [WebChromeClient] with extra features.
+ *
+ * @param progressBar A [ProgressBar] to be kept updated while loading
+ * @param supportWindowCreation If true, webpages are allowed to open [WebViewDialog]
+ */
 open class ExtendedWebChromeClient(
     private val progressBar: ProgressBar?,
     private val supportWindowCreation: Boolean = false

@@ -12,6 +12,10 @@ import kotlin.math.roundToInt
 private const val TRIM_MARGIN_PERCENT = 0.125
 private const val ID = "YOUTUBE_TRIM_TRANSFORMATION"
 
+/**
+ * YouTube returns thumbnails with black bars above and below the actual image.
+ * This [BitmapTransformation] removes them.
+ */
 class YouTubeTrimTransformation : BitmapTransformation() {
 
     override fun transform(pool: BitmapPool, toTransform: Bitmap, outWidth: Int, outHeight: Int): Bitmap {

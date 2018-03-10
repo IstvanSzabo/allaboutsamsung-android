@@ -15,6 +15,13 @@ import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import javax.inject.Inject
 
+/**
+ * An [AppCompatActivity] that detects when the theme has changed in [onResume] and recreates
+ * itself as needed.
+ *
+ * @param useDefaultMenu If true, automatically inflates [R.menu.activity_base] and handles clicks
+ * @see [uiLaunch]
+ */
 abstract class BaseActivity(private val useDefaultMenu: Boolean = true) : AppCompatActivity() {
 
     @Inject
@@ -83,6 +90,9 @@ abstract class BaseActivity(private val useDefaultMenu: Boolean = true) : AppCom
 
     private val uiJobs = mutableListOf<Job>()
 
+    /**
+     * Launch [f] on the UI thread and cancel it automatically in [onPause]
+     */
     fun uiLaunch(f: suspend CoroutineScope.() -> Unit): Job {
         val job = launch(UI) { f() }
 

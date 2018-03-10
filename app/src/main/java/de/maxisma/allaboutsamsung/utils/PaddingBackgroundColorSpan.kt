@@ -7,6 +7,9 @@ import android.support.annotation.ColorInt
 import android.support.annotation.Px
 import android.text.style.LineBackgroundSpan
 
+/**
+ * A [LineBackgroundSpan] with padding that improves the design
+ */
 class PaddingBackgroundColorSpan(@ColorInt private val backgroundColor: Int, @Px private val padding: Int) : LineBackgroundSpan {
     private val mBgRect = Rect()
 

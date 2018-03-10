@@ -15,6 +15,11 @@ const val NOTIFICATION_JOB_TAG = "notification_job"
 private const val EXTRA_POST_ID = "post_id"
 private const val MAX_NOTIFICATION_WAIT_TIME_MS = 15 * 60 * 1000L
 
+/**
+ * Show a notification for the post with a sensible amount of waiting time.
+ * It's not done immediately to save battery, as the post needs to be downloaded
+ * including an image.
+ */
 fun scheduleNotificationJob(postId: PostId) {
     JobRequest.Builder(NOTIFICATION_JOB_TAG)
         .setExtras(PersistableBundleCompat().apply {
@@ -26,6 +31,9 @@ fun scheduleNotificationJob(postId: PostId) {
         .schedule()
 }
 
+/**
+ * Calls [notifyAboutPost]
+ */
 class NotificationJob : Job() {
 
     @Inject

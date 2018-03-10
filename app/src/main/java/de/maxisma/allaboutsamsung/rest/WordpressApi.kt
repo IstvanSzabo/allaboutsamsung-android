@@ -22,6 +22,8 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 import java.util.Date
 
+// This file implements an API client for the WP REST API v2
+
 interface WordpressApi {
 
     @GET("posts")
@@ -35,18 +37,27 @@ interface WordpressApi {
         @Query("before") beforeGmt: Date? = null
     ): Deferred<List<PostDto>>
 
+    /**
+     * See [allCategories] to avoid paging
+     */
     @GET("categories?per_page=100")
     fun categories(
         @Query("page") page: Int,
         @Query("include") onlyIds: CategoryIdsDto?
     ): Deferred<Response<List<CategoryDto>>>
 
+    /**
+     * See [allTags] to avoid paging
+     */
     @GET("tags?per_page=100")
     fun tags(
         @Query("page") page: Int,
         @Query("include") onlyIds: TagIdsDto?
     ): Deferred<Response<List<TagDto>>>
 
+    /**
+     * See [allUsers] to avoid paging
+     */
     @GET("users")
     fun users(
         @Query("page") page: Int,
@@ -66,6 +77,9 @@ fun WordpressApi.allTags(onlyIds: TagIdsDto?): Deferred<List<TagDto>> =
 fun WordpressApi.allUsers(onlyIds: UserIdsDto?): Deferred<List<UserDto>> =
     fetchAll { page -> users(page, onlyIds) }
 
+/**
+ * Go through all pages provided by WordPRess and combine them
+ */
 private fun <T> fetchAll(pageFetcher: (Int) -> Deferred<Response<List<T>>>): Deferred<List<T>> = async {
     var page = 1
     var pages = 1
