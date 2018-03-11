@@ -20,10 +20,12 @@ import de.maxisma.allaboutsamsung.utils.asArrayList
 import de.maxisma.allaboutsamsung.utils.glide.GlideApp
 import de.maxisma.allaboutsamsung.utils.toggleVisibility
 import kotlinx.android.synthetic.main.activity_gallery.*
+import kotlinx.coroutines.experimental.CancellationException
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
 import paperparcel.PaperParcel
 import paperparcel.PaperParcelable
+import java.util.concurrent.ExecutionException
 import kotlin.math.max
 
 private const val EXTRA_PHOTOS = "photos"
@@ -118,11 +120,19 @@ private class PhotoAdapter(
 
             progressBar.visibility = View.VISIBLE
             launch(IOPool) {
-                val resource = GlideApp.with(context)
-                    .asFile()
-                    .load(photo.fullImageUrl)
-                    .submit()
-                    .get()
+                val resource = try {
+                    GlideApp.with(context)
+                        .asFile()
+                        .load(photo.fullImageUrl)
+                        .submit()
+                        .get()
+                } catch (e: CancellationException) {
+                    e.printStackTrace()
+                    return@launch
+                } catch (e: ExecutionException) {
+                    e.printStackTrace()
+                    return@launch
+                }
                 launch(UI) {
                     if (isAttachedToWindow) {
                         progressBar.visibility = View.GONE
