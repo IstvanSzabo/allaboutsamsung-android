@@ -49,7 +49,7 @@ class PostsWidgetRemoteViewsFactory(private val context: Context) : RemoteViewsS
 
     override fun onDataSetChanged() = runBlocking {
         val query = Query.Empty
-        val executor = query.newExecutor(wordpressApi, db, keyValueStore, { coroutineContext.cancel(it) })
+        val executor = query.newExecutor(wordpressApi, db, keyValueStore, { coroutineContext.cancel(cause = it) })
         try {
             executor.requestNewerPosts().join()
             posts = executor.dataImmediate()
