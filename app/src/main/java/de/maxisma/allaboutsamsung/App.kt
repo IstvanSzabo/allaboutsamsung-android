@@ -21,7 +21,9 @@ class App : MultiDexApplication() {
 
         appComponent.preferenceHolder.migrateFromV4(this)
 
-        Fabric.with(this, Crashlytics())
+        if (!BuildConfig.DEBUG) {
+            Fabric.with(this, Crashlytics())
+        }
 
         @Suppress("SENSELESS_COMPARISON")
         if (BuildConfig.APPMOB_APP_ID != null) {
