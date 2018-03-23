@@ -20,6 +20,8 @@ android {
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
+        // Other configuration: fabric.properties, google-services.json
+
         def youtubeKeyProperties = new Properties()
         file("youtube-key.properties").withInputStream { youtubeKeyProperties.load(it) }
         buildConfigField "String", "YOUTUBE_API_KEY", "\"${youtubeKeyProperties.youtubeKey}\""
