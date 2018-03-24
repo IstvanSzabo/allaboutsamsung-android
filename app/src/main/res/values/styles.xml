@@ -4,8 +4,8 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="bottomNavigationBackground">@null</item>
-        <item name="bottomNavigationItemColor">@null</item>
+        <item name="bottomNavigationBackground">@color/colorPrimary</item>
+        <item name="bottomNavigationItemColor">@android:color/white</item>
 
         <item name="android:windowBackground">@color/almostWhite</item>
     </style>
@@ -39,8 +39,8 @@
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
-        <item name="bottomNavigationBackground">@null</item>
-        <item name="bottomNavigationItemColor">@null</item>
+        <item name="bottomNavigationBackground">@color/colorPrimary</item>
+        <item name="bottomNavigationItemColor">@android:color/white</item>
 
         <item name="colorControlNormal">@android:color/white</item>
         <item name="android:textColorPrimary">@android:color/white</item>
