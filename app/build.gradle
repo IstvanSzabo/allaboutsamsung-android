@@ -20,7 +20,7 @@ android {
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
-        // Other configuration: fabric.properties, google-services.json
+        // Other configuration: fabric.properties, google-services.json, pathPrefix in manifest
 
         def youtubeKeyProperties = new Properties()
         file("youtube-key.properties").withInputStream { youtubeKeyProperties.load(it) }
