@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- In tablet mode, height of the custom bottom navigation should be equal with BottomNavigationView -->
+    <dimen name="bottom_navigation_height">56dp</dimen>
+
+    <!-- Overriding resource to make it non-private -->
+    <dimen name="design_bottom_navigation_height" tools:override="true">@dimen/bottom_navigation_height</dimen>
+</resources>
