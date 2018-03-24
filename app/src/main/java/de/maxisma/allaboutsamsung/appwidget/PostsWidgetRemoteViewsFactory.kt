@@ -1,6 +1,7 @@
 package de.maxisma.allaboutsamsung.appwidget
 
 import android.content.Context
+import android.util.Log
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import de.maxisma.allaboutsamsung.R
@@ -13,8 +14,10 @@ import de.maxisma.allaboutsamsung.query.Query
 import de.maxisma.allaboutsamsung.query.newExecutor
 import de.maxisma.allaboutsamsung.rest.WordpressApi
 import de.maxisma.allaboutsamsung.utils.glide.GlideApp
+import kotlinx.coroutines.experimental.CancellationException
 import kotlinx.coroutines.experimental.cancel
 import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.experimental.yield
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.math.min
@@ -47,13 +50,21 @@ class PostsWidgetRemoteViewsFactory(private val context: Context) : RemoteViewsS
 
     override fun getItemId(position: Int) = posts[position].id
 
-    override fun onDataSetChanged() = runBlocking {
-        val query = Query.Empty
-        val executor = query.newExecutor(wordpressApi, db, keyValueStore, { coroutineContext.cancel(cause = it) })
+    override fun onDataSetChanged() {
         try {
-            executor.requestNewerPosts().join()
-            posts = executor.dataImmediate()
-        } catch (e: Exception) {
+            runBlocking {
+                val query = Query.Empty
+                val executor = query.newExecutor(wordpressApi, db, keyValueStore, { coroutineContext.cancel(cause = it) })
+
+                try {
+                    executor.requestNewerPosts().join()
+                    posts = executor.dataImmediate()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    // Don't do anything, this is periodically run anyway
+                }
+            }
+        } catch (e: CancellationException) {
             e.printStackTrace()
             // Don't do anything, this is periodically run anyway
         }
