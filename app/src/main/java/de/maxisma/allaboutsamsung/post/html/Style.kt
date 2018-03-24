@@ -24,7 +24,7 @@ data class HtmlTheme(
 fun Context.obtainHtmlThemes() = HtmlThemes(
     lightTheme = HtmlTheme(
         lightTextColor = 0x464646,
-        backgroundColor = Color.WHITE,
+        backgroundColor = retrieveColor(android.R.attr.windowBackground),
         defaultTextColor = Color.BLACK,
         adBackgroundColor = 0xededed,
         highlightBackgroundColor = retrieveColor(R.attr.colorPrimary),
