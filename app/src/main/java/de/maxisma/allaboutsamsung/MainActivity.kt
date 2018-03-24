@@ -17,7 +17,6 @@ import de.maxisma.allaboutsamsung.settings.updatePushSubscriptionsAccordingly
 import de.maxisma.allaboutsamsung.utils.DbWriteDispatcher
 import de.maxisma.allaboutsamsung.youtube.YouTubeFragment
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.activity_main_common.*
 import kotlinx.coroutines.experimental.launch
 import java.util.Date
 import javax.inject.Inject
@@ -48,6 +47,7 @@ class MainActivity : BaseActivity(), PostsFragment.InteractionListener, YouTubeF
             .let { if (it == -1L) null else it }
 
         setContentView(R.layout.activity_main)
+        setSupportActionBar(toolbar)
         supportActionBar?.elevation = 0f
 
         app.appComponent.inject(this)

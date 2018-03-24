@@ -72,7 +72,7 @@ abstract class BaseActivity(private val useDefaultMenu: Boolean = true) : AppCom
     }
 
     @StyleRes
-    protected open val darkThemeToUse: Int? = R.style.AppTheme_Dark
+    protected open val darkThemeToUse: Int? = R.style.AppTheme_Dark_WithActionBar
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         if (useDefaultMenu) {
