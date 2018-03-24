@@ -14,13 +14,15 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme.WithActionBar">
 
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="d8f9e14466d9fd3a25fc2f77f76ed4dc43cb84cc" />
 
-        <activity android:name=".MainActivity">
+        <activity
+            android:name=".MainActivity"
+            android:theme="@style/AppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
