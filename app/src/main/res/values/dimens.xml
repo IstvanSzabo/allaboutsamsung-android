@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <dimen name="rounded_corner_radius">3dp</dimen>
     <dimen name="posts_widget_row_image_dimensions">75dp</dimen>
     <dimen name="title_background_padding">4dp</dimen>
+
+    <!-- Overriding resource to make it non-private -->
+    <dimen name="bottom_navigation_height">56dp</dimen>
+    <dimen name="design_bottom_navigation_height" tools:override="true">@dimen/bottom_navigation_height</dimen>
 </resources>

@@ -32,17 +32,17 @@
         app:layout_constraintTop_toBottomOf="@+id/featured">
 
 
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/postList"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/postList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
     </android.support.v4.widget.SwipeRefreshLayout>
 
     <FrameLayout
         android:id="@+id/categoryButtonContainer"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/bottom_navigation_height"
         android:background="?attr/colorPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -52,7 +52,7 @@
             android:id="@+id/categoryButton"
             style="?android:attr/buttonBarButtonStyle"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/bottom_navigation_height"
             android:drawableStart="@drawable/ic_view_list_white_24dp"
             android:padding="8dp"
             android:text="@string/categories"
@@ -62,7 +62,7 @@
     <FrameLayout
         android:id="@+id/searchButtonContainer"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="@dimen/bottom_navigation_height"
         android:background="?attr/colorPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/categoryButtonContainer"
@@ -72,7 +72,7 @@
             android:id="@+id/searchButton"
             style="?android:attr/buttonBarButtonStyle"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/bottom_navigation_height"
             android:drawableStart="@drawable/ic_search_white_24dp"
             android:padding="8dp"
             android:text="@string/search"
