@@ -1,5 +1,6 @@
 package de.maxisma.allaboutsamsung
 
+import android.content.Intent
 import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import com.squareup.moshi.JsonDataException
@@ -10,6 +11,7 @@ import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.TimeoutCancellationException
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
+import pl.aprilapps.easyphotopicker.EasyImage
 import retrofit2.HttpException
 import java.io.IOException
 
@@ -67,6 +69,19 @@ abstract class BaseFragment<out InteractionListener : Any> : Fragment() {
         }
 
         super.onPause()
+    }
+
+    var easyImageCallback: EasyImage.Callbacks? = null
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        easyImageCallback?.let {
+            // Don't throw Exception here, we could receive this after activity death
+            // and won't have a callback. The callback can't be stored easily across
+            // activity death and restore.
+            EasyImage.handleActivityResult(requestCode, resultCode, data, activity, it)
+        }
     }
 
 }

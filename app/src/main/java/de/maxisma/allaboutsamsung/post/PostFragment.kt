@@ -123,7 +123,7 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
                 useWideViewPort = true
                 javaScriptEnabled = true
             }
-            webChromeClient = ExtendedWebChromeClient(postContentProgressBar)
+            webChromeClient = ExtendedWebChromeClient(postContentProgressBar, supportWindowCreation = false, fragment = this@PostFragment)
         }
         postCommentsWebView.apply {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -134,7 +134,7 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
                 javaScriptCanOpenWindowsAutomatically = true
                 setSupportMultipleWindows(true)
             }
-            webChromeClient = ExtendedWebChromeClient(postCommentsProgressBar, supportWindowCreation = true)
+            webChromeClient = ExtendedWebChromeClient(postCommentsProgressBar, supportWindowCreation = true, fragment = this@PostFragment)
         }
 
         postBottomNavigation.setOnNavigationItemSelectedListener(::onBottomNavigation)
