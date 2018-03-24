@@ -6,6 +6,7 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="bottomNavigationBackground">@color/colorPrimary</item>
         <item name="bottomNavigationItemColor">@android:color/white</item>
+        <item name="android:textColorHint">@android:color/white</item>
 
         <item name="android:windowBackground">@color/almostWhite</item>
     </style>
@@ -16,6 +17,7 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="bottomNavigationBackground">@color/darkColorPrimary</item>
         <item name="bottomNavigationItemColor">@drawable/bottom_navigation_item_color_dark</item>
+        <item name="android:textColorHint">@android:color/white</item>
 
         <item name="colorControlNormal">@android:color/white</item>
         <item name="android:textColorPrimary">@android:color/white</item>
@@ -41,6 +43,7 @@
         <item name="colorAccent">@color/colorAccent</item>
         <item name="bottomNavigationBackground">@color/colorPrimary</item>
         <item name="bottomNavigationItemColor">@android:color/white</item>
+        <item name="android:textColorHint">@android:color/white</item>
 
         <item name="colorControlNormal">@android:color/white</item>
         <item name="android:textColorPrimary">@android:color/white</item>
@@ -79,8 +82,8 @@
     </style>
 
     <style name="BigDialog" parent="android:Theme.Dialog">
-        <item name="android:layout_width">fill_parent</item>
-        <item name="android:layout_height">fill_parent</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">match_parent</item>
         <item name="android:windowBackground">@null</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowIsFloating">false</item>
