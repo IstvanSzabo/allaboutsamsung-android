@@ -1,5 +1,6 @@
 package de.maxisma.allaboutsamsung.db
 
+import de.maxisma.allaboutsamsung.R.string.categories
 import de.maxisma.allaboutsamsung.rest.CategoryDto
 import de.maxisma.allaboutsamsung.rest.CategoryIdDto
 import de.maxisma.allaboutsamsung.rest.PostDto
@@ -46,6 +47,7 @@ fun Db.importCategoryDtos(categoryDtos: List<CategoryDto>) {
             )
         }
     )
+    categoryDao.deleteExcept(categoryDtos.map { it.id })
 }
 
 /**

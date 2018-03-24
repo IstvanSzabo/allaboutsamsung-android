@@ -133,12 +133,6 @@ abstract class CategoryDao {
     @Query("SELECT id FROM Category")
     abstract fun categoryIds(): List<CategoryId>
 
-    @Transaction
-    open fun replaceAll(categories: List<Category>) {
-        deleteExcept(categories.map { it.id })
-        insertCategories(categories)
-    }
-
     @Query("SELECT * FROM Category WHERE id = :categoryId")
     abstract fun category(categoryId: CategoryId): Category?
 
