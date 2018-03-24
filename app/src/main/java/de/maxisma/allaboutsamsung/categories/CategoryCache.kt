@@ -50,6 +50,6 @@ class CategoryCache @Inject constructor(private val db: Db, private val keyValue
         }
 
         keyValueStore.lastCategoryRefreshMs = System.currentTimeMillis()
-        db.importCategoryDtos(categoryDtos)
+        db.importCategoryDtos(categoryDtos, deleteAllExcept = true)
     }
 }

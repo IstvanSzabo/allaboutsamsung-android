@@ -34,8 +34,10 @@ fun Db.findMissingMeta(postDtos: List<PostDto>): MissingMeta {
 
 /**
  * Convert DTOs into DB entities and upsert them.
+ *
+ * @param deleteAllExcept If true, delete all categories but the ones in the DTO list
  */
-fun Db.importCategoryDtos(categoryDtos: List<CategoryDto>) {
+fun Db.importCategoryDtos(categoryDtos: List<CategoryDto>, deleteAllExcept: Boolean = false) {
     categoryDao.upsertCategories(
         categoryDtos.map {
             Category(
@@ -47,7 +49,9 @@ fun Db.importCategoryDtos(categoryDtos: List<CategoryDto>) {
             )
         }
     )
-    categoryDao.deleteExcept(categoryDtos.map { it.id })
+    if (deleteAllExcept) {
+        categoryDao.deleteExcept(categoryDtos.map { it.id })
+    }
 }
 
 /**
