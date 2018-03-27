@@ -91,7 +91,7 @@ class MainActivity : BaseActivity(), PostsFragment.InteractionListener, YouTubeF
     }
 
     override fun notifyUnseenVideos(howMany: Int) {
-        Snackbar.make(mainRoot, resources.getQuantityString(R.plurals.new_videos, howMany), Snackbar.LENGTH_LONG).show()
+        Snackbar.make(mainRoot, resources.getQuantityString(R.plurals.new_videos, howMany, howMany), Snackbar.LENGTH_LONG).show()
     }
 }
 
