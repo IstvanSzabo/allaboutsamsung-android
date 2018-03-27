@@ -17,7 +17,6 @@ import de.maxisma.allaboutsamsung.utils.glide.GlideApp
 import kotlinx.coroutines.experimental.CancellationException
 import kotlinx.coroutines.experimental.cancel
 import kotlinx.coroutines.experimental.runBlocking
-import kotlinx.coroutines.experimental.yield
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.math.min
@@ -64,7 +63,7 @@ class PostsWidgetRemoteViewsFactory(private val context: Context) : RemoteViewsS
                     // Don't do anything, this is periodically run anyway
                 }
             }
-        } catch (e: CancellationException) {
+        } catch (e: Exception) {
             e.printStackTrace()
             // Don't do anything, this is periodically run anyway
         }
