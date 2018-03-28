@@ -1,6 +1,7 @@
 package de.maxisma.allaboutsamsung.posts
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
@@ -222,18 +223,18 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
      * Map to ViewModels and load them into the adapter
      */
     private fun PostsAdapter.updateWith(posts: List<Post>, executor: QueryExecutor) = uiLaunch {
-        getContext() ?: return@uiLaunch
+        val ctx = getContext() ?: return@uiLaunch
 
-        this@updateWith.posts = posts.toPostViewModels(executor)
+        this@updateWith.posts = posts.toPostViewModels(executor, ctx)
         notifyDataSetChanged()
     }
 
-    private suspend fun Iterable<Post>.toPostViewModels(executor: QueryExecutor) =
+    private suspend fun Iterable<Post>.toPostViewModels(executor: QueryExecutor, context: Context) =
         map {
             PostViewModel(
                 it,
                 isBreaking = BuildConfig.BREAKING_CATEGORY_ID in executor.categoriesForPost(it.id).await().map { it.id },
-                styledTitle = it.title.toStyledTitle(context!!)
+                styledTitle = it.title.toStyledTitle(context)
             )
         }
 
