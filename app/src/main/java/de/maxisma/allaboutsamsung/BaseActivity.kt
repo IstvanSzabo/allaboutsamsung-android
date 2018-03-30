@@ -52,10 +52,9 @@ abstract class BaseActivity(private val useDefaultMenu: Boolean = true) : AppCom
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.M) {
             super.recreate()
         } else {
-            val app = applicationContext
             val intent = intent
             finish()
-            app.startActivity(intent)
+            startActivity(intent)
         }
     }
 
