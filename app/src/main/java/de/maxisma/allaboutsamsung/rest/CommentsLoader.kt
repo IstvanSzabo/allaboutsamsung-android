@@ -7,6 +7,7 @@ import de.maxisma.allaboutsamsung.BuildConfig
 import de.maxisma.allaboutsamsung.db.PostId
 import de.maxisma.allaboutsamsung.post.html.HtmlTheme
 import de.maxisma.allaboutsamsung.post.html.commentsCss
+import de.maxisma.allaboutsamsung.utils.IOPool
 import de.maxisma.allaboutsamsung.utils.await
 import de.maxisma.allaboutsamsung.utils.retry
 import kotlinx.coroutines.experimental.TimeoutCancellationException
@@ -56,8 +57,8 @@ fun WebView.loadCommentsFor(postId: PostId, httpClient: OkHttpClient, theme: Htm
     launch(UI) {
         try {
             val commentsUrl = commentsUrl(postId)
-            val html = httpClient.retriedDownloadWithTimeout(commentsUrl).await().body()!!.string()
-            val injectedHtml = injectCss(html, theme.commentsCss())
+            val html = async(IOPool) { httpClient.retriedDownloadWithTimeout(commentsUrl).await().body()!!.string() }
+            val injectedHtml = injectCss(html.await(), theme.commentsCss())
             loadDataWithBaseURL(
                 commentsUrl,
                 injectedHtml,
