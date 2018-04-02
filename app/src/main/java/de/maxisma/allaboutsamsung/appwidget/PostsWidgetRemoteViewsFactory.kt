@@ -72,6 +72,12 @@ class PostsWidgetRemoteViewsFactory(private val context: Context) : RemoteViewsS
     override fun hasStableIds() = true
 
     override fun getViewAt(position: Int): RemoteViews {
+        if (position !in posts.indices) {
+            // Sometimes the collection size known to the homescreen becomes
+            // out of sync with the actual size after a service restart / refresh
+            return RemoteViews(context.packageName, R.layout.empty)
+        }
+
         val post = posts[position]
         val image = try {
             GlideApp.with(context)
