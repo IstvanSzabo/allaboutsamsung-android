@@ -7,7 +7,7 @@ import kotlinx.coroutines.experimental.async
 import java.io.IOException
 
 data class YouTubeVideoDto(val title: String, val thumbnailUrl: String, val videoId: String, val utcEpochMs: Long)
-data class PlaylistResultDto(val playlist: List<YouTubeVideoDto>, val nextPageToken: String, val playlistId: String)
+data class PlaylistResultDto(val playlist: List<YouTubeVideoDto>, val nextPageToken: String?, val playlistId: String)
 
 const val YOUTUBE_MAX_ITEMS_PER_REQUEST = 20
 

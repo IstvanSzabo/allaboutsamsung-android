@@ -67,9 +67,8 @@ class YouTubeRepository(
             try {
                 retry(IOException::class) {
                     val playlistResultDto = youTube.downloadPlaylist(apiKey, playlistId).await()
-                    if (pageTokens.isNotEmpty()) {
-                        pageTokens[0] = playlistResultDto.nextPageToken
-                    } else {
+                    pageTokens.clear()
+                    if (playlistResultDto.nextPageToken != null) {
                         pageTokens += playlistResultDto.nextPageToken
                     }
                     launch(DbWriteDispatcher) {
@@ -99,7 +98,11 @@ class YouTubeRepository(
                     while (true) {
                         val results = youTube.downloadPlaylist(apiKey, playlistId, pageTokens.lastOrNull()).await()
                         allResults += results
-                        pageTokens += results.nextPageToken
+                        if (results.nextPageToken != null) {
+                            pageTokens += results.nextPageToken
+                        } else {
+                            break
+                        }
                         if (results.playlist.any { it.utcEpochMs < oldestDateDb }) {
                             // We finally fetched a video older than the currently oldest one
                             break
