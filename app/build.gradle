@@ -15,8 +15,8 @@ android {
         applicationId "de.maxisma.allaboutsamsung"
         minSdkVersion 19
         targetSdkVersion 27
-        versionCode 225
-        versionName "5.0.1"
+        versionCode 226
+        versionName "5.0.2"
         multiDexEnabled true
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
