@@ -13,6 +13,7 @@ import android.support.v4.app.NotificationCompat
 import android.support.v4.app.TaskStackBuilder
 import android.support.v4.content.ContextCompat
 import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
+import com.crashlytics.android.Crashlytics
 import com.evernote.android.job.Job
 import de.maxisma.allaboutsamsung.R
 import de.maxisma.allaboutsamsung.db.Db
@@ -57,7 +58,12 @@ fun notifyAboutPost(postId: PostId, db: Db, api: WordpressApi, context: Context,
         val value = executor.data.value ?: return@launch run { reschedule(Exception("Download of post failed!")) }
         launch(IOPool) {
             try {
-                val vm = value.single().toNotificationViewModel(context)
+                val vm = value.singleOrNull()?.toNotificationViewModel(context) ?: return@launch run {
+                    Crashlytics.logException(Exception("Could not find post with id $postId"))
+                    // No reschedule since this error is believed to only occur when a wrong
+                    // postId is received due to a server error.
+                    barrier.release()
+                }
                 vm.notifyAboutPost(context)
                 barrier.release()
             } catch (e: ExecutionException) {
