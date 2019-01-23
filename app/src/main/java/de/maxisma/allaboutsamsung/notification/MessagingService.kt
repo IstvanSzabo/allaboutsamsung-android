@@ -15,8 +15,10 @@ private const val keyReceivedGuids = "received_guids"
 
 class MessagingService : FirebaseMessagingService() {
 
-    private val model = object : KoreferenceModel(this, name = prefsFile) {
-        var seenGuids by stringSetPreference(default = emptySet(), key = keyReceivedGuids)
+    private val model by lazy {
+        object : KoreferenceModel(this, name = prefsFile) {
+            var seenGuids by stringSetPreference(default = emptySet(), key = keyReceivedGuids)
+        }
     }
 
     override fun onMessageReceived(message: RemoteMessage) {
