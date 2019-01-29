@@ -73,7 +73,7 @@
             android:theme="@style/AppTheme.Dialog" />
 
         <!--
-        The following services can be safely exported, see
+        The following service can be safely exported, see
         https://firebase.google.com/docs/reference/android/com/google/firebase/iid/FirebaseInstanceIdService
         -->
 
@@ -82,14 +82,6 @@
             tools:ignore="ExportedService">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
-            </intent-filter>
-        </service>
-
-        <service
-            android:name=".notification.InstanceIdService"
-            tools:ignore="ExportedService">
-            <intent-filter>
-                <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
 
