@@ -111,7 +111,7 @@ dependencies {
     kapt "com.github.bumptech.glide:compiler:$glideVersion"
 
     def daggerVersion = "2.14.1"
-    compile "com.google.dagger:dagger:$daggerVersion"
+    implementation "com.google.dagger:dagger:$daggerVersion"
     kapt "com.google.dagger:dagger-compiler:$daggerVersion"
 
     implementation "com.github.pwittchen:infinitescroll:0.0.1"
