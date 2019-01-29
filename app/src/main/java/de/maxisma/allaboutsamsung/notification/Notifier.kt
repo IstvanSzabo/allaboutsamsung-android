@@ -30,6 +30,7 @@ import de.maxisma.allaboutsamsung.utils.ellipsize
 import de.maxisma.allaboutsamsung.utils.glide.GlideApp
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.withContext
 import org.jsoup.Jsoup
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Semaphore
@@ -56,9 +57,9 @@ fun notifyAboutPost(postId: PostId, db: Db, api: WordpressApi, context: Context,
         executor.requestNewerPosts().join()
 
         val value = executor.data.value ?: return@launch run { reschedule(Exception("Download of post failed!")) }
-        launch(IOPool) {
+        withContext(IOPool) {
             try {
-                val vm = value.singleOrNull()?.toNotificationViewModel(context) ?: return@launch run {
+                val vm = value.singleOrNull()?.toNotificationViewModel(context) ?: return@withContext run {
                     Crashlytics.logException(Exception("Could not find post with id $postId"))
                     // No reschedule since this error is believed to only occur when a wrong
                     // postId is received due to a server error.
@@ -69,7 +70,7 @@ fun notifyAboutPost(postId: PostId, db: Db, api: WordpressApi, context: Context,
             } catch (e: ExecutionException) {
                 reschedule(e)
             }
-        }.join()
+        }
     }
 
     barrier.acquire()
