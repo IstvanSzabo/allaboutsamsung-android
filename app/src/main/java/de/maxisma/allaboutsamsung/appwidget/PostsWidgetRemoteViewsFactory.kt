@@ -8,6 +8,7 @@ import de.maxisma.allaboutsamsung.app
 import de.maxisma.allaboutsamsung.db.Db
 import de.maxisma.allaboutsamsung.db.KeyValueStore
 import de.maxisma.allaboutsamsung.db.Post
+import de.maxisma.allaboutsamsung.db.PostId
 import de.maxisma.allaboutsamsung.post.newPostActivityFillInIntent
 import de.maxisma.allaboutsamsung.query.Query
 import de.maxisma.allaboutsamsung.query.newExecutor
@@ -19,6 +20,7 @@ import kotlinx.coroutines.runBlocking
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.math.min
+import kotlin.random.Random
 
 /**
  * Maximum number of posts to show in the appwidget.
@@ -46,7 +48,16 @@ class PostsWidgetRemoteViewsFactory(private val context: Context) : RemoteViewsS
 
     override fun getLoadingView() = null
 
-    override fun getItemId(position: Int) = posts[position].id
+    override fun getItemId(position: Int): PostId {
+        val posts = posts
+        return if (position !in posts.indices) {
+            // Sometimes the collection size known to the homescreen becomes
+            // out of sync with the actual size after a service restart / refresh
+            Random.nextLong(Long.MIN_VALUE, 0)
+        } else {
+            posts[position].id
+        }
+    }
 
     override fun onDataSetChanged() {
         try {
@@ -71,6 +82,7 @@ class PostsWidgetRemoteViewsFactory(private val context: Context) : RemoteViewsS
     override fun hasStableIds() = true
 
     override fun getViewAt(position: Int): RemoteViews {
+        val posts = posts
         if (position !in posts.indices) {
             // Sometimes the collection size known to the homescreen becomes
             // out of sync with the actual size after a service restart / refresh
