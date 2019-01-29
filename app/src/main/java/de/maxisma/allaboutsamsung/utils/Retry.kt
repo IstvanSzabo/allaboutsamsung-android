@@ -25,9 +25,11 @@ suspend fun <T> retry(vararg handleTypes: KClass<out Exception>, initialBackoffM
                 delay(backoffMs)
                 backoffMs *= 2
             } else {
+                // TODO Wrap it?
                 throw e
             }
         }
     }
+    // TODO Wrap it?
     throw lastException
 }

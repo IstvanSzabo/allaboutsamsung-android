@@ -6,14 +6,31 @@ import de.maxisma.allaboutsamsung.app
 import de.maxisma.allaboutsamsung.scheduling.scheduleNotificationJob
 import de.maxisma.allaboutsamsung.settings.PushTopics
 import de.maxisma.allaboutsamsung.utils.map
+import jp.takuji31.koreference.KoreferenceModel
+import jp.takuji31.koreference.stringSetPreference
 import org.json.JSONArray
 
+private const val prefsFile = "messaging_service"
+private const val keyReceivedGuids = "received_guids"
+
 class MessagingService : FirebaseMessagingService() {
+
+    private val model by lazy {
+        object : KoreferenceModel(this, name = prefsFile) {
+            var seenGuids by stringSetPreference(default = emptySet(), key = keyReceivedGuids)
+        }
+    }
 
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
 
         val guid = message.data["guid"]?.toLongOrNull() ?: return
+
+        val guidStr = guid.toString()
+        if (guidStr in model.seenGuids) {
+            return
+        }
+        model.seenGuids += guidStr
 
         val wildcardActive = app.appComponent.preferenceHolder.pushTopics == PushTopics.ALL
         if (wildcardActive) {
