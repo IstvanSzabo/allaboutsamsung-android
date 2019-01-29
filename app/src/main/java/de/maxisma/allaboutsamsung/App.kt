@@ -22,6 +22,8 @@ class App : MultiDexApplication() {
     override fun onCreate() {
         super.onCreate()
 
+        System.setProperty(kotlinx.coroutines.DEBUG_PROPERTY_NAME, kotlinx.coroutines.DEBUG_PROPERTY_VALUE_ON)
+
         appComponent.preferenceHolder.migrateFromV4(this)
 
         Fabric.with(this, Crashlytics.Builder().core(CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build()).build())
