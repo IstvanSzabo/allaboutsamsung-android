@@ -2,16 +2,16 @@ package de.maxisma.allaboutsamsung
 
 import android.app.Activity
 import android.content.Context
-import androidx.multidex.MultiDexApplication
+import android.webkit.WebView
 import androidx.fragment.app.Fragment
+import androidx.multidex.MultiDexApplication
 import com.crashlytics.android.Crashlytics
+import com.crashlytics.android.core.CrashlyticsCore
 import com.evernote.android.job.JobManager
 import com.google.android.gms.ads.MobileAds
 import de.maxisma.allaboutsamsung.scheduling.JobCreator
 import de.maxisma.allaboutsamsung.settings.migrateFromV4
 import io.fabric.sdk.android.Fabric
-import com.crashlytics.android.core.CrashlyticsCore
-
 
 
 class App : MultiDexApplication() {
@@ -30,6 +30,8 @@ class App : MultiDexApplication() {
         if (BuildConfig.APPMOB_APP_ID != null) {
             MobileAds.initialize(this, BuildConfig.APPMOB_APP_ID)
         }
+
+        WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG)
 
         JobManager.create(this).addJobCreator(JobCreator())
     }

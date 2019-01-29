@@ -2,8 +2,8 @@ package de.maxisma.allaboutsamsung.post.html
 
 import android.content.Context
 import android.graphics.Color
-import androidx.annotation.AttrRes
 import android.util.TypedValue
+import androidx.annotation.AttrRes
 import de.maxisma.allaboutsamsung.R
 import de.maxisma.allaboutsamsung.ad.AD_CONTAINER_ID
 
@@ -102,7 +102,7 @@ fun HtmlTheme.postCss() = """
         max-width: 100%;
         height: auto;
     }
-    [class*="align"]:not([class*="attachment"]), iframe, #$AD_CONTAINER_ID {
+    [class*="align"]:not([class*="attachment"]), iframe, #$AD_CONTAINER_ID, figure.wp-block-image {
     	width: calc(100% + 2 * $BODY_MARGIN);
         max-width: none; /* Override max-width from img rule */
         height: auto;
