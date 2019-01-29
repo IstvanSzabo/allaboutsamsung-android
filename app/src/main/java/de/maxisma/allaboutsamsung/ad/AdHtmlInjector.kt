@@ -10,6 +10,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.launch
 import org.jsoup.Jsoup
+import org.jsoup.nodes.Document
 import org.jsoup.nodes.Element
 import retrofit2.HttpException
 import java.io.IOException
@@ -22,8 +23,8 @@ const val AD_CONTAINER_ID = "injected-ad-container"
 /**
  * Inject [adHtml] into the [Post.content] and return it.
  */
-fun Post.contentWithAd(adHtml: String): String {
-    val doc = Jsoup.parse(content)
+inline fun Post.contentWithAd(adHtml: String, contentModifier: (Document) -> Unit = {}): String {
+    val doc = Jsoup.parse(content).apply(contentModifier)
     val thirdParagraph = doc.getElementsByTag("p").getOrNull(3) ?: return content
 
     val adContainer = Element("div").apply {

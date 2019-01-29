@@ -5,7 +5,9 @@ import de.maxisma.allaboutsamsung.BuildConfig
 import de.maxisma.allaboutsamsung.R
 import de.maxisma.allaboutsamsung.ad.contentWithAd
 import de.maxisma.allaboutsamsung.db.Post
+import de.maxisma.allaboutsamsung.gallery.findFullImgUrl
 import okhttp3.HttpUrl
+import org.jsoup.nodes.Document
 import java.text.DateFormat
 import java.util.TimeZone
 import androidx.annotation.ColorInt as ColorIntAnnotation
@@ -38,6 +40,25 @@ abstract class PostHtmlGenerator {
 </html>
 """
 
+    private fun makeImgFiguresClickable(doc: Document) {
+        val imgFigures = doc.getElementsByTag("figure")
+            .asSequence()
+            .filter { it.hasClass("wp-block-image") }
+            .toList()
+        for (imgFigure in imgFigures) {
+            val imgChild = imgFigure.getElementsByTag("img").singleOrNull() ?: continue
+            val fullImgUrl = imgChild.findFullImgUrl()
+
+            imgChild.remove()
+            val a = doc.createElement("a").apply {
+                attr("href", fullImgUrl)
+                appendChild(imgChild)
+            }
+
+            imgFigure.appendChild(a)
+        }
+    }
+
     /**
      * Generate the HTML to be displayed for the [post].
      *
@@ -54,7 +75,7 @@ abstract class PostHtmlGenerator {
 <body>
 <h1>${post.title}</h1>
 <span class="meta">${formatAuthorName(authorName)}, ${dateFormatter.format(post.dateUtc)}</span>
-${post.contentWithAd(adHtml)}
+${post.contentWithAd(adHtml, ::makeImgFiguresClickable)}
 
 <script type="text/javascript">
 $analyticsJs
@@ -111,6 +132,7 @@ fun Post.generateAnalyticsJs() = generateAnalyticsJs(
  * Generate the tracking code for the "main page"
  */
 private fun generateLandingAnalyticsJs() = generateAnalyticsJs(BuildConfig.GOOGLE_ANALYTICS_ID, "/")
+
 fun generateLandingAnalyticsHtml() = """<html>
 <head>
 <script type="text/javascript">
