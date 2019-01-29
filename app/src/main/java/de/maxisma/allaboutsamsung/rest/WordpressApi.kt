@@ -21,6 +21,7 @@ import retrofit2.create
 import retrofit2.http.GET
 import retrofit2.http.Query
 import java.util.Date
+import java.util.concurrent.TimeUnit
 
 // This file implements an API client for the WP REST API v2
 
@@ -182,6 +183,7 @@ val httpClient: OkHttpClient = OkHttpClient.Builder()
             addInterceptor(HttpLoggingInterceptor().apply { level = HttpLoggingInterceptor.Level.BODY })
         }
     }
+    .callTimeout(15, TimeUnit.SECONDS)
     .build()
 
 // We assume that all dates in DTOs are GMT dates

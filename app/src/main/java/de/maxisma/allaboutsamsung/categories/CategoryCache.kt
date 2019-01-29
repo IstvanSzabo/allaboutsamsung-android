@@ -11,14 +11,11 @@ import de.maxisma.allaboutsamsung.rest.WordpressApi
 import de.maxisma.allaboutsamsung.rest.allCategories
 import de.maxisma.allaboutsamsung.utils.retry
 import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.withTimeout
 import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
 
 private const val CATEGORY_CACHE_EXPIRY_DURATION_MS = 24L * 60 * 60 * 1000
-
-private const val TIMEOUT_MS = 10000L
 
 /**
  * Repository for categories. Call [refreshIfNeeded] to make sure that
@@ -40,9 +37,7 @@ class CategoryCache @Inject constructor(private val db: Db, private val keyValue
                 IOException::class,
                 TimeoutCancellationException::class
             ) {
-                withTimeout(TIMEOUT_MS) {
-                    wordpressApi.allCategories(onlyIds = null)
-                }
+                wordpressApi.allCategories(onlyIds = null)
             }
         } catch (e: Exception) {
             e.printStackTrace()

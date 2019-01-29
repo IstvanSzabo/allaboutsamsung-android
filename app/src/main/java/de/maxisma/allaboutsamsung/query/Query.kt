@@ -37,7 +37,6 @@ import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeout
 import retrofit2.HttpException
 import java.io.IOException
 import java.util.Date
@@ -114,7 +113,6 @@ fun Query.newExecutor(wordpressApi: WordpressApi, db: Db, keyValueStore: KeyValu
 }
 
 const val WORDPRESS_POSTS_PER_PAGE = 20
-private const val TIMEOUT_MS = 30_000L
 private const val POST_INFO_EXPIRY_MS = 15 * 60 * 1000L
 
 private typealias Success = Boolean
@@ -190,35 +188,33 @@ private abstract class DbQueryExecutor(
             IOException::class,
             TimeoutCancellationException::class
         ) {
-            withTimeout(TIMEOUT_MS) {
-                val posts = fetchPosts(beforeGmt, onlyIds)
-                val (missingCategoryIds, missingTagIds, missingUserIds) = db.findMissingMeta(posts)
-                val categories = if (missingCategoryIds.isEmpty()) {
-                    emptyList()
-                } else {
-                    // onlyIds = null to fetch *all* categories from the server.
-                    // We need them anyway for CategoryActivity
-                    wordpressApi.allCategories(onlyIds = null)
-                }
-                val tags = if (missingTagIds.isEmpty()) {
-                    emptyList()
-                } else {
-                    wordpressApi.allTags(TagIdsDto(missingTagIds))
-                }
-                val users = if (missingUserIds.isEmpty()) {
-                    emptyList()
-                } else {
-                    wordpressApi.allUsers(UserIdsDto(missingUserIds))
-                }
-
-                keyValueStore.lastCategoryRefreshMs = System.currentTimeMillis()
-                db.importCategoryDtos(categories)
-                db.importTagDtos(tags)
-                db.importUserDtos(users)
-                db.importPostDtos(posts)
-
-                onInsertedPosts(posts.map { it.id }.toSet())
+            val posts = fetchPosts(beforeGmt, onlyIds)
+            val (missingCategoryIds, missingTagIds, missingUserIds) = db.findMissingMeta(posts)
+            val categories = if (missingCategoryIds.isEmpty()) {
+                emptyList()
+            } else {
+                // onlyIds = null to fetch *all* categories from the server.
+                // We need them anyway for CategoryActivity
+                wordpressApi.allCategories(onlyIds = null)
             }
+            val tags = if (missingTagIds.isEmpty()) {
+                emptyList()
+            } else {
+                wordpressApi.allTags(TagIdsDto(missingTagIds))
+            }
+            val users = if (missingUserIds.isEmpty()) {
+                emptyList()
+            } else {
+                wordpressApi.allUsers(UserIdsDto(missingUserIds))
+            }
+
+            keyValueStore.lastCategoryRefreshMs = System.currentTimeMillis()
+            db.importCategoryDtos(categories)
+            db.importTagDtos(tags)
+            db.importUserDtos(users)
+            db.importPostDtos(posts)
+
+            onInsertedPosts(posts.map { it.id }.toSet())
         }
         true
     } catch (e: Exception) {

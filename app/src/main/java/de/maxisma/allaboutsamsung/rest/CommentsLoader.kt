@@ -14,7 +14,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeout
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.jsoup.Jsoup
@@ -22,14 +21,12 @@ import org.jsoup.nodes.Element
 import retrofit2.HttpException
 import java.io.IOException
 
-private const val TIMEOUT_MS = 30_000L
-
 private fun commentsUrl(postId: PostId) = BuildConfig.COMMENTS_URL_TEMPLATE.replace("[POST_ID]", postId.toString())
 
 /**
  * Try to download the [commentsUrl] with an auto-retry mechanism
  */
-private suspend fun OkHttpClient.retriedDownloadWithTimeout(commentsUrl: String) =
+private suspend fun OkHttpClient.retriedDownload(commentsUrl: String) =
     retry(
         HttpException::class,
         JsonDataException::class,
@@ -37,9 +34,7 @@ private suspend fun OkHttpClient.retriedDownloadWithTimeout(commentsUrl: String)
         IOException::class,
         TimeoutCancellationException::class
     ) {
-        withTimeout(TIMEOUT_MS) {
-            newCall(Request.Builder().url(commentsUrl).build()).await()
-        }
+        newCall(Request.Builder().url(commentsUrl).build()).await()
     }
 
 private fun injectCss(html: String, css: String): String {
@@ -56,7 +51,7 @@ fun CoroutineScope.loadCommentsFor(webView: WebView, postId: PostId, httpClient:
     launch {
         try {
             val commentsUrl = commentsUrl(postId)
-            val html = withContext(IOPool) { httpClient.retriedDownloadWithTimeout(commentsUrl).body()!!.string() }
+            val html = withContext(IOPool) { httpClient.retriedDownload(commentsUrl).body()!!.string() }
             val injectedHtml = injectCss(html, theme.commentsCss())
             webView.loadDataWithBaseURL(
                 commentsUrl,

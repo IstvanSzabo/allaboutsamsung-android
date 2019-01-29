@@ -14,12 +14,9 @@ import de.maxisma.allaboutsamsung.rest.AppApi
 import de.maxisma.allaboutsamsung.rest.urlToId
 import de.maxisma.allaboutsamsung.utils.retry
 import kotlinx.coroutines.TimeoutCancellationException
-import kotlinx.coroutines.withTimeout
 import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
-
-private const val TIMEOUT_MS = 20000L
 
 private const val EXTRA_POST_ID = "post_id"
 
@@ -79,8 +76,6 @@ class PostActivity : BaseActivity() {
         IOException::class,
         TimeoutCancellationException::class
     ) {
-        withTimeout(TIMEOUT_MS) {
-            appApi.urlToId(intent.dataString ?: error("Intent did not contain expected dataString"))
-        }
+        appApi.urlToId(intent.dataString ?: error("Intent did not contain expected dataString"))
     }
 }

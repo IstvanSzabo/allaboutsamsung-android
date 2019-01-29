@@ -9,7 +9,6 @@ import de.maxisma.allaboutsamsung.utils.retry
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withTimeout
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import retrofit2.HttpException
@@ -47,9 +46,7 @@ fun CoroutineScope.updateAdHtml(keyValueStore: KeyValueStore) = launch {
             JsonEncodingException::class,
             TimeoutCancellationException::class
         ) {
-            withTimeout(10_000) {
-                keyValueStore.adHtml = appApi.adForPostAsync().await().html
-            }
+            keyValueStore.adHtml = appApi.adForPostAsync().await().html
         }
     } catch (e: Exception) {
         e.printStackTrace()
