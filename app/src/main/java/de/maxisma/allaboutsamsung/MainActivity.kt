@@ -3,9 +3,9 @@ package de.maxisma.allaboutsamsung
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.support.design.widget.Snackbar
-import android.support.v4.app.FragmentManager
-import android.support.v4.app.FragmentStatePagerAdapter
+import com.google.android.material.snackbar.Snackbar
+import androidx.fragment.app.FragmentManager
+import androidx.fragment.app.FragmentStatePagerAdapter
 import android.view.View
 import de.maxisma.allaboutsamsung.db.Db
 import de.maxisma.allaboutsamsung.db.Post

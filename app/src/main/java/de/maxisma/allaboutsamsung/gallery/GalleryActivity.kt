@@ -4,8 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.PointF
 import android.os.Bundle
-import android.support.v4.view.PagerAdapter
-import android.support.v4.view.ViewPager
+import android.os.Parcelable
+import androidx.viewpager.widget.PagerAdapter
+import androidx.viewpager.widget.ViewPager
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
@@ -19,13 +20,12 @@ import de.maxisma.allaboutsamsung.utils.IOPool
 import de.maxisma.allaboutsamsung.utils.asArrayList
 import de.maxisma.allaboutsamsung.utils.glide.GlideApp
 import de.maxisma.allaboutsamsung.utils.toggleVisibility
+import kotlinx.android.parcel.Parcelize
 import kotlinx.android.synthetic.main.activity_gallery.*
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import paperparcel.PaperParcel
-import paperparcel.PaperParcelable
 import java.util.concurrent.ExecutionException
 import kotlin.math.max
 
@@ -82,14 +82,8 @@ class GalleryActivity : BaseActivity(useDefaultMenu = false) {
     }
 }
 
-@PaperParcel
-data class Photo(val smallImageUrl: String, val fullImageUrl: String) : PaperParcelable {
-    companion object {
-        @Suppress("unused")
-        @JvmField
-        val CREATOR = PaperParcelPhoto.CREATOR
-    }
-}
+@Parcelize
+data class Photo(val smallImageUrl: String, val fullImageUrl: String) : Parcelable
 
 /**
  * Each page is a photo that can be zoomed and clicked.

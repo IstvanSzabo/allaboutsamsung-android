@@ -7,7 +7,7 @@ import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.widget.ProgressBar
-import androidx.os.toUri
+import androidx.core.net.toUri
 import de.maxisma.allaboutsamsung.BaseFragment
 import pl.aprilapps.easyphotopicker.DefaultCallback
 import pl.aprilapps.easyphotopicker.EasyImage
@@ -54,10 +54,11 @@ open class ExtendedWebChromeClient(
         this.filePathCallback?.onReceiveValue(null)
         this.filePathCallback = filePathCallback
         fragment.easyImageCallback = object : DefaultCallback() {
-            override fun onImagePicked(imageFile: File?, source: EasyImage.ImageSource?, type: Int) {
-                this@ExtendedWebChromeClient.filePathCallback?.onReceiveValue(imageFile?.let { arrayOf(it.toUri()) })
+            override fun onImagesPicked(imageFiles: MutableList<File>, source: EasyImage.ImageSource?, type: Int) {
+                this@ExtendedWebChromeClient.filePathCallback?.onReceiveValue(imageFiles.map { it.toUri() }.toTypedArray())
                 this@ExtendedWebChromeClient.filePathCallback = null
             }
+
         }
         EasyImage.openChooserWithGallery(fragment, null, 0)
         return true

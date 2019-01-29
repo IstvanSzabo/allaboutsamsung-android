@@ -1,8 +1,8 @@
 package de.maxisma.allaboutsamsung
 
 import android.content.Intent
-import android.support.design.widget.Snackbar
-import android.support.v4.app.Fragment
+import com.google.android.material.snackbar.Snackbar
+import androidx.fragment.app.Fragment
 import com.squareup.moshi.JsonDataException
 import com.squareup.moshi.JsonEncodingException
 import kotlinx.coroutines.CoroutineScope

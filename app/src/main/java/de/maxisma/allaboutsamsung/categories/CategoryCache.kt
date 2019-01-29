@@ -1,6 +1,6 @@
 package de.maxisma.allaboutsamsung.categories
 
-import android.arch.lifecycle.LiveData
+import androidx.lifecycle.LiveData
 import com.squareup.moshi.JsonDataException
 import com.squareup.moshi.JsonEncodingException
 import de.maxisma.allaboutsamsung.db.Category

@@ -2,8 +2,8 @@ package de.maxisma.allaboutsamsung
 
 import android.app.Activity
 import android.content.Context
-import android.support.multidex.MultiDexApplication
-import android.support.v4.app.Fragment
+import androidx.multidex.MultiDexApplication
+import androidx.fragment.app.Fragment
 import com.crashlytics.android.Crashlytics
 import com.evernote.android.job.JobManager
 import com.google.android.gms.ads.MobileAds

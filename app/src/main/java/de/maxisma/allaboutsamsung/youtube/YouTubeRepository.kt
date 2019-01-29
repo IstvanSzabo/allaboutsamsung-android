@@ -1,6 +1,6 @@
 package de.maxisma.allaboutsamsung.youtube
 
-import android.arch.lifecycle.LiveData
+import androidx.lifecycle.LiveData
 import com.google.api.services.youtube.YouTube
 import de.maxisma.allaboutsamsung.db.Db
 import de.maxisma.allaboutsamsung.db.PlaylistId

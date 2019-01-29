@@ -2,7 +2,7 @@ package de.maxisma.allaboutsamsung.post.html
 
 import android.content.Context
 import android.graphics.Color
-import android.support.annotation.AttrRes
+import androidx.annotation.AttrRes
 import android.util.TypedValue
 import de.maxisma.allaboutsamsung.R
 import de.maxisma.allaboutsamsung.ad.AD_CONTAINER_ID
@@ -12,13 +12,13 @@ typealias ColorInt = Int
 val ColorInt.hexString get() = String.format("#%06X", 0xFFFFFF and this)
 
 data class HtmlTheme(
-    @android.support.annotation.ColorInt val lightTextColor: ColorInt,
-    @android.support.annotation.ColorInt val backgroundColor: ColorInt,
-    @android.support.annotation.ColorInt val defaultTextColor: ColorInt,
-    @android.support.annotation.ColorInt val adBackgroundColor: ColorInt,
-    @android.support.annotation.ColorInt val highlightBackgroundColor: ColorInt,
-    @android.support.annotation.ColorInt val highlightForegroundColor: ColorInt,
-    @android.support.annotation.ColorInt val linkColor: ColorInt? = null
+    @androidx.annotation.ColorInt val lightTextColor: ColorInt,
+    @androidx.annotation.ColorInt val backgroundColor: ColorInt,
+    @androidx.annotation.ColorInt val defaultTextColor: ColorInt,
+    @androidx.annotation.ColorInt val adBackgroundColor: ColorInt,
+    @androidx.annotation.ColorInt val highlightBackgroundColor: ColorInt,
+    @androidx.annotation.ColorInt val highlightForegroundColor: ColorInt,
+    @androidx.annotation.ColorInt val linkColor: ColorInt? = null
 )
 
 fun Context.obtainHtmlThemes() = HtmlThemes(

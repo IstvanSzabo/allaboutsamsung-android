@@ -10,7 +10,7 @@ repositories {
 }
 
 android {
-    compileSdkVersion 27
+    compileSdkVersion 28
     defaultConfig {
         applicationId "de.maxisma.allaboutsamsung"
         minSdkVersion 19
@@ -18,7 +18,7 @@ android {
         versionCode 228
         versionName "5.0.4"
         multiDexEnabled true
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         // Other configuration: fabric.properties, google-services.json, pathPrefix in manifest
 
@@ -26,20 +26,22 @@ android {
         file("youtube-key.properties").withInputStream { youtubeKeyProperties.load(it) }
         buildConfigField "String", "YOUTUBE_API_KEY", "\"${youtubeKeyProperties.youtubeKey}\""
 
+        def appMobAppId = "ca-app-pub-5186136702634520~9544345137"
         buildConfigField "String", "WEBVIEW_BASE_URL", "\"https://allaboutsamsung.de\""
         buildConfigField "String", "REST_BASE_URL", "\"https://allaboutsamsung.de/wp-json/wp/v2/\""
         buildConfigField "String", "APP_API_BASE_URL", "\"https://allaboutsamsung.de/wp-json/app-api/v2/\""
         buildConfigField "String", "COMMENTS_URL_TEMPLATE", "\"https://allaboutsamsung.de/?loadApiComments=1&guid=[POST_ID]\""
         buildConfigField "String", "LEGAL_NOTICE_URL", "\"https://allaboutsamsung.de/impressum\""
         buildConfigField "String", "YOUTUBE_PLAYLIST_ID", "\"UU-JTjqB5yT9C8kdIJRCW2nQ\""
-        buildConfigField "String", "APPMOB_APP_ID", "\"ca-app-pub-5186136702634520~9544345137\""
+        buildConfigField "String", "APPMOB_APP_ID", "\"$appMobAppId\""
         buildConfigField "String", "GOOGLE_ANALYTICS_ID", "\"UA-24939508-1\""
         resValue "string", "appmobPostListAdId", "ca-app-pub-5186136702634520/2021078335"
         buildConfigField "int", "BREAKING_CATEGORY_ID", "531"
         buildConfigField "int", "DEAL_TAG_ID", "342"
 
         manifestPlaceholders = [
-                hostName: "allaboutsamsung.de"
+                hostName: "allaboutsamsung.de",
+                appMobAppId: appMobAppId
         ]
     }
     buildTypes {
@@ -50,40 +52,43 @@ android {
     }
 }
 
+androidExtensions {
+    experimental = true
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
 
-    implementation 'com.android.support:multidex:1.0.3'
+    implementation 'androidx.multidex:multidex:2.0.1'
 
-    def supportVersion = "27.1.0"
-    implementation "com.android.support:appcompat-v7:$supportVersion"
-    implementation "com.android.support:recyclerview-v7:$supportVersion"
-    implementation "com.android.support:design:$supportVersion"
-    implementation "com.android.support.constraint:constraint-layout:1.0.2"
-    implementation "com.android.support:customtabs:$supportVersion"
+    implementation 'androidx.appcompat:appcompat:1.0.2'
+    implementation 'androidx.recyclerview:recyclerview:1.0.0'
+    implementation 'com.google.android.material:material:1.0.0'
+    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'androidx.browser:browser:1.0.0'
 
-    implementation 'androidx.core:core-ktx:0.2'
+    implementation 'androidx.core:core-ktx:1.0.1'
 
-    def playServicesVersion = "11.8.0"
-    implementation "com.google.firebase:firebase-messaging:$playServicesVersion"
-    implementation "com.google.android.gms:play-services-ads:$playServicesVersion"
+    implementation "com.google.firebase:firebase-messaging:17.3.4"
+
+    implementation "com.google.android.gms:play-services-ads:17.1.2"
 
     testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'com.android.support.test:runner:1.0.1'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.0'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
 
-    def moshiVersion = "1.5.0"
+    def moshiVersion = "1.8.0"
     implementation "com.squareup.moshi:moshi:$moshiVersion"
-    implementation "com.squareup.moshi:moshi-kotlin:$moshiVersion"
     implementation "com.squareup.moshi:moshi-adapters:$moshiVersion"
+    kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshiVersion"
 
-    def okHttpVersion = "3.9.1"
+    def okHttpVersion = "3.12.1"
     implementation "com.squareup.okhttp3:logging-interceptor:$okHttpVersion"
     implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
 
-    def retrofitVersion = "2.3.0"
+    def retrofitVersion = "2.5.0"
     implementation "com.squareup.retrofit2:retrofit:$retrofitVersion"
     implementation "com.squareup.retrofit2:converter-moshi:$retrofitVersion"
     implementation "com.jakewharton.retrofit:retrofit2-kotlin-coroutines-adapter:0.9.2"
@@ -92,15 +97,15 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
 
-    def archVersion = "1.1.0"
-    implementation "android.arch.lifecycle:extensions:$archVersion"
-    kapt "android.arch.lifecycle:compiler:$archVersion"
-    implementation "android.arch.persistence.room:runtime:1.0.0"
-    kapt "android.arch.persistence.room:compiler:1.0.0"
+    def archVersion = "2.0.0"
+    implementation "androidx.lifecycle:lifecycle-extensions:$archVersion"
+    kapt "androidx.lifecycle:lifecycle-compiler:$archVersion"
+    implementation "androidx.room:room-runtime:$archVersion"
+    kapt "androidx.room:room-compiler:$archVersion"
 
-    implementation "org.jsoup:jsoup:1.11.2"
+    implementation "org.jsoup:jsoup:1.11.3"
 
-    def glideVersion = "4.4.0" // Up to 4.6.1 seems to be buggy
+    def glideVersion = "4.8.0"
     implementation "com.github.bumptech.glide:glide:$glideVersion"
     kapt "com.github.bumptech.glide:compiler:$glideVersion"
 
@@ -108,21 +113,17 @@ dependencies {
     implementation "com.google.dagger:dagger:$daggerVersion"
     kapt "com.google.dagger:dagger-compiler:$daggerVersion"
 
-    implementation "com.github.pwittchen:infinitescroll:0.0.1"
+    implementation "com.github.pwittchen:infinitescroll:0.0.2"
 
-    implementation('com.crashlytics.sdk.android:crashlytics:2.8.0@aar') {
+    implementation('com.crashlytics.sdk.android:crashlytics:2.9.8@aar') {
         transitive = true
     }
 
     implementation 'com.evernote:android-job:1.2.6'
-    implementation "com.google.android.gms:play-services-gcm:$playServicesVersion"
+    implementation "com.google.android.gms:play-services-gcm:16.0.0"
 
-    implementation "com.davemorrissey.labs:subsampling-scale-image-view:3.9.0"
-    implementation "com.android.support:exifinterface:$supportVersion"
-
-    implementation 'nz.bradcampbell:paperparcel:2.0.5'
-    implementation 'nz.bradcampbell:paperparcel-kotlin:2.0.5'
-    kapt 'nz.bradcampbell:paperparcel-compiler:2.0.5'
+    implementation "com.davemorrissey.labs:subsampling-scale-image-view:3.10.0"
+    implementation 'androidx.exifinterface:exifinterface:1.0.0'
 
     implementation 'com.github.takuji31.Koreference:koreference:2.0.0'
 
@@ -130,12 +131,12 @@ dependencies {
         exclude group: 'org.apache.httpcomponents'
         exclude group: "com.google.code.findbugs"
     }
-    implementation('com.google.apis:google-api-services-youtube:v3-rev191-1.23.0') {
+    implementation('com.google.apis:google-api-services-youtube:v3-rev206-1.25.0') {
         exclude group: 'org.apache.httpcomponents'
         exclude group: "com.google.code.findbugs"
     }
 
-    implementation 'com.github.jkwiecien:EasyImage:1.3.1'
+    implementation 'com.github.jkwiecien:EasyImage:2.1.1'
 }
 
 apply plugin: 'com.google.gms.google-services'

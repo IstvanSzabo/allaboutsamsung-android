@@ -7,11 +7,11 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.os.Build
-import android.support.annotation.RequiresApi
-import android.support.annotation.WorkerThread
-import android.support.v4.app.NotificationCompat
-import android.support.v4.app.TaskStackBuilder
-import android.support.v4.content.ContextCompat
+import androidx.annotation.RequiresApi
+import androidx.annotation.WorkerThread
+import androidx.core.app.NotificationCompat
+import androidx.core.app.TaskStackBuilder
+import androidx.core.content.ContextCompat
 import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
 import com.crashlytics.android.Crashlytics
 import com.evernote.android.job.Job

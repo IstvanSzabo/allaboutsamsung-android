@@ -2,11 +2,11 @@ package de.maxisma.allaboutsamsung.youtube
 
 import android.content.Intent
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.net.toUri
+import androidx.core.net.toUri
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.pwittchen.infinitescroll.library.InfiniteScrollListener
 import com.google.api.services.youtube.YouTube
 import de.maxisma.allaboutsamsung.BaseFragment
@@ -86,8 +86,8 @@ class YouTubeFragment : BaseFragment<YouTubeFragment.InteractionListener>() {
             null
         }
 
-        repo.videos.observe(this) {
-            adapter.videos = it?.map { VideoViewModel(it, it.title.toStyledTitle(context!!)) } ?: return@observe
+        repo.videos.observe(this) { videos ->
+            adapter.videos = videos?.map { VideoViewModel(it, it.title.toStyledTitle(context!!)) } ?: return@observe
             adapter.notifyDataSetChanged()
         }
 
@@ -100,13 +100,14 @@ class YouTubeFragment : BaseFragment<YouTubeFragment.InteractionListener>() {
 
             if (lastListPosition != null) {
                 var lastCount = -1
-                while (videoList.adapter.itemCount <= lastListPosition && lastCount != videoList.adapter.itemCount) {
+                val videoListAdapter = videoList.adapter ?: error("No adapter set")
+                while (videoListAdapter.itemCount <= lastListPosition && lastCount != videoListAdapter.itemCount) {
                     // Abort loop if item count doesn't change anymore
-                    lastCount = videoList.adapter.itemCount
+                    lastCount = videoListAdapter.itemCount
 
                     requestOlderVideos().join()
                 }
-                videoList.scrollToPosition(min(lastListPosition, videoList.adapter.itemCount))
+                videoList.scrollToPosition(min(lastListPosition, videoListAdapter.itemCount))
                 videoList.setOnTouchListener(null)
             }
         }

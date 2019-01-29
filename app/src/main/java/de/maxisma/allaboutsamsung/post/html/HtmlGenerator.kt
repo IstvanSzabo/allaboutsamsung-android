@@ -8,7 +8,7 @@ import de.maxisma.allaboutsamsung.db.Post
 import okhttp3.HttpUrl
 import java.text.DateFormat
 import java.util.TimeZone
-import android.support.annotation.ColorInt as ColorIntAnnotation
+import androidx.annotation.ColorInt as ColorIntAnnotation
 
 /**
  * Date formatter for displaying dates to the user

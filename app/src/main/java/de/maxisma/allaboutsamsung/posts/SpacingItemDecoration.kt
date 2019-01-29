@@ -1,8 +1,8 @@
 package de.maxisma.allaboutsamsung.posts
 
 import android.graphics.Rect
-import android.support.annotation.Px
-import android.support.v7.widget.RecyclerView
+import androidx.annotation.Px
+import androidx.recyclerview.widget.RecyclerView
 import android.view.View
 
 class SpacingItemDecoration(@Px val horizontalSpacing: Int, @Px val verticalSpacing: Int) : RecyclerView.ItemDecoration() {

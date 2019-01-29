@@ -1,13 +1,14 @@
 package de.maxisma.allaboutsamsung.rest
 
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
+import com.squareup.moshi.JsonClass
 
-import com.squareup.moshi.KotlinJsonAdapterFactory
 import com.squareup.moshi.Moshi
 import de.maxisma.allaboutsamsung.BuildConfig
 import kotlinx.coroutines.Deferred
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import retrofit2.create
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -22,14 +23,16 @@ interface AppApi {
 
 suspend fun AppApi.urlToId(url: String) = urlToIdAsync(UrlDto(url)).await().id
 
+@JsonClass(generateAdapter = true)
 data class AdDto(val html: String)
 
+@JsonClass(generateAdapter = true)
 data class UrlDto(val url: String)
 
+@JsonClass(generateAdapter = true)
 data class IdDto(val id: Long)
 
 private val moshi = Moshi.Builder()
-    .add(KotlinJsonAdapterFactory())
     .build()
 
 private val appApiRetrofit = Retrofit.Builder()
@@ -39,4 +42,4 @@ private val appApiRetrofit = Retrofit.Builder()
     .addConverterFactory(MoshiConverterFactory.create(moshi))
     .build()
 
-val appApi: AppApi = appApiRetrofit.create(AppApi::class.java)
+val appApi = appApiRetrofit.create<AppApi>()

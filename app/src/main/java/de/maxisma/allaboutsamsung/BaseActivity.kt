@@ -2,8 +2,8 @@ package de.maxisma.allaboutsamsung
 
 import android.os.Build
 import android.os.Bundle
-import android.support.annotation.StyleRes
-import android.support.v7.app.AppCompatActivity
+import androidx.annotation.StyleRes
+import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import de.maxisma.allaboutsamsung.settings.PreferenceHolder

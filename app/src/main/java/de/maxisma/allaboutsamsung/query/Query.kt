@@ -1,7 +1,7 @@
 package de.maxisma.allaboutsamsung.query
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.squareup.moshi.JsonDataException
 import com.squareup.moshi.JsonEncodingException
 import de.maxisma.allaboutsamsung.db.Category

@@ -80,7 +80,7 @@ class PostActivity : BaseActivity() {
         TimeoutCancellationException::class
     ) {
         withTimeout(TIMEOUT_MS) {
-            appApi.urlToId(intent.dataString)
+            appApi.urlToId(intent.dataString ?: error("Intent did not contain expected dataString"))
         }
     }
 }

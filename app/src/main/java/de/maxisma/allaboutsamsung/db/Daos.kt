@@ -1,14 +1,14 @@
 package de.maxisma.allaboutsamsung.db
 
-import android.arch.lifecycle.LiveData
-import android.arch.persistence.room.Dao
-import android.arch.persistence.room.Embedded
-import android.arch.persistence.room.Insert
-import android.arch.persistence.room.OnConflictStrategy
-import android.arch.persistence.room.Query
-import android.arch.persistence.room.Transaction
-import android.arch.persistence.room.TypeConverter
-import android.arch.persistence.room.Update
+import androidx.lifecycle.LiveData
+import androidx.room.Dao
+import androidx.room.Embedded
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import androidx.room.Transaction
+import androidx.room.TypeConverter
+import androidx.room.Update
 import de.maxisma.allaboutsamsung.BuildConfig
 import de.maxisma.allaboutsamsung.utils.Iso8601Utils
 import java.util.Date

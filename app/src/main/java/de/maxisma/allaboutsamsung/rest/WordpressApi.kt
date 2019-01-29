@@ -2,11 +2,11 @@ package de.maxisma.allaboutsamsung.rest
 
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.squareup.moshi.JsonAdapter
+import com.squareup.moshi.JsonClass
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.JsonWriter
-import com.squareup.moshi.KotlinJsonAdapterFactory
 import com.squareup.moshi.Moshi
-import com.squareup.moshi.Rfc3339DateJsonAdapter
+import com.squareup.moshi.adapters.Rfc3339DateJsonAdapter
 import de.maxisma.allaboutsamsung.BuildConfig
 import de.maxisma.allaboutsamsung.db.CategoryId
 import de.maxisma.allaboutsamsung.db.PostId
@@ -17,6 +17,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import retrofit2.create
 import retrofit2.http.GET
 import retrofit2.http.Query
 import java.util.Date
@@ -97,6 +98,7 @@ typealias TagIdDto = Int
 typealias UserIdDto = Int
 
 @Suppress("MemberVisibilityCanBePrivate")
+@JsonClass(generateAdapter = true)
 class TagIdsDto(
     val ids: Set<TagId>
 ) {
@@ -104,6 +106,7 @@ class TagIdsDto(
 }
 
 @Suppress("MemberVisibilityCanBePrivate")
+@JsonClass(generateAdapter = true)
 class CategoryIdsDto(
     val ids: Set<CategoryId>
 ) {
@@ -111,6 +114,7 @@ class CategoryIdsDto(
 }
 
 @Suppress("MemberVisibilityCanBePrivate")
+@JsonClass(generateAdapter = true)
 class PostIdsDto(
     val ids: Set<PostId>
 ) {
@@ -118,12 +122,14 @@ class PostIdsDto(
 }
 
 @Suppress("MemberVisibilityCanBePrivate")
+@JsonClass(generateAdapter = true)
 class UserIdsDto(
     val ids: Set<UserIdDto>
 ) {
     override fun toString() = ids.joinToString(separator = ",")
 }
 
+@JsonClass(generateAdapter = true)
 data class PostDto(
     val id: Long,
     val date_gmt: Date,
@@ -136,14 +142,17 @@ data class PostDto(
     val tags: List<TagIdDto>
 )
 
+@JsonClass(generateAdapter = true)
 data class TitleDto(
     val rendered: String
 )
 
+@JsonClass(generateAdapter = true)
 data class ContentDto(
     val rendered: String
 )
 
+@JsonClass(generateAdapter = true)
 data class CategoryDto(
     val id: Int,
     val count: Int,
@@ -152,6 +161,7 @@ data class CategoryDto(
     val slug: String
 )
 
+@JsonClass(generateAdapter = true)
 data class TagDto(
     val id: Int,
     val count: Int,
@@ -160,6 +170,7 @@ data class TagDto(
     val slug: String
 )
 
+@JsonClass(generateAdapter = true)
 data class UserDto(
     val id: UserIdDto,
     val name: String
@@ -178,7 +189,6 @@ val httpClient: OkHttpClient = OkHttpClient.Builder()
 private val rfc3339Adapter = Rfc3339DateJsonAdapter()
 
 private val moshi = Moshi.Builder()
-    .add(KotlinJsonAdapterFactory())
     .add(Date::class.java, object : JsonAdapter<Date>() {
         override fun toJson(writer: JsonWriter, value: Date?) = rfc3339Adapter.toJson(writer, value)
         override fun fromJson(reader: JsonReader) = rfc3339Adapter.fromJsonValue(reader.nextString() + "+00:00")
@@ -193,4 +203,4 @@ private val wordpressRetrofit = Retrofit.Builder()
     .addConverterFactory(RetrofitDateStringConverterFactory)
     .build()
 
-val wordpressApi: WordpressApi = wordpressRetrofit.create(WordpressApi::class.java)
+val wordpressApi = wordpressRetrofit.create<WordpressApi>()

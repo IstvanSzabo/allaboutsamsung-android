@@ -1,6 +1,6 @@
 package de.maxisma.allaboutsamsung.posts
 
-import android.support.v7.widget.RecyclerView
+import androidx.recyclerview.widget.RecyclerView
 import android.view.View
 import com.google.android.gms.ads.AdView
 import de.maxisma.allaboutsamsung.R

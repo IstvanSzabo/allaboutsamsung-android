@@ -1,6 +1,6 @@
 package de.maxisma.allaboutsamsung
 
-import android.arch.persistence.room.Room
+import androidx.room.Room
 import android.content.Context
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.api.client.json.jackson2.JacksonFactory

@@ -4,8 +4,8 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.SearchView
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.appcompat.widget.SearchView
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
@@ -206,7 +206,7 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
             requestNewerPosts(withListPosition).join()
 
             if (withListPosition != null) {
-                postList.scrollToPosition(min(withListPosition, postList.adapter.itemCount))
+                postList.scrollToPosition(min(withListPosition, postList.adapter?.itemCount ?: error("Adapter not set")))
                 postList.setOnTouchListener(null)
             }
         }
@@ -268,9 +268,10 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
             executor.requestNewerPosts().join()
 
             var lastCount = -1
-            while (postList.adapter.itemCount <= includingIndex ?: -1 && lastCount != postList.adapter.itemCount) {
+            val adapter = postList.adapter ?: error("Adapter not set")
+            while (adapter.itemCount <= includingIndex ?: -1 && lastCount != adapter.itemCount) {
                 // Abort loop if item count doesn't change anymore
-                lastCount = postList.adapter.itemCount
+                lastCount = adapter.itemCount
 
                 executor.requestOlderPosts().join()
             }
