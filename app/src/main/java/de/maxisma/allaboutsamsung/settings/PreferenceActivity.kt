@@ -3,7 +3,7 @@ package de.maxisma.allaboutsamsung.settings
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.preference.PreferenceFragment
+import androidx.preference.PreferenceFragmentCompat
 import de.maxisma.allaboutsamsung.BaseActivity
 import de.maxisma.allaboutsamsung.BuildConfig
 import de.maxisma.allaboutsamsung.R
@@ -25,7 +25,7 @@ class PreferenceActivity : BaseActivity(useDefaultMenu = false) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        fragmentManager.beginTransaction()
+        supportFragmentManager.beginTransaction()
             .replace(android.R.id.content, de.maxisma.allaboutsamsung.settings.PreferenceFragment())
             .commit()
     }
@@ -54,7 +54,7 @@ fun PreferenceHolder.updatePushSubscriptionsAccordingly(db: Db) {
  * Shows [R.xml.preferences] and updates push topic subscriptions
  * whenever notification settings change
  */
-class PreferenceFragment : PreferenceFragment() {
+class PreferenceFragment : PreferenceFragmentCompat() {
     @Inject
     lateinit var db: Db
 
@@ -65,11 +65,10 @@ class PreferenceFragment : PreferenceFragment() {
         preferenceHolder.updatePushSubscriptionsAccordingly(db)
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        activity.app.appComponent.inject(this)
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
+        activity!!.app.appComponent.inject(this)
 
-        addPreferencesFromResource(R.xml.preferences)
+        setPreferencesFromResource(R.xml.preferences, rootKey)
         preferenceHolder.registerListener(listener)
     }
 
