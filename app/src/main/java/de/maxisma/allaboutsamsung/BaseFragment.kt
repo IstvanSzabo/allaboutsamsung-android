@@ -5,21 +5,22 @@ import android.support.design.widget.Snackbar
 import android.support.v4.app.Fragment
 import com.squareup.moshi.JsonDataException
 import com.squareup.moshi.JsonEncodingException
-import kotlinx.coroutines.experimental.CancellationException
-import kotlinx.coroutines.experimental.CoroutineScope
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.TimeoutCancellationException
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.launch
 import pl.aprilapps.easyphotopicker.EasyImage
 import retrofit2.HttpException
 import java.io.IOException
+import kotlin.coroutines.CoroutineContext
 
 /**
  * @see listener
  * @see displaySupportedError
  */
-abstract class BaseFragment<out InteractionListener : Any> : Fragment() {
+abstract class BaseFragment<out InteractionListener : Any> : Fragment(), CoroutineScope {
 
     /**
      * Convenience method for casting [getActivity] to [InteractionListener] unsafely.
@@ -27,6 +28,10 @@ abstract class BaseFragment<out InteractionListener : Any> : Fragment() {
     @Suppress("UNCHECKED_CAST")
     protected val listener: InteractionListener
         get() = activity as InteractionListener
+
+    private var job = SupervisorJob()
+    override val coroutineContext: CoroutineContext
+        get() = job + Dispatchers.Main
 
     /**
      * If the Exception type is supported, show a notification to the user, otherwise rethrow.
@@ -41,34 +46,15 @@ abstract class BaseFragment<out InteractionListener : Any> : Fragment() {
         Snackbar.make(view, message, Snackbar.LENGTH_LONG).show()
     }
 
-    private val uiJobs = mutableListOf<Job>()
-
     /**
-     * Launch [f] on the UI thread and cancel it automatically in [onPause]
+     * Launch [f] on the UI thread and cancel it automatically in [onStop]
      */
-    protected fun uiLaunch(f: suspend CoroutineScope.() -> Unit): Job {
-        val job = launch(UI) { f() }
+    protected fun uiLaunch(f: suspend CoroutineScope.() -> Unit) = launch { f() }
 
-        synchronized(uiJobs) {
-            uiJobs += job
-        }
-        job.invokeOnCompletion {
-            synchronized(uiJobs) {
-                uiJobs -= job
-            }
-        }
-
-        return launch { job.join() }
-    }
-
-    override fun onPause() {
-        val cause = CancellationException("onPause")
-        synchronized(uiJobs) {
-            uiJobs.forEach { it.cancel(cause) }
-            uiJobs.clear()
-        }
-
-        super.onPause()
+    override fun onStop() {
+        job.cancel()
+        job = SupervisorJob()
+        super.onStop()
     }
 
     var easyImageCallback: EasyImage.Callbacks? = null

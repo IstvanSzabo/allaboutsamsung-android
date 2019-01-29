@@ -1,6 +1,6 @@
 package de.maxisma.allaboutsamsung.rest
 
-import com.jakewharton.retrofit2.adapter.kotlin.coroutines.experimental.CoroutineCallAdapterFactory
+import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.JsonWriter
@@ -11,8 +11,7 @@ import de.maxisma.allaboutsamsung.BuildConfig
 import de.maxisma.allaboutsamsung.db.CategoryId
 import de.maxisma.allaboutsamsung.db.PostId
 import de.maxisma.allaboutsamsung.db.TagId
-import kotlinx.coroutines.experimental.Deferred
-import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.Deferred
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
@@ -27,7 +26,7 @@ import java.util.Date
 interface WordpressApi {
 
     @GET("posts")
-    fun posts(
+    fun postsAsync(
         @Query("page") page: Int,
         @Query("per_page") postsPerPage: Int,
         @Query("search") search: String?,
@@ -41,7 +40,7 @@ interface WordpressApi {
      * See [allCategories] to avoid paging
      */
     @GET("categories?per_page=100")
-    fun categories(
+    fun categoriesAsync(
         @Query("page") page: Int,
         @Query("include") onlyIds: CategoryIdsDto?
     ): Deferred<Response<List<CategoryDto>>>
@@ -50,7 +49,7 @@ interface WordpressApi {
      * See [allTags] to avoid paging
      */
     @GET("tags?per_page=100")
-    fun tags(
+    fun tagsAsync(
         @Query("page") page: Int,
         @Query("include") onlyIds: TagIdsDto?
     ): Deferred<Response<List<TagDto>>>
@@ -59,7 +58,7 @@ interface WordpressApi {
      * See [allUsers] to avoid paging
      */
     @GET("users")
-    fun users(
+    fun usersAsync(
         @Query("page") page: Int,
         @Query("include") onlyIds: UserIdsDto?
     ): Deferred<Response<List<UserDto>>>
@@ -68,19 +67,19 @@ interface WordpressApi {
 
 private const val TOTAL_PAGES_HEADER = "X-WP-TotalPages"
 
-fun WordpressApi.allCategories(onlyIds: CategoryIdsDto?): Deferred<List<CategoryDto>> =
-    fetchAll { page -> categories(page, onlyIds) }
+suspend fun WordpressApi.allCategories(onlyIds: CategoryIdsDto?): List<CategoryDto> =
+    fetchAll { page -> categoriesAsync(page, onlyIds) }
 
-fun WordpressApi.allTags(onlyIds: TagIdsDto?): Deferred<List<TagDto>> =
-    fetchAll { page -> tags(page, onlyIds) }
+suspend fun WordpressApi.allTags(onlyIds: TagIdsDto?): List<TagDto> =
+    fetchAll { page -> tagsAsync(page, onlyIds) }
 
-fun WordpressApi.allUsers(onlyIds: UserIdsDto?): Deferred<List<UserDto>> =
-    fetchAll { page -> users(page, onlyIds) }
+suspend fun WordpressApi.allUsers(onlyIds: UserIdsDto?): List<UserDto> =
+    fetchAll { page -> usersAsync(page, onlyIds) }
 
 /**
  * Go through all pages provided by WordPRess and combine them
  */
-private fun <T> fetchAll(pageFetcher: (Int) -> Deferred<Response<List<T>>>): Deferred<List<T>> = async {
+private suspend fun <T> fetchAll(pageFetcher: (Int) -> Deferred<Response<List<T>>>): List<T> {
     var page = 1
     var pages = 1
     val elements = mutableListOf<T>()
@@ -90,7 +89,7 @@ private fun <T> fetchAll(pageFetcher: (Int) -> Deferred<Response<List<T>>>): Def
         elements += resp.body()!!
         page++
     }
-    elements
+    return elements
 }
 
 typealias CategoryIdDto = Int

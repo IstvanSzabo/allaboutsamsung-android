@@ -1,11 +1,11 @@
 package de.maxisma.allaboutsamsung.rest
 
-import com.jakewharton.retrofit2.adapter.kotlin.coroutines.experimental.CoroutineCallAdapterFactory
+import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
+
 import com.squareup.moshi.KotlinJsonAdapterFactory
 import com.squareup.moshi.Moshi
 import de.maxisma.allaboutsamsung.BuildConfig
-import kotlinx.coroutines.experimental.Deferred
-import kotlinx.coroutines.experimental.async
+import kotlinx.coroutines.Deferred
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.Body
@@ -14,15 +14,13 @@ import retrofit2.http.POST
 
 interface AppApi {
     @GET("ad")
-    fun adForPost(): Deferred<AdDto>
+    fun adForPostAsync(): Deferred<AdDto>
 
     @POST("url-to-id")
-    fun urlToId(@Body urlDto: UrlDto): Deferred<IdDto>
+    fun urlToIdAsync(@Body urlDto: UrlDto): Deferred<IdDto>
 }
 
-fun AppApi.urlToId(url: String) = async {
-    urlToId(UrlDto(url)).await().id
-}
+suspend fun AppApi.urlToId(url: String) = urlToIdAsync(UrlDto(url)).await().id
 
 data class AdDto(val html: String)
 

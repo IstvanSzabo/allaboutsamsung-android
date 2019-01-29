@@ -1,7 +1,6 @@
 package de.maxisma.allaboutsamsung.appwidget
 
 import android.content.Context
-import android.util.Log
 import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import de.maxisma.allaboutsamsung.R
@@ -14,9 +13,8 @@ import de.maxisma.allaboutsamsung.query.Query
 import de.maxisma.allaboutsamsung.query.newExecutor
 import de.maxisma.allaboutsamsung.rest.WordpressApi
 import de.maxisma.allaboutsamsung.utils.glide.GlideApp
-import kotlinx.coroutines.experimental.CancellationException
-import kotlinx.coroutines.experimental.cancel
-import kotlinx.coroutines.experimental.runBlocking
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.runBlocking
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.math.min
@@ -53,7 +51,7 @@ class PostsWidgetRemoteViewsFactory(private val context: Context) : RemoteViewsS
         try {
             runBlocking {
                 val query = Query.Empty
-                val executor = query.newExecutor(wordpressApi, db, keyValueStore, { coroutineContext.cancel(cause = it) })
+                val executor = query.newExecutor(wordpressApi, db, keyValueStore, coroutineScope = this, onError = { coroutineContext.cancel() })
 
                 try {
                     executor.requestNewerPosts().join()

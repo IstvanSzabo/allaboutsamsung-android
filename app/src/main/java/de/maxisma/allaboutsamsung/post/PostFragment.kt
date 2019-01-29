@@ -149,7 +149,7 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
         })
 
         val query = Query.Filter(onlyIds = listOf(postId))
-        val executor = query.newExecutor(wordpressApi, db, keyValueStore, ::displaySupportedError)
+        val executor = query.newExecutor(wordpressApi, db, keyValueStore, coroutineScope = this, onError = ::displaySupportedError)
 
         db.postMetaDao.postWithAuthorName(postId).observe(this) { postWithAuthorName ->
             val (post, authorName) = postWithAuthorName ?: return@observe run { executor.requestNewerPosts() }
@@ -169,7 +169,7 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
                 null
             )
 
-            postCommentsWebView.loadCommentsFor(postId, httpClient, theme, onError = ::displaySupportedError)
+            loadCommentsFor(postCommentsWebView, postId, httpClient, theme, onError = ::displaySupportedError)
         }
     }
 

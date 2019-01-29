@@ -31,13 +31,13 @@ import de.maxisma.allaboutsamsung.utils.IOPool
 import de.maxisma.allaboutsamsung.utils.SwitchableLiveData
 import de.maxisma.allaboutsamsung.utils.observeUntilFalse
 import de.maxisma.allaboutsamsung.utils.retry
-import kotlinx.coroutines.experimental.Deferred
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.TimeoutCancellationException
-import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.sync.Mutex
-import kotlinx.coroutines.experimental.withTimeout
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import retrofit2.HttpException
 import java.io.IOException
 import java.util.Date
@@ -59,10 +59,10 @@ interface QueryExecutor {
      */
     suspend fun dataImmediate(): List<Post>
 
-    fun tagById(tagId: TagId): Deferred<Tag>
-    fun categoryById(categoryId: CategoryId): Deferred<Category>
-    fun tagsForPost(postId: PostId): Deferred<List<Tag>>
-    fun categoriesForPost(postId: PostId): Deferred<List<Category>>
+    suspend fun tagById(tagId: TagId): Tag
+    suspend fun categoryById(categoryId: CategoryId): Category
+    suspend fun tagsForPost(postId: PostId): List<Tag>
+    suspend fun categoriesForPost(postId: PostId): List<Category>
 
     /**
      * Load the latest posts corresponding to the [query] from the server and import them into the database.
@@ -108,9 +108,9 @@ sealed class Query {
  *
  * @param onError Called on any errors that happened while downloading posts using the returned [QueryExecutor]
  */
-fun Query.newExecutor(wordpressApi: WordpressApi, db: Db, keyValueStore: KeyValueStore, onError: (Exception) -> Unit): QueryExecutor = when (this) {
-    Query.Empty -> EmptyQueryExecutor(wordpressApi, db, keyValueStore, onError)
-    is Query.Filter -> FilterQueryExecutor(this, wordpressApi, keyValueStore, db, onError)
+fun Query.newExecutor(wordpressApi: WordpressApi, db: Db, keyValueStore: KeyValueStore, coroutineScope: CoroutineScope, onError: (Exception) -> Unit): QueryExecutor = when (this) {
+    Query.Empty -> EmptyQueryExecutor(wordpressApi, db, keyValueStore, onError, coroutineScope)
+    is Query.Filter -> FilterQueryExecutor(this, wordpressApi, keyValueStore, db, onError, coroutineScope)
 }
 
 const val WORDPRESS_POSTS_PER_PAGE = 20
@@ -123,8 +123,9 @@ private abstract class DbQueryExecutor(
     private val wordpressApi: WordpressApi,
     private val db: Db,
     private val keyValueStore: KeyValueStore,
-    private val onError: (Exception) -> Unit
-) : QueryExecutor {
+    private val onError: (Exception) -> Unit,
+    coroutineScope: CoroutineScope
+) : QueryExecutor, CoroutineScope by coroutineScope {
 
     protected val oldestAcceptableDataAgeUtc: Date
         get() = Date(System.currentTimeMillis() - POST_INFO_EXPIRY_MS)
@@ -149,19 +150,19 @@ private abstract class DbQueryExecutor(
 
     override val data: LiveData<List<Post>> = displayedData
 
-    final override fun tagsForPost(postId: PostId): Deferred<List<Tag>> = async(IOPool) {
+    final override suspend fun tagsForPost(postId: PostId): List<Tag> = withContext(IOPool) {
         db.postTagDao.tags(postId)
     }
 
-    final override fun categoriesForPost(postId: PostId): Deferred<List<Category>> = async(IOPool) {
+    final override suspend fun categoriesForPost(postId: PostId): List<Category> = withContext(IOPool) {
         db.postCategoryDao.categories(postId)
     }
 
-    final override fun tagById(tagId: TagId): Deferred<Tag> = async(IOPool) {
+    final override suspend fun tagById(tagId: TagId): Tag = withContext(IOPool) {
         db.tagDao.tag(tagId)!!
     }
 
-    final override fun categoryById(categoryId: CategoryId): Deferred<Category> = async(IOPool) {
+    final override suspend fun categoryById(categoryId: CategoryId): Category = withContext(IOPool) {
         db.categoryDao.category(categoryId)!!
     }
 
@@ -197,17 +198,17 @@ private abstract class DbQueryExecutor(
                 } else {
                     // onlyIds = null to fetch *all* categories from the server.
                     // We need them anyway for CategoryActivity
-                    wordpressApi.allCategories(onlyIds = null).await()
+                    wordpressApi.allCategories(onlyIds = null)
                 }
                 val tags = if (missingTagIds.isEmpty()) {
                     emptyList()
                 } else {
-                    wordpressApi.allTags(TagIdsDto(missingTagIds)).await()
+                    wordpressApi.allTags(TagIdsDto(missingTagIds))
                 }
                 val users = if (missingUserIds.isEmpty()) {
                     emptyList()
                 } else {
-                    wordpressApi.allUsers(UserIdsDto(missingUserIds)).await()
+                    wordpressApi.allUsers(UserIdsDto(missingUserIds))
                 }
 
                 keyValueStore.lastCategoryRefreshMs = System.currentTimeMillis()
@@ -281,11 +282,12 @@ private class EmptyQueryExecutor(
     private val wordpressApi: WordpressApi,
     db: Db,
     keyValueStore: KeyValueStore,
-    onError: (Exception) -> Unit
-) : DbQueryExecutor(wordpressApi, db, keyValueStore, onError) {
+    onError: (Exception) -> Unit,
+    coroutineScope: CoroutineScope
+) : DbQueryExecutor(wordpressApi, db, keyValueStore, onError, coroutineScope) {
     override val query = Query.Empty
     override suspend fun fetchPosts(beforeGmt: Date?, onlyIds: List<PostId>?) = wordpressApi
-        .posts(
+        .postsAsync(
             page = 1, postsPerPage = WORDPRESS_POSTS_PER_PAGE,
             search = null, onlyCategories = null, onlyTags = null,
             onlyIds = onlyIds?.let { PostIdsDto(it.toSet()) }, beforeGmt = beforeGmt
@@ -299,8 +301,9 @@ private class FilterQueryExecutor(
     private val wordpressApi: WordpressApi,
     keyValueStore: KeyValueStore,
     private val db: Db,
-    onError: (Exception) -> Unit
-) : DbQueryExecutor(wordpressApi, db, keyValueStore, onError) {
+    onError: (Exception) -> Unit,
+    coroutineScope: CoroutineScope
+) : DbQueryExecutor(wordpressApi, db, keyValueStore, onError, coroutineScope) {
 
     private val postIds = mutableSetOf<PostId>()
     private val _data = MutableLiveData<List<Post>>()
@@ -308,7 +311,7 @@ private class FilterQueryExecutor(
     override val data: LiveData<List<Post>> = _data
 
     override suspend fun fetchPosts(beforeGmt: Date?, onlyIds: List<PostId>?) = wordpressApi
-        .posts(
+        .postsAsync(
             page = 1,
             postsPerPage = WORDPRESS_POSTS_PER_PAGE,
             search = query.string,

@@ -6,9 +6,10 @@ import de.maxisma.allaboutsamsung.db.KeyValueStore
 import de.maxisma.allaboutsamsung.db.Post
 import de.maxisma.allaboutsamsung.rest.appApi
 import de.maxisma.allaboutsamsung.utils.retry
-import kotlinx.coroutines.experimental.TimeoutCancellationException
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.withTimeout
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
 import retrofit2.HttpException
@@ -37,7 +38,7 @@ fun Post.contentWithAd(adHtml: String): String {
 /**
  * Fetch the current ad HTML from the server and save it in the [KeyValueStore].
  */
-fun KeyValueStore.updateAdHtml() = launch {
+fun CoroutineScope.updateAdHtml(keyValueStore: KeyValueStore) = launch {
     try {
         retry(
             HttpException::class,
@@ -47,7 +48,7 @@ fun KeyValueStore.updateAdHtml() = launch {
             TimeoutCancellationException::class
         ) {
             withTimeout(10_000) {
-                adHtml = appApi.adForPost().await().html
+                keyValueStore.adHtml = appApi.adForPostAsync().await().html
             }
         }
     } catch (e: Exception) {

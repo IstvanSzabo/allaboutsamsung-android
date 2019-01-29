@@ -1,6 +1,6 @@
 package de.maxisma.allaboutsamsung.utils
 
-import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.delay
 import kotlin.reflect.KClass
 
 /**

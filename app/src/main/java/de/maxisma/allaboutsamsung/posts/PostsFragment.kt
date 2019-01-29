@@ -36,11 +36,11 @@ import de.maxisma.allaboutsamsung.utils.observe
 import de.maxisma.allaboutsamsung.utils.toStyledTitle
 import de.maxisma.allaboutsamsung.utils.trackLandingLoad
 import kotlinx.android.synthetic.main.fragment_posts.*
-import kotlinx.coroutines.experimental.Deferred
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.math.min
 
@@ -190,7 +190,7 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
     private fun Query.load(withListPosition: Int? = null) = uiLaunch {
         currentExecutor?.data?.removeObservers(this@PostsFragment)
 
-        val executor = newExecutor(wordpressApi, db, keyValueStore, ::displaySupportedError)
+        val executor = newExecutor(wordpressApi, db, keyValueStore, coroutineScope = this@PostsFragment, onError = ::displaySupportedError)
         val adapter = postList.adapter as PostsAdapter
         executor.data.observe(this@PostsFragment) {
             val displayedPosts = it ?: emptyList()
@@ -212,7 +212,7 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
         }
         activity?.title = description.await()
 
-        keyValueStore.updateAdHtml()
+        updateAdHtml(keyValueStore)
 
         if (preferenceHolder.allowAnalytics) {
             trackLandingLoad(this@PostsFragment.context!!)
@@ -233,7 +233,7 @@ class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
         map {
             PostViewModel(
                 it,
-                isBreaking = BuildConfig.BREAKING_CATEGORY_ID in executor.categoriesForPost(it.id).await().map { it.id },
+                isBreaking = BuildConfig.BREAKING_CATEGORY_ID in executor.categoriesForPost(it.id).map { it.id },
                 styledTitle = it.title.toStyledTitle(context)
             )
         }

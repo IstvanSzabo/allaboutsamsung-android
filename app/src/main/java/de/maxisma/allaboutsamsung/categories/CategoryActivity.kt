@@ -18,7 +18,7 @@ import de.maxisma.allaboutsamsung.db.Category
 import de.maxisma.allaboutsamsung.db.CategoryId
 import de.maxisma.allaboutsamsung.utils.observe
 import kotlinx.android.synthetic.main.activity_category.*
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 private const val RESULT_CATEGORY_ID = "category_id"

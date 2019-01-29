@@ -8,12 +8,12 @@ import android.view.Menu
 import android.view.MenuItem
 import de.maxisma.allaboutsamsung.settings.PreferenceHolder
 import de.maxisma.allaboutsamsung.settings.newPreferencesActivityIntent
-import kotlinx.coroutines.experimental.CancellationException
-import kotlinx.coroutines.experimental.CoroutineScope
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
 /**
  * An [AppCompatActivity] that detects when the theme has changed in [onResume] and recreates
@@ -22,20 +22,24 @@ import javax.inject.Inject
  * @param useDefaultMenu If true, automatically inflates [R.menu.activity_base] and handles clicks
  * @see [uiLaunch]
  */
-abstract class BaseActivity(private val useDefaultMenu: Boolean = true) : AppCompatActivity() {
+abstract class BaseActivity(private val useDefaultMenu: Boolean = true) : AppCompatActivity(), CoroutineScope {
 
     @Inject
     lateinit var preferenceHolder: PreferenceHolder
 
     private var wasDarkThemeEnabled = false
 
-    override fun onPause() {
-        val cause = CancellationException("onPause")
-        synchronized(uiJobs) {
-            uiJobs.forEach { it.cancel(cause) }
-            uiJobs.clear()
-        }
+    private var uiJob = SupervisorJob()
+    override val coroutineContext: CoroutineContext
+        get() = uiJob + Dispatchers.Main
 
+    override fun onStop() {
+        uiJob.cancel()
+        uiJob = SupervisorJob()
+        super.onStop()
+    }
+
+    override fun onPause() {
         super.onPause()
         wasDarkThemeEnabled = preferenceHolder.useDarkTheme
     }
@@ -87,24 +91,9 @@ abstract class BaseActivity(private val useDefaultMenu: Boolean = true) : AppCom
         return super.onOptionsItemSelected(item)
     }
 
-    private val uiJobs = mutableListOf<Job>()
-
     /**
-     * Launch [f] on the UI thread and cancel it automatically in [onPause]
+     * Launch [f] on the UI thread and cancel it automatically in [onStop]
      */
-    fun uiLaunch(f: suspend CoroutineScope.() -> Unit): Job {
-        val job = launch(UI) { f() }
-
-        synchronized(uiJobs) {
-            uiJobs += job
-        }
-        job.invokeOnCompletion {
-            synchronized(uiJobs) {
-                uiJobs -= job
-            }
-        }
-
-        return launch { job.join() }
-    }
+    protected fun uiLaunch(f: suspend CoroutineScope.() -> Unit) = launch { f() }
 
 }

@@ -10,11 +10,11 @@ import de.maxisma.allaboutsamsung.post.html.commentsCss
 import de.maxisma.allaboutsamsung.utils.IOPool
 import de.maxisma.allaboutsamsung.utils.await
 import de.maxisma.allaboutsamsung.utils.retry
-import kotlinx.coroutines.experimental.TimeoutCancellationException
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.withTimeout
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import org.jsoup.Jsoup
@@ -29,7 +29,7 @@ private fun commentsUrl(postId: PostId) = BuildConfig.COMMENTS_URL_TEMPLATE.repl
 /**
  * Try to download the [commentsUrl] with an auto-retry mechanism
  */
-private fun OkHttpClient.retriedDownloadWithTimeout(commentsUrl: String) = async {
+private suspend fun OkHttpClient.retriedDownloadWithTimeout(commentsUrl: String) =
     retry(
         HttpException::class,
         JsonDataException::class,
@@ -41,7 +41,6 @@ private fun OkHttpClient.retriedDownloadWithTimeout(commentsUrl: String) = async
             newCall(Request.Builder().url(commentsUrl).build()).await()
         }
     }
-}
 
 private fun injectCss(html: String, css: String): String {
     val doc = Jsoup.parse(html)
@@ -53,13 +52,13 @@ private fun injectCss(html: String, css: String): String {
     return doc.outerHtml()
 }
 
-fun WebView.loadCommentsFor(postId: PostId, httpClient: OkHttpClient, theme: HtmlTheme, onError: (Exception) -> Unit) {
-    launch(UI) {
+fun CoroutineScope.loadCommentsFor(webView: WebView, postId: PostId, httpClient: OkHttpClient, theme: HtmlTheme, onError: (Exception) -> Unit) {
+    launch {
         try {
             val commentsUrl = commentsUrl(postId)
-            val html = async(IOPool) { httpClient.retriedDownloadWithTimeout(commentsUrl).await().body()!!.string() }
-            val injectedHtml = injectCss(html.await(), theme.commentsCss())
-            loadDataWithBaseURL(
+            val html = withContext(IOPool) { httpClient.retriedDownloadWithTimeout(commentsUrl).body()!!.string() }
+            val injectedHtml = injectCss(html, theme.commentsCss())
+            webView.loadDataWithBaseURL(
                 commentsUrl,
                 injectedHtml,
                 "text/html",

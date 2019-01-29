@@ -20,9 +20,10 @@ import de.maxisma.allaboutsamsung.utils.asArrayList
 import de.maxisma.allaboutsamsung.utils.glide.GlideApp
 import de.maxisma.allaboutsamsung.utils.toggleVisibility
 import kotlinx.android.synthetic.main.activity_gallery.*
-import kotlinx.coroutines.experimental.CancellationException
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import paperparcel.PaperParcel
 import paperparcel.PaperParcelable
 import java.util.concurrent.ExecutionException
@@ -55,7 +56,7 @@ class GalleryActivity : BaseActivity(useDefaultMenu = false) {
             val photoBar = galleryPhotoBar.configurePhotoBar(photos, onPhotoClick = { photo, photoBar ->
                 galleryViewPager.currentItem = photos.indexOf(photo)
                 photoBar.highlightPhoto(photo)
-            }).receive()
+            })
 
             galleryViewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
                 override fun onPageScrollStateChanged(state: Int) {}
@@ -73,7 +74,8 @@ class GalleryActivity : BaseActivity(useDefaultMenu = false) {
                 onZoomedInStateChanged = { zoomedIn ->
                     galleryPhotoBar.visibility = if (!zoomedIn) View.VISIBLE else View.GONE
                     galleryViewPager.disableTouchPaging = zoomedIn
-                }
+                },
+                coroutineScope = this@GalleryActivity
             )
             galleryViewPager.currentItem = selectedIndex
         }
@@ -95,8 +97,9 @@ data class Photo(val smallImageUrl: String, val fullImageUrl: String) : PaperPar
 private class PhotoAdapter(
     private val photos: List<Photo>,
     private val onClick: () -> Unit,
-    private val onZoomedInStateChanged: (Boolean) -> Unit
-) : PagerAdapter() {
+    private val onZoomedInStateChanged: (Boolean) -> Unit,
+    coroutineScope: CoroutineScope
+) : PagerAdapter(), CoroutineScope by coroutineScope {
 
     private fun photoView(context: Context, photo: Photo): View = FrameLayout(context).apply {
         layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
@@ -119,25 +122,26 @@ private class PhotoAdapter(
             })
 
             progressBar.visibility = View.VISIBLE
-            launch(IOPool) {
-                val resource = try {
-                    GlideApp.with(context)
-                        .asFile()
-                        .load(photo.fullImageUrl)
-                        .submit()
-                        .get()
-                } catch (e: CancellationException) {
-                    e.printStackTrace()
-                    return@launch
-                } catch (e: ExecutionException) {
-                    e.printStackTrace()
-                    return@launch
-                }
-                launch(UI) {
-                    if (isAttachedToWindow) {
-                        progressBar.visibility = View.GONE
-                        setImage(ImageSource.uri("file://$resource"))
+            launch {
+                val resource = withContext(IOPool) {
+                    try {
+                        GlideApp.with(context)
+                            .asFile()
+                            .load(photo.fullImageUrl)
+                            .submit()
+                            .get()
+                    } catch (e: CancellationException) {
+                        e.printStackTrace()
+                        null
+                    } catch (e: ExecutionException) {
+                        e.printStackTrace()
+                        null
                     }
+                }
+
+                progressBar.visibility = View.GONE
+                if (resource != null) {
+                    setImage(ImageSource.uri("file://$resource"))
                 }
             }
         }

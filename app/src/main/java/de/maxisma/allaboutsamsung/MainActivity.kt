@@ -17,7 +17,8 @@ import de.maxisma.allaboutsamsung.settings.updatePushSubscriptionsAccordingly
 import de.maxisma.allaboutsamsung.utils.DbWriteDispatcher
 import de.maxisma.allaboutsamsung.youtube.YouTubeFragment
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Date
 import javax.inject.Inject
 
@@ -53,7 +54,7 @@ class MainActivity : BaseActivity(), PostsFragment.InteractionListener, YouTubeF
         app.appComponent.inject(this)
 
         uiLaunch {
-            launch(DbWriteDispatcher) { db.postDao.deleteExpired(oldestAllowedDbPostCreatedDate) }.join()
+            withContext(DbWriteDispatcher) { db.postDao.deleteExpired(oldestAllowedDbPostCreatedDate) }
             preferenceHolder.updatePushSubscriptionsAccordingly(app.appComponent.db)
 
             mainViewPager.adapter = MainAdapter(this@MainActivity, supportFragmentManager)

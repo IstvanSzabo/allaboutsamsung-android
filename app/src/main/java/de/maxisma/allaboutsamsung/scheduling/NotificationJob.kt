@@ -9,7 +9,11 @@ import de.maxisma.allaboutsamsung.db.KeyValueStore
 import de.maxisma.allaboutsamsung.db.PostId
 import de.maxisma.allaboutsamsung.notification.notifyAboutPost
 import de.maxisma.allaboutsamsung.rest.WordpressApi
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
 const val NOTIFICATION_JOB_TAG = "notification_job"
 private const val EXTRA_POST_ID = "post_id"
@@ -34,7 +38,7 @@ fun scheduleNotificationJob(postId: PostId) {
 /**
  * Calls [notifyAboutPost]
  */
-class NotificationJob : Job() {
+class NotificationJob : Job(), CoroutineScope {
 
     @Inject
     lateinit var db: Db
@@ -45,6 +49,10 @@ class NotificationJob : Job() {
     @Inject
     lateinit var keyValueStore: KeyValueStore
 
+    private var job = SupervisorJob()
+    override val coroutineContext: CoroutineContext
+        get() = job + Dispatchers.Main
+
     override fun onRunJob(params: Params): Result {
         val postId: PostId = params.extras.getLong(EXTRA_POST_ID, -1)
         require(postId != -1L) { "Invalid postId!" }
@@ -53,4 +61,11 @@ class NotificationJob : Job() {
 
         return notifyAboutPost(postId, db, api, context, keyValueStore)
     }
+
+    override fun onCancel() {
+        job.cancel()
+        job = SupervisorJob()
+        super.onCancel()
+    }
+
 }

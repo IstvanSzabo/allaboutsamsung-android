@@ -28,9 +28,10 @@ import de.maxisma.allaboutsamsung.rest.WordpressApi
 import de.maxisma.allaboutsamsung.utils.IOPool
 import de.maxisma.allaboutsamsung.utils.ellipsize
 import de.maxisma.allaboutsamsung.utils.glide.GlideApp
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.withContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 import java.util.concurrent.ExecutionException
 import java.util.concurrent.Semaphore
@@ -41,7 +42,7 @@ import java.util.concurrent.Semaphore
  * This method is blocking.
  */
 @WorkerThread
-fun notifyAboutPost(postId: PostId, db: Db, api: WordpressApi, context: Context, keyValueStore: KeyValueStore): Job.Result {
+fun CoroutineScope.notifyAboutPost(postId: PostId, db: Db, api: WordpressApi, context: Context, keyValueStore: KeyValueStore): Job.Result {
     val barrier = Semaphore(0)
     var result = Job.Result.SUCCESS
 
@@ -52,8 +53,8 @@ fun notifyAboutPost(postId: PostId, db: Db, api: WordpressApi, context: Context,
     }
 
     val query = Query.Filter(onlyIds = listOf(postId))
-    val executor = query.newExecutor(api, db, keyValueStore, onError = ::reschedule)
-    launch(UI) {
+    val executor = query.newExecutor(api, db, keyValueStore, coroutineScope = this, onError = ::reschedule)
+    launch(Dispatchers.Main) {
         executor.requestNewerPosts().join()
 
         val value = executor.data.value ?: return@launch run { reschedule(Exception("Download of post failed!")) }

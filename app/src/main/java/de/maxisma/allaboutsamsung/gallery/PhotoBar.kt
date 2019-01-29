@@ -12,10 +12,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import de.maxisma.allaboutsamsung.utils.SmoothLinearLayoutManager
 import de.maxisma.allaboutsamsung.utils.glide.GlideApp
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.channels.ReceiveChannel
-import kotlinx.coroutines.experimental.channels.produce
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.android.awaitFrame
 
 private const val PHOTOS_ON_SCREEN = 3
 private val OVERLAY_COLOR = Color.argb(75, 0, 0, 0)
@@ -39,16 +36,13 @@ class PhotoViewModel(val photo: Photo, val isHighlighted: MutableLiveData<Boolea
 }
 
 /**
- * Sends exactly one [PhotoBar]. It is created after the UI has been laid out, which is done
+ * Returns a [PhotoBar]. It is created after the UI has been laid out, which is done
  * because in [PhotoBarAdapter.onCreateViewHolder] the width of the bar needs to be known, as
  * we want a fixed number of photos per screen.
  */
-fun RecyclerView.configurePhotoBar(photos: List<Photo>, onPhotoClick: (Photo, PhotoBar) -> Unit): ReceiveChannel<PhotoBar> = produce(UI) {
-    if (width == 0) {
-        launch(UI) {
-            send(configurePhotoBar(photos, onPhotoClick).receive())
-        }
-        return@produce
+suspend fun RecyclerView.configurePhotoBar(photos: List<Photo>, onPhotoClick: (Photo, PhotoBar) -> Unit): PhotoBar {
+    while (width == 0) {
+        awaitFrame()
     }
 
     val viewModels = photos.mapIndexed { index, photo -> PhotoViewModel(photo, MutableLiveData<Boolean>().apply { value = index == 0 }) }
@@ -56,7 +50,7 @@ fun RecyclerView.configurePhotoBar(photos: List<Photo>, onPhotoClick: (Photo, Ph
     val photoBar = PhotoBar(this@configurePhotoBar, viewModels)
     layoutManager = SmoothLinearLayoutManager(this@configurePhotoBar.context, LinearLayoutManager.HORIZONTAL, false, 100f)
     adapter = PhotoBarAdapter(viewModels, onPhotoClick = { onPhotoClick(it, photoBar) })
-    send(photoBar)
+    return photoBar
 }
 
 private class PhotoBarViewHolder(val imageView: ImageView, val overlayView: View, itemView: View) : RecyclerView.ViewHolder(itemView)

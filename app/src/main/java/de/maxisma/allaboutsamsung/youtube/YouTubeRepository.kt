@@ -11,12 +11,11 @@ import de.maxisma.allaboutsamsung.db.importPlaylistResult
 import de.maxisma.allaboutsamsung.utils.DbWriteDispatcher
 import de.maxisma.allaboutsamsung.utils.IOPool
 import de.maxisma.allaboutsamsung.utils.retry
-import kotlinx.coroutines.experimental.Deferred
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.async
-import kotlinx.coroutines.experimental.launch
-import kotlinx.coroutines.experimental.sync.Mutex
-import kotlinx.coroutines.experimental.sync.withLock
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 import java.io.IOException
 
 typealias UnseenVideos = List<VideoId>
@@ -41,7 +40,7 @@ class YouTubeRepository(
     private val pageTokens = mutableListOf<String>()
 
     init {
-        launch(DbWriteDispatcher) {
+        GlobalScope.launch(DbWriteDispatcher) {
             mutex.withLock {
                 db.videoDao.deleteExpired()
             }
@@ -51,7 +50,7 @@ class YouTubeRepository(
     /**
      * Set that the user has seen these videos and does not need to be notified about them anymore
      */
-    fun markAsSeen(unseenVideos: UnseenVideos) = launch(DbWriteDispatcher) {
+    fun markAsSeen(unseenVideos: UnseenVideos) = GlobalScope.launch(DbWriteDispatcher) {
         mutex.withLock {
             db.videoDao.upsertSeenVideos(unseenVideos.map { SeenVideo(it) })
         }
@@ -62,18 +61,18 @@ class YouTubeRepository(
      *
      * @return Videos that have been newly added to the DB and have thus not been seen by the user yet
      */
-    fun requestNewerVideos(): Deferred<UnseenVideos> = async(IOPool) {
+    suspend fun requestNewerVideos(): UnseenVideos = withContext(IOPool) {
         mutex.withLock {
             try {
                 retry(IOException::class) {
-                    val playlistResultDto = youTube.downloadPlaylist(apiKey, playlistId).await()
+                    val playlistResultDto = youTube.downloadPlaylist(apiKey, playlistId)
                     pageTokens.clear()
                     if (playlistResultDto.nextPageToken != null) {
                         pageTokens += playlistResultDto.nextPageToken
                     }
-                    launch(DbWriteDispatcher) {
+                    withContext(DbWriteDispatcher) {
                         db.importPlaylistResult(playlistResultDto).join()
-                    }.join()
+                    }
 
                     val seenVideos = db.videoDao.seenVideos().map { it.id }.toHashSet()
                     playlistResultDto.playlist.map { it.videoId } - seenVideos
@@ -89,14 +88,14 @@ class YouTubeRepository(
     /**
      * Download and import videos older than the currently oldest one stored in the DB.
      */
-    fun requestOlderVideos(): Job = launch(IOPool) {
+    suspend fun requestOlderVideos() = withContext(IOPool) {
         mutex.withLock {
             try {
                 retry(IOException::class) {
                     val oldestDateDb = db.videoDao.oldestDateInPlaylist(playlistId).time
                     val allResults = mutableListOf<PlaylistResultDto>()
                     while (true) {
-                        val results = youTube.downloadPlaylist(apiKey, playlistId, pageTokens.lastOrNull()).await()
+                        val results = youTube.downloadPlaylist(apiKey, playlistId, pageTokens.lastOrNull())
                         allResults += results
                         if (results.nextPageToken != null) {
                             pageTokens += results.nextPageToken

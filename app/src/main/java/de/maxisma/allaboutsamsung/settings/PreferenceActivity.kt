@@ -15,7 +15,8 @@ import de.maxisma.allaboutsamsung.db.TagId
 import de.maxisma.allaboutsamsung.db.TagSubscription
 import de.maxisma.allaboutsamsung.notification.updatePushSubscription
 import de.maxisma.allaboutsamsung.utils.DbWriteDispatcher
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 fun newPreferencesActivityIntent(context: Context) = Intent(context, PreferenceActivity::class.java)
@@ -34,7 +35,7 @@ class PreferenceActivity : BaseActivity(useDefaultMenu = false) {
  * Check the user's notification preferences and update Firebase topic subscriptions
  */
 fun PreferenceHolder.updatePushSubscriptionsAccordingly(db: Db) {
-    launch(DbWriteDispatcher) {
+    GlobalScope.launch(DbWriteDispatcher) {
         val pushCategories: Set<CategoryId> = when (pushTopics) {
             PushTopics.NONE, PushTopics.ALL -> emptySet()
             PushTopics.BREAKING -> setOf(BuildConfig.BREAKING_CATEGORY_ID)

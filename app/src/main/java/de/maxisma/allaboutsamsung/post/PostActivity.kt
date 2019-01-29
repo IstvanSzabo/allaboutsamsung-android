@@ -13,13 +13,13 @@ import de.maxisma.allaboutsamsung.db.PostId
 import de.maxisma.allaboutsamsung.rest.AppApi
 import de.maxisma.allaboutsamsung.rest.urlToId
 import de.maxisma.allaboutsamsung.utils.retry
-import kotlinx.coroutines.experimental.TimeoutCancellationException
-import kotlinx.coroutines.experimental.withTimeout
+import kotlinx.coroutines.TimeoutCancellationException
+import kotlinx.coroutines.withTimeout
 import retrofit2.HttpException
 import java.io.IOException
 import javax.inject.Inject
 
-private const val TIMEOUT_MS = 20000
+private const val TIMEOUT_MS = 20000L
 
 private const val EXTRA_POST_ID = "post_id"
 
@@ -80,7 +80,7 @@ class PostActivity : BaseActivity() {
         TimeoutCancellationException::class
     ) {
         withTimeout(TIMEOUT_MS) {
-            appApi.urlToId(intent.dataString).await()
+            appApi.urlToId(intent.dataString)
         }
     }
 }

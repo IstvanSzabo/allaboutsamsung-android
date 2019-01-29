@@ -5,16 +5,17 @@ import android.content.Context
 import android.webkit.WebView
 import de.maxisma.allaboutsamsung.BuildConfig
 import de.maxisma.allaboutsamsung.post.html.generateLandingAnalyticsHtml
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.delay
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * Run JS that tracks a hit on the main page
  */
 @SuppressLint("SetJavaScriptEnabled")
 fun trackLandingLoad(context: Context) {
-    launch(UI) {
+    GlobalScope.launch(Dispatchers.Main) {
         WebView(context).apply {
             settings.javaScriptEnabled = true
             loadDataWithBaseURL(

@@ -2,8 +2,9 @@ package de.maxisma.allaboutsamsung.utils
 
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Observer
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 /**
  * [LiveData] that can be backed by a delegate that can be exchanged.
@@ -12,7 +13,7 @@ import kotlinx.coroutines.experimental.launch
 class SwitchableLiveData<T>(delegate: LiveData<T>) : LiveData<T>() {
     var delegate = delegate
         set(value) {
-            launch(UI) {
+            GlobalScope.launch(Dispatchers.Main) {
                 observer?.let {
                     field.removeObserver(it)
                     value.observeForever(it)
@@ -25,7 +26,7 @@ class SwitchableLiveData<T>(delegate: LiveData<T>) : LiveData<T>() {
 
     override fun onInactive() {
         super.onInactive()
-        launch(UI) {
+        GlobalScope.launch(Dispatchers.Main) {
             observer?.let { delegate.removeObserver(it) }
             observer = null
         }
@@ -34,7 +35,7 @@ class SwitchableLiveData<T>(delegate: LiveData<T>) : LiveData<T>() {
     override fun onActive() {
         super.onActive()
 
-        launch(UI) {
+        GlobalScope.launch(Dispatchers.Main) {
             val observer = Observer<T> { value = it }
             delegate.observeForever(observer)
             this@SwitchableLiveData.observer = observer

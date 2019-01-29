@@ -20,8 +20,8 @@ import de.maxisma.allaboutsamsung.utils.dpToPx
 import de.maxisma.allaboutsamsung.utils.observe
 import de.maxisma.allaboutsamsung.utils.toStyledTitle
 import kotlinx.android.synthetic.main.fragment_youtube.*
-import kotlinx.coroutines.experimental.Job
-import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import javax.inject.Inject
 import kotlin.math.min
 
@@ -139,7 +139,7 @@ class YouTubeFragment : BaseFragment<YouTubeFragment.InteractionListener>() {
      * notify the user about it.
      */
     private fun requestNewerVideos() = debounceLoad {
-        val unseenVideos = repo.requestNewerVideos().await()
+        val unseenVideos = repo.requestNewerVideos()
         repo.markAsSeen(unseenVideos).join()
 
         if (unseenVideos.size in 1 until NOTIFY_NEW_VIDEOS_IF_LESS_THAN) {
@@ -150,7 +150,7 @@ class YouTubeFragment : BaseFragment<YouTubeFragment.InteractionListener>() {
     /**
      * Request older pages
      */
-    private fun requestOlderVideos() = debounceLoad { repo.requestOlderVideos().join() }
+    private fun requestOlderVideos() = debounceLoad { repo.requestOlderVideos() }
 
     /**
      * Start the YouTube app for the [Video]
