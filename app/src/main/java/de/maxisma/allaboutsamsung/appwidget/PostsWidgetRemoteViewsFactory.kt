@@ -13,6 +13,7 @@ import de.maxisma.allaboutsamsung.query.Query
 import de.maxisma.allaboutsamsung.query.newExecutor
 import de.maxisma.allaboutsamsung.rest.WordpressApi
 import de.maxisma.allaboutsamsung.utils.glide.GlideApp
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.runBlocking
 import java.util.concurrent.TimeUnit
@@ -49,7 +50,7 @@ class PostsWidgetRemoteViewsFactory(private val context: Context) : RemoteViewsS
 
     override fun onDataSetChanged() {
         try {
-            runBlocking {
+            runBlocking(Dispatchers.Main) {
                 val query = Query.Empty
                 val executor = query.newExecutor(wordpressApi, db, keyValueStore, coroutineScope = this, onError = { coroutineContext.cancel() })
 
