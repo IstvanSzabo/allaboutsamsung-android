@@ -66,4 +66,5 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:menu="@menu/fragment_post_bottom" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

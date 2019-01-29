@@ -16,6 +16,7 @@ import android.webkit.CookieManager
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.app.ShareCompat
 import androidx.core.content.ContextCompat
@@ -58,7 +59,12 @@ fun PostFragment(postId: PostId) = PostFragment().apply {
 
 private const val POST_DETAIL_EXPIRY_MS = 2 * 60 * 1000L
 
-class PostFragment @Deprecated("Use factory function.") constructor() : BaseFragment<Nothing>() {
+class PostFragment @Deprecated("Use factory function.") constructor() : BaseFragment<PostFragment.Listener>() {
+
+    interface Listener {
+        val fullScreenViewContainer: ViewGroup
+    }
+
     @Inject
     lateinit var db: Db
 
@@ -123,7 +129,15 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
                 useWideViewPort = true
                 javaScriptEnabled = true
             }
-            webChromeClient = ExtendedWebChromeClient(postContentProgressBar, supportWindowCreation = false, fragment = this@PostFragment)
+            webChromeClient = ExtendedWebChromeClient(
+                postContentProgressBar,
+                supportWindowCreation = false,
+                fragment = this@PostFragment,
+                customViewContainer = listener.fullScreenViewContainer,
+                customViewActiveListener = { active ->
+                    (activity as? AppCompatActivity)?.supportActionBar?.let { if (active) it.hide() else it.show() }
+                }
+            )
         }
         postCommentsWebView.apply {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

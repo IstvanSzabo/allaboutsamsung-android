@@ -3,10 +3,11 @@ package de.maxisma.allaboutsamsung
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import com.google.android.material.snackbar.Snackbar
+import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
-import android.view.View
+import com.google.android.material.snackbar.Snackbar
 import de.maxisma.allaboutsamsung.db.Db
 import de.maxisma.allaboutsamsung.db.Post
 import de.maxisma.allaboutsamsung.db.PostId
@@ -17,7 +18,6 @@ import de.maxisma.allaboutsamsung.settings.updatePushSubscriptionsAccordingly
 import de.maxisma.allaboutsamsung.utils.DbWriteDispatcher
 import de.maxisma.allaboutsamsung.youtube.YouTubeFragment
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Date
 import javax.inject.Inject
@@ -29,7 +29,7 @@ private const val STATE_POST_ID = "post_id"
 
 fun newMainActivityIntent(context: Context) = Intent(context, MainActivity::class.java)
 
-class MainActivity : BaseActivity(), PostsFragment.InteractionListener, YouTubeFragment.InteractionListener {
+class MainActivity : BaseActivity(), PostsFragment.Listener, YouTubeFragment.Listener, PostFragment.Listener {
 
     // TODO Look into why search may have no effect in some situations
 
@@ -39,6 +39,9 @@ class MainActivity : BaseActivity(), PostsFragment.InteractionListener, YouTubeF
     private var displayedPostId: PostId? = null
 
     override val darkThemeToUse = R.style.AppTheme_Dark
+
+    override val fullScreenViewContainer: ViewGroup
+        get() = findViewById(R.id.fullScreenViewContainer)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

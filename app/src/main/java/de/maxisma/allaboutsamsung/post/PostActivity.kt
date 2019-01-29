@@ -3,6 +3,7 @@ package de.maxisma.allaboutsamsung.post
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.view.ViewGroup
 import android.widget.Toast
 import com.squareup.moshi.JsonDataException
 import com.squareup.moshi.JsonEncodingException
@@ -13,6 +14,7 @@ import de.maxisma.allaboutsamsung.db.PostId
 import de.maxisma.allaboutsamsung.rest.AppApi
 import de.maxisma.allaboutsamsung.rest.urlToId
 import de.maxisma.allaboutsamsung.utils.retry
+import kotlinx.android.synthetic.main.activity_post.*
 import kotlinx.coroutines.TimeoutCancellationException
 import retrofit2.HttpException
 import java.io.IOException
@@ -39,13 +41,17 @@ fun newPostActivityIntentTemplate(context: Context) = Intent(context, PostActivi
  */
 fun newPostActivityFillInIntent(postId: PostId) = Intent().apply { putExtra(EXTRA_POST_ID, postId) }
 
-class PostActivity : BaseActivity() {
+class PostActivity : BaseActivity(), PostFragment.Listener {
 
     @Inject
     lateinit var appApi: AppApi
 
+    override val fullScreenViewContainer: ViewGroup
+        get() = postActivityFullScreenViewContainer
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_post)
         app.appComponent.inject(this)
 
         uiLaunch {
@@ -64,7 +70,7 @@ class PostActivity : BaseActivity() {
 
             val fragment = PostFragment(postId)
             supportFragmentManager.beginTransaction()
-                .replace(android.R.id.content, fragment)
+                .replace(R.id.postFragmentContainer, fragment)
                 .commit()
         }
     }

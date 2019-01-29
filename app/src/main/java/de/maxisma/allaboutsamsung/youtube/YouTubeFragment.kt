@@ -33,9 +33,9 @@ private const val NOTIFY_NEW_VIDEOS_IF_LESS_THAN = 6
 
 private const val STATE_LIST_POSITION = "list_position"
 
-class YouTubeFragment : BaseFragment<YouTubeFragment.InteractionListener>() {
+class YouTubeFragment : BaseFragment<YouTubeFragment.Listener>() {
 
-    interface InteractionListener {
+    interface Listener {
         fun notifyUnseenVideos(howMany: Int)
     }
 

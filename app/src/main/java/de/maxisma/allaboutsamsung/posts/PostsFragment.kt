@@ -53,9 +53,9 @@ private const val STATE_LIST_POSITION = "list_position"
  */
 private const val RELOAD_AFTER_MS = 30 * 60 * 1000L
 
-class PostsFragment : BaseFragment<PostsFragment.InteractionListener>() {
+class PostsFragment : BaseFragment<PostsFragment.Listener>() {
 
-    interface InteractionListener {
+    interface Listener {
         fun displayPost(postId: PostId)
         fun onDisplayedPostsChanged(posts: List<Post>)
     }

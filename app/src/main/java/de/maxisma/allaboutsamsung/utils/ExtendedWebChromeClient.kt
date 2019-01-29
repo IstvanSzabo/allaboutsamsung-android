@@ -3,6 +3,7 @@ package de.maxisma.allaboutsamsung.utils
 import android.net.Uri
 import android.os.Message
 import android.view.View
+import android.view.ViewGroup
 import android.webkit.ValueCallback
 import android.webkit.WebChromeClient
 import android.webkit.WebView
@@ -13,6 +14,8 @@ import pl.aprilapps.easyphotopicker.DefaultCallback
 import pl.aprilapps.easyphotopicker.EasyImage
 import java.io.File
 
+typealias CustomViewActive = Boolean
+
 /**
  * A [WebChromeClient] with extra features.
  *
@@ -22,7 +25,9 @@ import java.io.File
 open class ExtendedWebChromeClient(
     private val progressBar: ProgressBar?,
     private val supportWindowCreation: Boolean = false,
-    private val fragment: BaseFragment<*>
+    private val fragment: BaseFragment<*>,
+    private val customViewContainer: ViewGroup? = null,
+    private val customViewActiveListener: (CustomViewActive) -> Unit = {}
 ) : WebChromeClient() {
 
     override fun onProgressChanged(view: WebView, newProgress: Int) {
@@ -62,5 +67,20 @@ open class ExtendedWebChromeClient(
         }
         EasyImage.openChooserWithGallery(fragment, null, 0)
         return true
+    }
+
+    override fun onShowCustomView(view: View?, callback: CustomViewCallback?) {
+        super.onShowCustomView(view, callback)
+        onHideCustomView()
+
+        customViewContainer?.addView(view)
+        customViewActiveListener(true)
+    }
+
+    override fun onHideCustomView() {
+        super.onHideCustomView()
+
+        customViewContainer?.removeAllViews()
+        customViewActiveListener(false)
     }
 }
