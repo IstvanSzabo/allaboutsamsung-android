@@ -4,16 +4,19 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import androidx.annotation.StringRes
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.annotation.StringRes
+import androidx.core.view.updateLayoutParams
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import de.maxisma.allaboutsamsung.BaseActivity
 import de.maxisma.allaboutsamsung.R
 import de.maxisma.allaboutsamsung.app
+import de.maxisma.allaboutsamsung.categories.VirtualCategory.DbCategory
+import de.maxisma.allaboutsamsung.categories.VirtualCategory.SyntheticAllCategory
 import de.maxisma.allaboutsamsung.db.Category
 import de.maxisma.allaboutsamsung.db.CategoryId
 import de.maxisma.allaboutsamsung.utils.observe
@@ -51,6 +54,9 @@ class CategoryActivity : BaseActivity(useDefaultMenu = false) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        window.decorView.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT)
+        window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
+
         setContentView(R.layout.activity_category)
         app.appComponent.inject(this)
 
@@ -58,10 +64,10 @@ class CategoryActivity : BaseActivity(useDefaultMenu = false) {
 
         categoryList.layoutManager = LinearLayoutManager(this)
 
-        categoryCache.categories().observe(this) {
-            it ?: return@observe
+        categoryCache.categories().observe(this) { categories ->
+            categories ?: return@observe
 
-            categoryList.adapter = CategoryAdapter(createVirtualCategoryList(it), onClick = {
+            categoryList.adapter = CategoryAdapter(createVirtualCategoryList(categories), onClick = {
                 setResultOk(it)
                 finish()
             })
