@@ -1,8 +1,10 @@
 package de.maxisma.allaboutsamsung.notification
 
+import com.evernote.android.job.JobManager
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import de.maxisma.allaboutsamsung.app
+import de.maxisma.allaboutsamsung.scheduling.NOTIFICATION_JOB_TAG
 import de.maxisma.allaboutsamsung.scheduling.scheduleNotificationJob
 import de.maxisma.allaboutsamsung.settings.PushTopics
 import de.maxisma.allaboutsamsung.utils.map
@@ -12,6 +14,8 @@ import org.json.JSONArray
 
 private const val prefsFile = "messaging_service"
 private const val keyReceivedGuids = "received_guids"
+
+private const val maxPendingNotifications = 15
 
 class MessagingService : FirebaseMessagingService() {
 
@@ -23,6 +27,7 @@ class MessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
+        if (shouldIgnoreMessages()) return
 
         val guid = message.data["guid"]?.toLongOrNull() ?: return
 
@@ -59,5 +64,7 @@ class MessagingService : FirebaseMessagingService() {
         }
     }
 
+    private fun shouldIgnoreMessages() =
+        JobManager.instance().getAllJobRequestsForTag(NOTIFICATION_JOB_TAG).size > maxPendingNotifications
 
 }
