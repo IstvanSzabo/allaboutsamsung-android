@@ -213,8 +213,9 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
 
 private class PostWebViewClient(private val photos: List<Photo>) : GlideCachingWebViewClient() {
     private fun shouldOverrideUrlLoadingInternal(view: WebView, url: String): Boolean {
+        val uri = url.toUri()
         val context = view.context
-        val postUrlIntent = Intent(Intent.ACTION_VIEW, url.toUri())
+        val postUrlIntent = Intent(Intent.ACTION_VIEW, uri)
         val intentActivities = context.packageManager.queryIntentActivities(postUrlIntent, 0)
 
         when {
@@ -233,7 +234,8 @@ private class PostWebViewClient(private val photos: List<Photo>) : GlideCachingW
                     openCustomTab(context, url)
                 }
             }
-            "youtube." in HttpUrl.parse(url)?.host() ?: "" -> context.startActivity(Intent(Intent.ACTION_VIEW, url.toUri()))
+            "youtube." in HttpUrl.parse(url)?.host() ?: "" -> context.startActivity(Intent(Intent.ACTION_VIEW, uri))
+            uri.scheme?.startsWith("file") == true -> Unit // Ignore
             else -> openCustomTab(context, url)
         }
         return true
