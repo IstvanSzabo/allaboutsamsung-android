@@ -20,6 +20,7 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.create
 import retrofit2.http.GET
 import retrofit2.http.Query
+import java.io.IOException
 import java.util.Date
 import java.util.concurrent.TimeUnit
 
@@ -87,6 +88,8 @@ private suspend fun <T> fetchAll(pageFetcher: (Int) -> Deferred<Response<List<T>
     val elements = mutableListOf<T>()
     while (page - 1 < pages) {
         val resp = pageFetcher(page).await()
+        if (!resp.isSuccessful) throw IOException("Response was not successful: $resp")
+
         pages = resp.headers()[TOTAL_PAGES_HEADER]!!.toInt()
         elements += resp.body() ?: break // In case of an error, we simply abort here
         page++
