@@ -42,6 +42,10 @@ class PreferenceHolder @Inject constructor(context: Context) {
         get() = prefs.getBoolean("pushDeals", false)
         set(value) = prefs.edit().putBoolean("pushDeals", value).apply()
 
+    var gdprMode: Boolean
+        get() = prefs.getBoolean("gdprMode", false)
+        set(value) = prefs.edit().putBoolean("gdprMode", value).apply()
+
     private val listeners: MutableMap<() -> Unit, SharedPreferences.OnSharedPreferenceChangeListener> = mutableMapOf()
 
     /**

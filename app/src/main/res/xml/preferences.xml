@@ -32,6 +32,13 @@
         android:title="@string/push_deals"
         app:iconSpaceReserved="false" />
 
+    <CheckBoxPreference
+        android:defaultValue="false"
+        android:key="gdprMode"
+        android:summary="@string/gdpr_mode_summary"
+        android:title="@string/gdpr_mode"
+        app:iconSpaceReserved="false" />
+
     <Preference
         android:title="@string/legal_notice"
         app:iconSpaceReserved="false">

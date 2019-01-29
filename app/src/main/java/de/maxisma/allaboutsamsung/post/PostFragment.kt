@@ -127,7 +127,7 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
             settings.apply {
                 loadWithOverviewMode = true
                 useWideViewPort = true
-                javaScriptEnabled = true
+                javaScriptEnabled = !preferenceHolder.gdprMode
             }
             webChromeClient = ExtendedWebChromeClient(
                 postContentProgressBar,
@@ -144,7 +144,7 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
                 CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
             }
             settings.apply {
-                javaScriptEnabled = true
+                javaScriptEnabled = !preferenceHolder.gdprMode
                 javaScriptCanOpenWindowsAutomatically = true
                 setSupportMultipleWindows(true)
             }
@@ -174,7 +174,7 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
 
             val analyticsJs = if (preferenceHolder.allowAnalytics) post.generateAnalyticsJs() else ""
 
-            postContentWebView.webViewClient = PostWebViewClient(post.extractPhotos())
+            postContentWebView.webViewClient = PostWebViewClient(post.extractPhotos(), preferenceHolder.allowedHosts)
             postContentWebView.loadDataWithBaseURL(
                 BuildConfig.WEBVIEW_BASE_URL,
                 postHtmlGenerator.generateHtml(post, authorName, theme, analyticsJs, keyValueStore.adHtml ?: ""),
@@ -183,7 +183,9 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
                 null
             )
 
-            loadCommentsFor(postCommentsWebView, postId, httpClient, theme, onError = ::displaySupportedError)
+            if (!preferenceHolder.gdprMode) {
+                loadCommentsFor(postCommentsWebView, postId, httpClient, theme, onError = ::displaySupportedError)
+            }
         }
     }
 
@@ -209,9 +211,16 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
         }
         return true
     }
+
+    private val PreferenceHolder.allowedHosts: Set<String>?
+        get() = if (gdprMode) {
+            sequenceOf(BuildConfig.REST_BASE_URL, BuildConfig.APP_API_BASE_URL).mapNotNull { HttpUrl.parse(it)?.host() }.toSet()
+        } else {
+            null
+        }
 }
 
-private class PostWebViewClient(private val photos: List<Photo>) : GlideCachingWebViewClient() {
+private class PostWebViewClient(private val photos: List<Photo>, allowedHosts: Set<String>?) : GlideCachingWebViewClient(allowedHosts) {
     private fun shouldOverrideUrlLoadingInternal(view: WebView, url: String): Boolean {
         val uri = url.toUri()
         val context = view.context

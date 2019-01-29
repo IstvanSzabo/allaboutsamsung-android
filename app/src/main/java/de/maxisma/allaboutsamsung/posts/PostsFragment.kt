@@ -4,14 +4,14 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.appcompat.widget.SearchView
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.widget.SearchView
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.github.pwittchen.infinitescroll.library.InfiniteScrollListener
 import de.maxisma.allaboutsamsung.BaseFragment
 import de.maxisma.allaboutsamsung.BuildConfig
@@ -134,7 +134,7 @@ class PostsFragment : BaseFragment<PostsFragment.Listener>() {
 
         postsSwipeRefresh.setOnRefreshListener { requestNewerPosts() }
 
-        val showAd = !BuildConfig.DEBUG && getString(R.string.appmobPostListAdId).isNotEmpty()
+        val showAd = !preferenceHolder.gdprMode && !BuildConfig.DEBUG && getString(R.string.appmobPostListAdId).isNotEmpty()
         val adapter = PostsAdapter(showAd = showAd) { listener.displayPost(it.id) }
         layoutManager = LinearLayoutManager(context!!)
         postList.adapter = adapter
@@ -214,7 +214,7 @@ class PostsFragment : BaseFragment<PostsFragment.Listener>() {
 
         updateAdHtml(keyValueStore)
 
-        if (preferenceHolder.allowAnalytics) {
+        if (preferenceHolder.allowAnalytics && !preferenceHolder.gdprMode) {
             trackLandingLoad(this@PostsFragment.context!!)
         }
     }
@@ -223,7 +223,7 @@ class PostsFragment : BaseFragment<PostsFragment.Listener>() {
      * Map to ViewModels and load them into the adapter
      */
     private fun PostsAdapter.updateWith(posts: List<Post>, executor: QueryExecutor) = uiLaunch {
-        val ctx = getContext() ?: return@uiLaunch
+        val ctx = context ?: return@uiLaunch
 
         this@updateWith.posts = posts.toPostViewModels(executor, ctx)
         notifyDataSetChanged()

@@ -31,4 +31,6 @@
     </plurals>
     <string name="broken_connection">Verbindung fehlgeschlagen.</string>
     <string name="loading">Lade…</string>
+    <string name="gdpr_mode">Privater Modus</string>
+    <string name="gdpr_mode_summary">Bei Aktivierung werden keine Daten an Dritte übermittelt. Dies deaktiviert einige Funktionen und ein Geräteneustart wird erforderlich, um die Änderungen anzuwenden.</string>
 </resources>

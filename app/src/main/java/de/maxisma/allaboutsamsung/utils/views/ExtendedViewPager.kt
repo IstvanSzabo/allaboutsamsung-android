@@ -5,8 +5,8 @@ import android.content.Context
 import androidx.viewpager.widget.ViewPager
 import android.util.AttributeSet
 import android.view.MotionEvent
+import androidx.core.content.res.use
 import de.maxisma.allaboutsamsung.R
-import de.maxisma.allaboutsamsung.utils.use
 
 /**
  * A [ViewPager] with extra features.

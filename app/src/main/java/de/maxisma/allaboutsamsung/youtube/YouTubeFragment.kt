@@ -16,6 +16,7 @@ import de.maxisma.allaboutsamsung.app
 import de.maxisma.allaboutsamsung.db.Db
 import de.maxisma.allaboutsamsung.db.Video
 import de.maxisma.allaboutsamsung.posts.SpacingItemDecoration
+import de.maxisma.allaboutsamsung.settings.PreferenceHolder
 import de.maxisma.allaboutsamsung.utils.dpToPx
 import de.maxisma.allaboutsamsung.utils.observe
 import de.maxisma.allaboutsamsung.utils.toStyledTitle
@@ -45,6 +46,9 @@ class YouTubeFragment : BaseFragment<YouTubeFragment.Listener>() {
     @Inject
     lateinit var youTube: YouTube
 
+    @Inject
+    lateinit var preferenceHolder: PreferenceHolder
+
     private lateinit var repo: YouTubeRepository
 
     private var currentLoadingJob: Job? = null
@@ -60,10 +64,11 @@ class YouTubeFragment : BaseFragment<YouTubeFragment.Listener>() {
         return inflater.inflate(R.layout.fragment_youtube, container, false)
     }
 
-    private lateinit var layoutManager: LinearLayoutManager
+    private var layoutManager: LinearLayoutManager? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        if (preferenceHolder.gdprMode) return
 
         videosSwipeRefresh.setOnRefreshListener { requestNewerVideos() }
 
@@ -115,7 +120,7 @@ class YouTubeFragment : BaseFragment<YouTubeFragment.Listener>() {
 
     override fun onSaveInstanceState(outState: Bundle) {
         super.onSaveInstanceState(outState)
-        outState.putInt(STATE_LIST_POSITION, layoutManager.findFirstVisibleItemPosition())
+        outState.putInt(STATE_LIST_POSITION, layoutManager?.findFirstVisibleItemPosition() ?: 0)
     }
 
     /**
