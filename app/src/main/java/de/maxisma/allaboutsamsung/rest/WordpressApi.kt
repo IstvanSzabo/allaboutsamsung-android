@@ -79,7 +79,7 @@ suspend fun WordpressApi.allUsers(onlyIds: UserIdsDto?): List<UserDto> =
     fetchAll { page -> usersAsync(page, onlyIds) }
 
 /**
- * Go through all pages provided by WordPRess and combine them
+ * Go through all pages provided by WordPress and combine them
  */
 private suspend fun <T> fetchAll(pageFetcher: (Int) -> Deferred<Response<List<T>>>): List<T> {
     var page = 1
@@ -88,7 +88,7 @@ private suspend fun <T> fetchAll(pageFetcher: (Int) -> Deferred<Response<List<T>
     while (page - 1 < pages) {
         val resp = pageFetcher(page).await()
         pages = resp.headers()[TOTAL_PAGES_HEADER]!!.toInt()
-        elements += resp.body()!!
+        elements += resp.body() ?: break // In case of an error, we simply abort here
         page++
     }
     return elements
