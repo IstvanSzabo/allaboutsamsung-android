@@ -10,6 +10,9 @@ import com.google.android.gms.ads.MobileAds
 import de.maxisma.allaboutsamsung.scheduling.JobCreator
 import de.maxisma.allaboutsamsung.settings.migrateFromV4
 import io.fabric.sdk.android.Fabric
+import com.crashlytics.android.core.CrashlyticsCore
+
+
 
 class App : MultiDexApplication() {
 
@@ -21,9 +24,7 @@ class App : MultiDexApplication() {
 
         appComponent.preferenceHolder.migrateFromV4(this)
 
-        if (!BuildConfig.DEBUG) {
-            Fabric.with(this, Crashlytics())
-        }
+        Fabric.with(this, Crashlytics.Builder().core(CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build()).build())
 
         @Suppress("SENSELESS_COMPARISON")
         if (BuildConfig.APPMOB_APP_ID != null) {
