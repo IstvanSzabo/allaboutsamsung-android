@@ -12,6 +12,7 @@ import androidx.annotation.WorkerThread
 import androidx.core.app.NotificationCompat
 import androidx.core.app.TaskStackBuilder
 import androidx.core.content.ContextCompat
+import androidx.core.content.getSystemService
 import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
 import com.crashlytics.android.Crashlytics
 import com.evernote.android.job.Job
@@ -120,8 +121,8 @@ private fun PostNotificationViewModel.notifyAboutPost(context: Context) {
         .setContentIntent(pendingIntent)
         .setStyle(NotificationCompat.BigPictureStyle().bigPicture(image))
         .build()
-    val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-    notificationManager.notify(post.id.toInt(), notification)
+    val notificationManager = context.getSystemService<NotificationManager>()
+    notificationManager?.notify(post.id.toInt(), notification)
 }
 
 private const val NEWS_CHANNEL_ID = "news"
