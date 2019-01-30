@@ -26,7 +26,8 @@ class App : MultiDexApplication() {
 
         appComponent.preferenceHolder.migrateFromV4(this)
 
-        Fabric.with(this, Crashlytics.Builder().core(CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build()).build())
+        val disableCrashlytics = BuildConfig.DEBUG || appComponent.preferenceHolder.gdprMode
+        Fabric.with(this, Crashlytics.Builder().core(CrashlyticsCore.Builder().disabled(disableCrashlytics).build()).build())
 
         @Suppress("SENSELESS_COMPARISON")
         if (BuildConfig.APPMOB_APP_ID != null) {
