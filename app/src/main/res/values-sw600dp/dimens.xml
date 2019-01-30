@@ -5,5 +5,5 @@
     <dimen name="bottom_navigation_height">56dp</dimen>
 
     <!-- Overriding resource to make it non-private -->
-    <dimen name="design_bottom_navigation_height" tools:override="true">@dimen/bottom_navigation_height</dimen>
+    <dimen name="design_bottom_navigation_height" tools:override="true" tools:ignore="MissingDefaultResource">@dimen/bottom_navigation_height</dimen>
 </resources>
