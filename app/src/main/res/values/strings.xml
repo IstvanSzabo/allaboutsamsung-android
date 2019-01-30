@@ -31,6 +31,21 @@
     </plurals>
     <string name="broken_connection">Verbindung fehlgeschlagen.</string>
     <string name="loading">Lade…</string>
+    <string name="loading_providers">Drittanbieterliste wird geladen…</string>
     <string name="gdpr_mode">Privater Modus</string>
     <string name="gdpr_mode_summary">Bei Aktivierung werden keine Daten an Dritte übermittelt. Dies deaktiviert einige Funktionen und ein Geräteneustart wird erforderlich, um die Änderungen anzuwenden.</string>
+    <string name="privacy">Datenschutz</string>
+    <string name="third_party_services">Drittanbieterdienste</string>
+    <string name="close">Schließen</string>
+    <string name="third_party_disallow">Drittanbieter nicht erlauben</string>
+    <string name="third_party_allow">Drittanbieter erlauben</string>
+    <string name="consent_summary">Diese App verwendet Dienste von Drittanbietern, um diverse Funktionen bereitzustellen. Dazu gehören zum Beispiel YouTube und Anzeigen von Google. Du kannst diese Dienste deaktivieren, jedoch werden dadurch einige Funktionen unbenutzbar.</string>
+    <string name="third_party_display">Drittanbieter anzeigen</string>
+    <array name="thirdPartyServices">
+        <item>YouTube</item>
+        <item>Google Analytics</item>
+        <item>Drittanbieterinhalte in Artikeln</item>
+        <item>Google AdSense / Admob</item>
+    </array>
+    <string name="third_party_service_ad">Werbeanzeigen von %s</string>
 </resources>

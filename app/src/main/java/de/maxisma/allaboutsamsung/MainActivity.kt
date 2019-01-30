@@ -8,6 +8,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentStatePagerAdapter
 import com.google.android.material.snackbar.Snackbar
+import de.maxisma.allaboutsamsung.consent.ConsentActivity
+import de.maxisma.allaboutsamsung.consent.needsToShowConsentActivity
 import de.maxisma.allaboutsamsung.db.Db
 import de.maxisma.allaboutsamsung.db.Post
 import de.maxisma.allaboutsamsung.db.PostId
@@ -45,6 +47,12 @@ class MainActivity : BaseActivity(), PostsFragment.Listener, YouTubeFragment.Lis
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (needsToShowConsentActivity(this)) {
+            startActivity(Intent(this, ConsentActivity::class.java))
+            finish()
+            return
+        }
 
         displayedPostId = savedInstanceState
             ?.getLong(STATE_POST_ID, -1)

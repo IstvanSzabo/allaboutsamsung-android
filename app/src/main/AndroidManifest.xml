@@ -35,6 +35,10 @@
         </activity>
 
         <activity
+            android:name=".consent.ConsentActivity"
+            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar" />
+
+        <activity
             android:name=".post.PostActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|screenSize">
             <intent-filter>
