@@ -21,5 +21,6 @@
 #-renamesourcefileattribute SourceFile
 
 -dontobfuscate
+-keepattributes *Annotation*,SourceFile,LineNumberTable
 
 -keep class com.google.api.services.youtube.model.*
