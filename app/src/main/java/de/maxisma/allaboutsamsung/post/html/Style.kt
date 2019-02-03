@@ -148,4 +148,24 @@ fun HtmlTheme.postCss() = """
         color: ${highlightForegroundColor.hexString};
         font-style: normal;
     }
+    .wp-block-gallery {
+        display: flex;
+        flex-wrap: wrap;
+        list-style-type: none;
+        padding: 0;
+    }
+
+    .wp-block-gallery .blocks-gallery-image, .wp-block-gallery .blocks-gallery-item {
+        margin: 0 16px 16px 0;
+        display: flex;
+        flex-grow: 1;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        width: calc((100% - 16px * 2)/ 2);
+    }
+
+    .blocks-gallery-item figure {
+        margin: 0;
+    }
     """
