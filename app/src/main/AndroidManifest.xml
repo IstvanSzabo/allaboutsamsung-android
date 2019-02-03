@@ -16,6 +16,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme.WithActionBar">
 
+        <!-- Needed for Google Ads / GMS 17.1.2 -->
+        <uses-library android:name="org.apache.http.legacy" android:required="false"/>
+
         <meta-data
             android:name="io.fabric.ApiKey"
             android:value="d8f9e14466d9fd3a25fc2f77f76ed4dc43cb84cc" />
