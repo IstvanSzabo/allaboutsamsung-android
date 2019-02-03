@@ -34,7 +34,11 @@ class App : MultiDexApplication() {
             MobileAds.initialize(this, BuildConfig.APPMOB_APP_ID)
         }
 
-        WebView.setWebContentsDebuggingEnabled(BuildConfig.DEBUG)
+        if (BuildConfig.DEBUG) {
+            // This is deliberately inside an if-statement as it can cause crashes
+            // even when called with a false parameter
+            WebView.setWebContentsDebuggingEnabled(true)
+        }
 
         JobManager.create(this).addJobCreator(JobCreator())
     }
