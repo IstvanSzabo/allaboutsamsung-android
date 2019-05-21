@@ -1,6 +1,7 @@
 package de.maxisma.allaboutsamsung.post
 
 import android.annotation.SuppressLint
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -15,6 +16,7 @@ import android.view.ViewGroup
 import android.webkit.CookieManager
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
@@ -245,7 +247,11 @@ private class PostWebViewClient(private val photos: List<Photo>, allowedHosts: S
             }
             "youtube." in HttpUrl.parse(url)?.host() ?: "" -> context.startActivity(Intent(Intent.ACTION_VIEW, uri))
             uri.scheme?.startsWith("file") == true -> Unit // Ignore
-            else -> openCustomTab(context, url)
+            else -> try {
+                openCustomTab(context, url)
+            } catch (_: ActivityNotFoundException) {
+                Toast.makeText(view.context, R.string.broken_link, Toast.LENGTH_SHORT).show()
+            }
         }
         return true
     }

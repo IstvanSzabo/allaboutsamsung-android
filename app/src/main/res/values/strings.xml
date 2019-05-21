@@ -48,4 +48,5 @@
         <item>Google AdSense / Admob</item>
     </array>
     <string name="third_party_service_ad">Werbeanzeigen von %s</string>
+    <string name="broken_link">Entschuldigung, der Link scheint ungültig zu sein.</string>
 </resources>
