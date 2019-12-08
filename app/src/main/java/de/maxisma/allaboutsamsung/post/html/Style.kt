@@ -168,4 +168,19 @@ fun HtmlTheme.postCss() = """
     .blocks-gallery-item figure {
         margin: 0;
     }
+    
+    .blocks-gallery-grid, .wp-block-gallery {
+        display: flex;
+        flex-wrap: wrap;
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .blocks-gallery-grid.is-cropped .blocks-gallery-image a, .blocks-gallery-grid.is-cropped .blocks-gallery-image img, .blocks-gallery-grid.is-cropped .blocks-gallery-item a, .blocks-gallery-grid.is-cropped .blocks-gallery-item img, .wp-block-gallery.is-cropped .blocks-gallery-image a, .wp-block-gallery.is-cropped .blocks-gallery-image img, .wp-block-gallery.is-cropped .blocks-gallery-item a, .wp-block-gallery.is-cropped .blocks-gallery-item img {
+        height: 30%;
+        width: 100%;
+        flex: 1;
+        object-fit: cover;
+    }
     """
