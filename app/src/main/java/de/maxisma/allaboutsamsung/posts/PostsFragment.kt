@@ -206,7 +206,7 @@ class PostsFragment : BaseFragment<PostsFragment.Listener>() {
             requestNewerPosts(withListPosition).join()
 
             if (withListPosition != null) {
-                postList.scrollToPosition(min(withListPosition, postList.adapter?.itemCount ?: error("Adapter not set")))
+                layoutManager.scrollToPositionWithOffset(min(withListPosition, postList.adapter?.itemCount ?: error("Adapter not set")), 0)
                 postList.setOnTouchListener(null)
             }
         }
