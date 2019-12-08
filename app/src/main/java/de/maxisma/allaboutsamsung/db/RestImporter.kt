@@ -22,7 +22,7 @@ data class MissingMeta(
  * Returns any category, tag and user IDs currently not found in the local DB
  * referenced by the given posts.
  */
-fun Db.findMissingMeta(postDtos: List<PostDto>): MissingMeta {
+suspend fun Db.findMissingMeta(postDtos: List<PostDto>): MissingMeta {
     val knownCategoryIds = categoryDao.categoryIds().toHashSet()
     val knownTagIds = tagDao.tagIds().toHashSet()
     val knownUserIds = userDao.userIds().toHashSet()
@@ -37,7 +37,7 @@ fun Db.findMissingMeta(postDtos: List<PostDto>): MissingMeta {
  *
  * @param deleteAllExcept If true, delete all categories but the ones in the DTO list
  */
-fun Db.importCategoryDtos(categoryDtos: List<CategoryDto>, deleteAllExcept: Boolean = false) {
+suspend fun Db.importCategoryDtos(categoryDtos: List<CategoryDto>, deleteAllExcept: Boolean = false) {
     categoryDao.upsertCategories(
         categoryDtos.map {
             Category(
@@ -57,7 +57,7 @@ fun Db.importCategoryDtos(categoryDtos: List<CategoryDto>, deleteAllExcept: Bool
 /**
  * Convert DTOs into DB entities and upsert them.
  */
-fun Db.importTagDtos(tagDtos: List<TagDto>) {
+suspend fun Db.importTagDtos(tagDtos: List<TagDto>) {
     tagDao.upsertTags(
         tagDtos.map {
             Tag(
@@ -74,7 +74,7 @@ fun Db.importTagDtos(tagDtos: List<TagDto>) {
 /**
  * Convert DTOs into DB entities and upsert them.
  */
-fun Db.importPostDtos(postDtos: List<PostDto>) {
+suspend fun Db.importPostDtos(postDtos: List<PostDto>) {
     val importDate = Date()
     val postsWithMeta = postDtos
         .asSequence()
@@ -104,7 +104,7 @@ fun Db.importPostDtos(postDtos: List<PostDto>) {
 /**
  * Convert DTOs into DB entities and upsert them.
  */
-fun Db.importUserDtos(userDtos: List<UserDto>) {
+suspend fun Db.importUserDtos(userDtos: List<UserDto>) {
     userDao.upsertUsers(userDtos.map { User(it.id, it.name) })
 }
 

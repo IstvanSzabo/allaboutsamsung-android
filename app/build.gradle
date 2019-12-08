@@ -109,8 +109,9 @@ dependencies {
 
     implementation "androidx.lifecycle:lifecycle-extensions:2.1.0"
     kapt "androidx.lifecycle:lifecycle-compiler:2.1.0"
-    def roomVersion = "2.0.0"
+    def roomVersion = "2.2.2"
     implementation "androidx.room:room-runtime:$roomVersion"
+    implementation "androidx.room:room-ktx:$roomVersion"
     kapt "androidx.room:room-compiler:$roomVersion"
 
     implementation "org.jsoup:jsoup:1.11.3"

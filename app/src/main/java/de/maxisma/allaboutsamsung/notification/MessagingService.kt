@@ -10,6 +10,7 @@ import de.maxisma.allaboutsamsung.settings.PushTopics
 import de.maxisma.allaboutsamsung.utils.map
 import jp.takuji31.koreference.KoreferenceModel
 import jp.takuji31.koreference.stringSetPreference
+import kotlinx.coroutines.runBlocking
 import org.json.JSONArray
 
 private const val prefsFile = "messaging_service"
@@ -49,18 +50,21 @@ class MessagingService : FirebaseMessagingService() {
 
         val db = app.appComponent.db
 
-        val subscribedCategorySlugs = db.categoryDao.subscribedCategories().map { it.slug }.toHashSet()
-        val subscribedTagSlugs = db.tagDao.subscribedTags().map { it.slug }.toHashSet()
+        // We're in a worker thread, so this is ok
+        runBlocking {
+            val subscribedCategorySlugs = db.categoryDao.subscribedCategories().map { it.slug }.toHashSet()
+            val subscribedTagSlugs = db.tagDao.subscribedTags().map { it.slug }.toHashSet()
 
-        // Let the server know about topics we are no longer interested in
-        val unsubCategories = categorySlugs.filterNot { it in subscribedCategorySlugs }
-        val unsubTags = tagSlugs.filterNot { it in subscribedTagSlugs }
-        unsubscribe(unsubCategories, unsubTags, unsubscribeFromWildcard = !wildcardActive)
+            // Let the server know about topics we are no longer interested in
+            val unsubCategories = categorySlugs.filterNot { it in subscribedCategorySlugs }
+            val unsubTags = tagSlugs.filterNot { it in subscribedTagSlugs }
+            unsubscribe(unsubCategories, unsubTags, unsubscribeFromWildcard = !wildcardActive)
 
-        val isDebug = DEBUG_TOPIC in extraTopics
+            val isDebug = DEBUG_TOPIC in extraTopics
 
-        if (isDebug || categorySlugs.size > unsubCategories.size || tagSlugs.size > unsubTags.size) {
-            scheduleNotificationJob(guid)
+            if (isDebug || categorySlugs.size > unsubCategories.size || tagSlugs.size > unsubTags.size) {
+                scheduleNotificationJob(guid)
+            }
         }
     }
 
