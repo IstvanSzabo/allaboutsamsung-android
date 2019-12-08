@@ -51,7 +51,7 @@ fun CoroutineScope.loadCommentsFor(webView: WebView, postId: PostId, httpClient:
     launch {
         try {
             val commentsUrl = commentsUrl(postId)
-            val html = withContext(IOPool) { httpClient.retriedDownload(commentsUrl).body()!!.string() }
+            val html = withContext(IOPool) { httpClient.retriedDownload(commentsUrl).body!!.string() }
             val injectedHtml = injectCss(html, theme.commentsCss())
             webView.loadDataWithBaseURL(
                 commentsUrl,

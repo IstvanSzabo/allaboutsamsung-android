@@ -47,7 +47,7 @@ import de.maxisma.allaboutsamsung.utils.ExtendedWebChromeClient
 import de.maxisma.allaboutsamsung.utils.isSystemDarkModeActive
 import de.maxisma.allaboutsamsung.utils.observe
 import de.maxisma.allaboutsamsung.utils.observeUntilFalse
-import okhttp3.HttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 import javax.inject.Inject
 
@@ -220,7 +220,7 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
 
     private val PreferenceHolder.allowedHosts: Set<String>?
         get() = if (gdprMode) {
-            sequenceOf(BuildConfig.REST_BASE_URL, BuildConfig.APP_API_BASE_URL).mapNotNull { HttpUrl.parse(it)?.host() }.toSet()
+            sequenceOf(BuildConfig.REST_BASE_URL, BuildConfig.APP_API_BASE_URL).mapNotNull { it.toHttpUrlOrNull()?.host }.toSet()
         } else {
             null
         }
@@ -249,7 +249,7 @@ private class PostWebViewClient(private val photos: List<Photo>, allowedHosts: S
                     openCustomTab(context, url)
                 }
             }
-            "youtube." in HttpUrl.parse(url)?.host() ?: "" -> context.startActivity(Intent(Intent.ACTION_VIEW, uri))
+            "youtube." in url.toHttpUrlOrNull()?.host ?: "" -> context.startActivity(Intent(Intent.ACTION_VIEW, uri))
             uri.scheme?.startsWith("file") == true -> Unit // Ignore
             else -> try {
                 openCustomTab(context, url)

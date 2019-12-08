@@ -7,6 +7,7 @@ import de.maxisma.allaboutsamsung.ad.contentWithAd
 import de.maxisma.allaboutsamsung.db.Post
 import de.maxisma.allaboutsamsung.gallery.findFullImgUrl
 import okhttp3.HttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import org.jsoup.nodes.Document
 import java.text.DateFormat
 import java.util.TimeZone
@@ -125,7 +126,7 @@ _gaq.push(['_trackPageview', '$relativeUrl']);
  */
 fun Post.generateAnalyticsJs() = generateAnalyticsJs(
     accountId = BuildConfig.GOOGLE_ANALYTICS_ID,
-    relativeUrl = HttpUrl.parse(link)!!.encodedPath()
+    relativeUrl = link.toHttpUrlOrNull()!!.encodedPath
 )
 
 /**

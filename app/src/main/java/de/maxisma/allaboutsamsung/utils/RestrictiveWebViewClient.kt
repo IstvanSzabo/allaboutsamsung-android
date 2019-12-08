@@ -7,11 +7,12 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.annotation.RequiresApi
 import okhttp3.HttpUrl
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 
 open class RestrictiveWebViewClient(private val allowedHosts: Set<String>?) : WebViewClient() {
     protected open fun shouldInterceptUnrestrictedRequest(view: WebView, url: String): WebResourceResponse? = null
 
-    private fun shouldInterceptRequestInternal(view: WebView, url: String) = if (allowedHosts != null && HttpUrl.parse(url)?.host() !in allowedHosts) {
+    private fun shouldInterceptRequestInternal(view: WebView, url: String) = if (allowedHosts != null && url.toHttpUrlOrNull()?.host !in allowedHosts) {
         null
     } else {
         shouldInterceptUnrestrictedRequest(view, url)

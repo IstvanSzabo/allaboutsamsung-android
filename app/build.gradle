@@ -13,7 +13,7 @@ android {
     compileSdkVersion 28
     defaultConfig {
         applicationId "de.maxisma.allaboutsamsung"
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 28
         versionCode 234
         versionName "5.1.3"
@@ -41,7 +41,7 @@ android {
         buildConfigField "int", "DEAL_TAG_ID", "342"
 
         manifestPlaceholders = [
-                hostName: "allaboutsamsung.de",
+                hostName   : "allaboutsamsung.de",
                 appMobAppId: appMobAppId
         ]
     }
@@ -55,6 +55,11 @@ android {
 
     viewBinding {
         enabled = true
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
     }
 }
 
@@ -90,7 +95,7 @@ dependencies {
     implementation "com.squareup.moshi:moshi-adapters:$moshiVersion"
     kapt "com.squareup.moshi:moshi-kotlin-codegen:$moshiVersion"
 
-    def okHttpVersion = "3.12.1"
+    def okHttpVersion = "4.2.0"
     implementation "com.squareup.okhttp3:logging-interceptor:$okHttpVersion"
     implementation "com.squareup.okhttp3:okhttp:$okHttpVersion"
 
