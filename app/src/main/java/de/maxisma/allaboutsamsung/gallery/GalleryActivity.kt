@@ -48,7 +48,7 @@ class GalleryActivity : BaseActivity(useDefaultMenu = false) {
         val binding = ActivityGalleryBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val photos = intent.getParcelableArrayListExtra<Photo>(EXTRA_PHOTOS)
+        val photos = intent.getParcelableArrayListExtra<Photo>(EXTRA_PHOTOS) ?: error("Intent was not created using newGalleryActivityIntent")
         val selectedPhoto = intent.getParcelableExtra<Photo?>(EXTRA_SELECTED_PHOTO)
         val selectedIndex = max(0, photos.indexOf(selectedPhoto))
 
