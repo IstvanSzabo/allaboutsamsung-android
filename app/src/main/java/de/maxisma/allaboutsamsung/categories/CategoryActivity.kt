@@ -49,8 +49,6 @@ class CategoryActivity : BaseActivity(useDefaultMenu = false) {
     @Inject
     lateinit var categoryCache: CategoryCache
 
-    override val darkThemeToUse = R.style.AppTheme_Dialog_Dark
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 

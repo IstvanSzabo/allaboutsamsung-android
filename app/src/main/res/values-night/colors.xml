@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">@color/darkColorPrimary</color>
-    <color name="colorPrimaryDark">@color/darkColorPrimaryDark</color>
-
-    <color name="windowBackgroundColor">@color/darkColorPrimaryDark</color>
+    <color name="colorPrimary">#032c57</color>
+    <color name="colorPrimaryDark">#02142c</color>
+    <color name="windowBackgroundColor">#02142c</color>
     <color name="textColor">@color/colorAccent</color>
-
     <color name="inverseTextColor">@android:color/white</color>
-
     <color name="preferencesTextColor">@color/colorAccent</color>
 </resources>

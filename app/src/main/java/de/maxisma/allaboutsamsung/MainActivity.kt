@@ -43,8 +43,6 @@ class MainActivity : BaseActivity(), PostsFragment.Listener, YouTubeFragment.Lis
 
     private var displayedPostId: PostId? = null
 
-    override val darkThemeToUse = R.style.AppTheme_Dark
-
     override val fullScreenViewContainer: ViewGroup
         get() = findViewById(R.id.fullScreenViewContainer)
 

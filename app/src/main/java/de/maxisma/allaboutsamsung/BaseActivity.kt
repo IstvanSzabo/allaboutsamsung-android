@@ -2,10 +2,9 @@ package de.maxisma.allaboutsamsung
 
 import android.os.Build
 import android.os.Bundle
-import androidx.annotation.StyleRes
-import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
 import de.maxisma.allaboutsamsung.settings.PreferenceHolder
 import de.maxisma.allaboutsamsung.settings.newPreferencesActivityIntent
@@ -79,9 +78,6 @@ abstract class BaseActivity(private val useDefaultMenu: Boolean = true) : AppCom
             AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
         }
     }
-
-    @StyleRes
-    protected open val darkThemeToUse: Int? = R.style.AppTheme_Dark_WithActionBar
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         if (useDefaultMenu) {
