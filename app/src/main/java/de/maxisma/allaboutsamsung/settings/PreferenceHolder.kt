@@ -2,7 +2,7 @@ package de.maxisma.allaboutsamsung.settings
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 import javax.inject.Inject
 
 // TODO Migrate to use KoreferenceModel like KeyValueStore

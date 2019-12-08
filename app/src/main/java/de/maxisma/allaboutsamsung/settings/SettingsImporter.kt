@@ -1,7 +1,7 @@
 package de.maxisma.allaboutsamsung.settings
 
 import android.content.Context
-import android.preference.PreferenceManager
+import androidx.preference.PreferenceManager
 
 fun PreferenceHolder.migrateFromV4(context: Context) {
     val oldPrefs = PreferenceManager.getDefaultSharedPreferences(context)
