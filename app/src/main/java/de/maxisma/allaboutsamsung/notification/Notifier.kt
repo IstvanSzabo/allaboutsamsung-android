@@ -13,9 +13,9 @@ import androidx.core.app.NotificationCompat
 import androidx.core.app.TaskStackBuilder
 import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
+import androidx.work.ListenableWorker
 import com.bumptech.glide.load.resource.bitmap.DownsampleStrategy
 import com.crashlytics.android.Crashlytics
-import com.evernote.android.job.Job
 import de.maxisma.allaboutsamsung.R
 import de.maxisma.allaboutsamsung.db.Db
 import de.maxisma.allaboutsamsung.db.KeyValueStore
@@ -29,53 +29,48 @@ import de.maxisma.allaboutsamsung.rest.WordpressApi
 import de.maxisma.allaboutsamsung.utils.IOPool
 import de.maxisma.allaboutsamsung.utils.ellipsize
 import de.maxisma.allaboutsamsung.utils.glide.GlideApp
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jsoup.Jsoup
 import java.util.concurrent.ExecutionException
-import java.util.concurrent.Semaphore
 
 /**
  * Fetch the post for the [postId] into the DB and shows a notification for it.
- *
- * This method is blocking.
  */
-@WorkerThread
-fun CoroutineScope.notifyAboutPost(postId: PostId, db: Db, api: WordpressApi, context: Context, keyValueStore: KeyValueStore): Job.Result {
-    val barrier = Semaphore(0)
-    var result = Job.Result.SUCCESS
+suspend fun notifyAboutPost(postId: PostId, db: Db, api: WordpressApi, context: Context, keyValueStore: KeyValueStore): ListenableWorker.Result {
+    var result = ListenableWorker.Result.success()
 
     fun reschedule(e: Exception) {
         e.printStackTrace()
-        result = Job.Result.RESCHEDULE
-        barrier.release()
+        result = ListenableWorker.Result.retry()
     }
 
     val query = Query.Filter(onlyIds = listOf(postId))
-    val executor = query.newExecutor(api, db, keyValueStore, coroutineScope = this, onError = ::reschedule)
-    launch(Dispatchers.Main) {
+    val value = withContext(Dispatchers.Main) {
+        val executor = query.newExecutor(api, db, keyValueStore, coroutineScope = this, onError = ::reschedule)
         executor.requestNewerPosts().join()
+        executor.data.value
+    }
 
-        val value = executor.data.value ?: return@launch run { reschedule(Exception("Download of post failed!")) }
+    if (value != null) {
         withContext(IOPool) {
             try {
                 val vm = value.singleOrNull()?.toNotificationViewModel(context) ?: return@withContext run {
                     Crashlytics.logException(Exception("Could not find post with id $postId"))
                     // No reschedule since this error is believed to only occur when a wrong
                     // postId is received due to a server error.
-                    barrier.release()
                 }
                 vm.notifyAboutPost(context)
-                barrier.release()
             } catch (e: ExecutionException) {
-                reschedule(e)
+                e.printStackTrace()
+                result = ListenableWorker.Result.retry()
             }
         }
+    } else {
+        Exception("Download of post failed!").printStackTrace()
+        result = ListenableWorker.Result.retry()
     }
 
-    barrier.acquire()
     return result
 }
 

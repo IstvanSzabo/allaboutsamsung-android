@@ -7,9 +7,7 @@ import androidx.fragment.app.Fragment
 import androidx.multidex.MultiDexApplication
 import com.crashlytics.android.Crashlytics
 import com.crashlytics.android.core.CrashlyticsCore
-import com.evernote.android.job.JobManager
 import com.google.android.gms.ads.MobileAds
-import de.maxisma.allaboutsamsung.scheduling.JobCreator
 import de.maxisma.allaboutsamsung.settings.migrateFromV4
 import io.fabric.sdk.android.Fabric
 
@@ -39,8 +37,6 @@ class App : MultiDexApplication() {
             // even when called with a false parameter
             WebView.setWebContentsDebuggingEnabled(true)
         }
-
-        JobManager.create(this).addJobCreator(JobCreator())
     }
 }
 

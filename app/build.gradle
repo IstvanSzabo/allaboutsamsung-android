@@ -61,6 +61,10 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
 }
 
 androidExtensions {
@@ -108,7 +112,6 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion"
 
     implementation "androidx.lifecycle:lifecycle-extensions:2.1.0"
-    kapt "androidx.lifecycle:lifecycle-compiler:2.1.0"
     def roomVersion = "2.2.2"
     implementation "androidx.room:room-runtime:$roomVersion"
     implementation "androidx.room:room-ktx:$roomVersion"
@@ -124,25 +127,30 @@ dependencies {
     implementation "com.google.dagger:dagger:$daggerVersion"
     kapt "com.google.dagger:dagger-compiler:$daggerVersion"
 
+    def workVersion = "2.2.0"
+    implementation "androidx.work:work-runtime:$workVersion"
+    implementation "androidx.work:work-runtime-ktx:$workVersion"
+    implementation "androidx.work:work-gcm:$workVersion"
+
     implementation "com.github.pwittchen:infinitescroll:0.0.2"
 
     implementation('com.crashlytics.sdk.android:crashlytics:2.10.1@aar') {
         transitive = true
     }
 
-    implementation 'com.evernote:android-job:1.2.6'
-    implementation "com.google.android.gms:play-services-gcm:16.0.0"
-
     implementation "com.davemorrissey.labs:subsampling-scale-image-view:3.10.0"
     implementation 'androidx.exifinterface:exifinterface:1.1.0'
 
     implementation 'com.github.takuji31.Koreference:koreference:2.0.0'
 
-    implementation('com.google.api-client:google-api-client-android:1.23.0') {
+    // Force Gradle to use a later version of the API client the YouTube dependency uses
+    // 1.30.6 contains a bug: GoogleUtils.getVersion() returns "0.0", which makes the
+    // static initializer of com.google.api.services.youtube.YouTube fail.
+    implementation('com.google.api-client:google-api-client-android:1.30.5') {
         exclude group: 'org.apache.httpcomponents'
         exclude group: "com.google.code.findbugs"
     }
-    implementation('com.google.apis:google-api-services-youtube:v3-rev206-1.25.0') {
+    implementation('com.google.apis:google-api-services-youtube:v3-rev212-1.25.0') {
         exclude group: 'org.apache.httpcomponents'
         exclude group: "com.google.code.findbugs"
     }

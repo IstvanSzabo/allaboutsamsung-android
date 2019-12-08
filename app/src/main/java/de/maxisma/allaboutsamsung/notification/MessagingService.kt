@@ -1,6 +1,7 @@
 package de.maxisma.allaboutsamsung.notification
 
-import com.evernote.android.job.JobManager
+import androidx.work.WorkManager
+import androidx.work.await
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import de.maxisma.allaboutsamsung.app
@@ -28,7 +29,7 @@ class MessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
-        if (shouldIgnoreMessages()) return
+        if (runBlocking { shouldIgnoreMessages() }) return
 
         val guid = message.data["guid"]?.toLongOrNull() ?: return
 
@@ -68,7 +69,7 @@ class MessagingService : FirebaseMessagingService() {
         }
     }
 
-    private fun shouldIgnoreMessages() =
-        JobManager.instance().getAllJobRequestsForTag(NOTIFICATION_JOB_TAG).size > maxPendingNotifications
+    private suspend fun shouldIgnoreMessages() =
+        WorkManager.getInstance(this).getWorkInfosByTag(NOTIFICATION_JOB_TAG).await().size > maxPendingNotifications
 
 }

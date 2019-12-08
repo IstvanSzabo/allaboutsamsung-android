@@ -12,7 +12,7 @@ import de.maxisma.allaboutsamsung.post.html.PostHtmlGenerator
 import de.maxisma.allaboutsamsung.posts.PostsFragment
 import de.maxisma.allaboutsamsung.rest.AppApi
 import de.maxisma.allaboutsamsung.rest.WordpressApi
-import de.maxisma.allaboutsamsung.scheduling.NotificationJob
+import de.maxisma.allaboutsamsung.scheduling.NotificationWorker
 import de.maxisma.allaboutsamsung.settings.PreferenceFragment
 import de.maxisma.allaboutsamsung.settings.PreferenceHolder
 import de.maxisma.allaboutsamsung.youtube.YouTubeFragment
@@ -41,5 +41,5 @@ interface AppComponent {
     fun inject(postActivity: PostActivity)
     fun inject(postsWidgetRemoteViewsFactory: PostsWidgetRemoteViewsFactory)
     fun inject(mainActivity: MainActivity)
-    fun inject(notificationJob: NotificationJob)
+    fun inject(notificationWorker: NotificationWorker)
 }

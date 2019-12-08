@@ -37,13 +37,13 @@ class PostsWidgetProvider : AppWidgetProvider() {
         }
     }
 
-    override fun onEnabled(context: Context?) {
+    override fun onEnabled(context: Context) {
         super.onEnabled(context)
-        scheduleWidgetJob()
+        context.scheduleWidgetJob()
     }
 
-    override fun onDisabled(context: Context?) {
+    override fun onDisabled(context: Context) {
         super.onDisabled(context)
-        unscheduleWidgetJob()
+        context.unscheduleWidgetJob()
     }
 }
