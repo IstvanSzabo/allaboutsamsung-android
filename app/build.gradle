@@ -10,7 +10,7 @@ repositories {
 }
 
 android {
-    compileSdkVersion 28
+    compileSdkVersion 29
     defaultConfig {
         applicationId "de.maxisma.allaboutsamsung"
         minSdkVersion 21
@@ -146,7 +146,8 @@ dependencies {
     // Force Gradle to use a later version of the API client the YouTube dependency uses
     // 1.30.6 contains a bug: GoogleUtils.getVersion() returns "0.0", which makes the
     // static initializer of com.google.api.services.youtube.YouTube fail.
-    implementation('com.google.api-client:google-api-client-android:1.30.5') {
+    // 1.30.5 is incompatible with the YouTube library itself (requests fail)
+    implementation('com.google.api-client:google-api-client-android:1.30.4') {
         exclude group: 'org.apache.httpcomponents'
         exclude group: "com.google.code.findbugs"
     }
