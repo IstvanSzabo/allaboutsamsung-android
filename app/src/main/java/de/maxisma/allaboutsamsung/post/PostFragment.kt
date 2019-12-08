@@ -43,6 +43,7 @@ import de.maxisma.allaboutsamsung.rest.WordpressApi
 import de.maxisma.allaboutsamsung.rest.loadCommentsFor
 import de.maxisma.allaboutsamsung.settings.PreferenceHolder
 import de.maxisma.allaboutsamsung.utils.ExtendedWebChromeClient
+import de.maxisma.allaboutsamsung.utils.isSystemDarkModeActive
 import de.maxisma.allaboutsamsung.utils.observe
 import de.maxisma.allaboutsamsung.utils.observeUntilFalse
 import kotlinx.android.synthetic.main.fragment_post.*
@@ -90,7 +91,7 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
     private val theme
         get() = run {
             val themes = context!!.obtainHtmlThemes()
-            if (preferenceHolder.useDarkTheme) themes.darkTheme else themes.lightTheme
+            if (preferenceHolder.useDarkThemeAlways || isSystemDarkModeActive) themes.darkTheme else themes.lightTheme
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {

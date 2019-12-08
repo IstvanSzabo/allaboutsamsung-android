@@ -26,7 +26,7 @@ class PreferenceActivity : BaseActivity(useDefaultMenu = false) {
         super.onCreate(savedInstanceState)
 
         supportFragmentManager.beginTransaction()
-            .replace(android.R.id.content, de.maxisma.allaboutsamsung.settings.PreferenceFragment())
+            .replace(android.R.id.content, PreferenceFragment())
             .commit()
     }
 }

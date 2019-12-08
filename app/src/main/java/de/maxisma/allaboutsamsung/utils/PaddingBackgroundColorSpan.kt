@@ -6,6 +6,7 @@ import android.graphics.Rect
 import androidx.annotation.ColorInt
 import androidx.annotation.Px
 import android.text.style.LineBackgroundSpan
+import kotlin.math.roundToInt
 
 /**
  * A [LineBackgroundSpan] with padding that improves the design
@@ -14,7 +15,7 @@ class PaddingBackgroundColorSpan(@ColorInt private val backgroundColor: Int, @Px
     private val mBgRect = Rect()
 
     override fun drawBackground(c: Canvas, p: Paint, left: Int, right: Int, top: Int, baseline: Int, bottom: Int, text: CharSequence, start: Int, end: Int, lnum: Int) {
-        val textWidth = Math.round(p.measureText(text, start, end))
+        val textWidth = p.measureText(text, start, end).roundToInt()
         val paintColor = p.color
         mBgRect.set(
             left - padding,

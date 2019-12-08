@@ -1,6 +1,6 @@
 <resources>
 
-    <style name="AppTheme.Light.WithActionBar" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="AppTheme.DayNight.WithActionBar" parent="Theme.AppCompat.DayNight.DarkActionBar">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
@@ -16,7 +16,7 @@
         <item name="colorPrimaryDark">@color/darkColorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="bottomNavigationBackground">@color/darkColorPrimary</item>
-        <item name="bottomNavigationItemColor">@drawable/bottom_navigation_item_color_dark</item>
+        <item name="bottomNavigationItemColor">@drawable/bottom_navigation_item_color</item>
         <item name="android:textColorHint">@android:color/white</item>
 
         <item name="colorControlNormal">@android:color/white</item>
@@ -37,12 +37,12 @@
         <item name="windowNoTitle">false</item>
     </style>
 
-    <style name="AppTheme" parent="Theme.AppCompat.Light">
+    <style name="AppTheme" parent="Theme.AppCompat.DayNight">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
         <item name="bottomNavigationBackground">@color/colorPrimary</item>
-        <item name="bottomNavigationItemColor">@android:color/white</item>
+        <item name="bottomNavigationItemColor">@drawable/bottom_navigation_item_color</item>
         <item name="android:textColorHint">@android:color/white</item>
 
         <item name="colorControlNormal">@android:color/white</item>
@@ -51,7 +51,8 @@
         <item name="subtitleTextColor">@android:color/white</item>
         <item name="popupTheme">@style/AppTheme.PopupTheme</item>
 
-        <item name="android:windowBackground">@color/almostWhite</item>
+        <item name="android:windowBackground">@color/windowBackgroundColor</item>
+        <item name="android:textColor">@color/textColor</item>
 
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
@@ -62,8 +63,14 @@
         <item name="windowNoTitle">false</item>
     </style>
 
-    <style name="AppTheme.PopupTheme">
-        <item name="android:textColor">@android:color/black</item>
+    <style name="PreferencesTheme" parent="AppTheme.WithActionBar">
+        <item name="android:textColor">@color/preferencesTextColor</item>
+        <item name="buttonTint">@color/colorAccent</item>
+    </style>
+
+    <style name="AppTheme.PopupTheme" parent="ThemeOverlay.AppCompat.DayNight">
+        <item name="android:textColor">@android:color/white</item>
+        <item name="android:background">@color/colorPrimaryDark</item>
     </style>
 
     <style name="AppTheme.PopupTheme.Dark" parent="ThemeOverlay.AppCompat.Dark">
@@ -71,8 +78,8 @@
         <item name="android:background">@color/darkColorPrimaryDark</item>
     </style>
 
-    <style name="AppTheme.Dialog" parent="Theme.AppCompat.Light.Dialog.Alert">
-        <item name="android:textColor">@android:color/black</item>
+    <style name="AppTheme.Dialog" parent="Theme.AppCompat.DayNight.Dialog.Alert">
+        <item name="android:textColor">@color/inverseTextColor</item>
     </style>
 
     <style name="AppTheme.Dialog.Dark" parent="Theme.AppCompat.Dialog.Alert">

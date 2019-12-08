@@ -39,7 +39,7 @@
 
         <activity
             android:name=".consent.ConsentActivity"
-            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar" />
+            android:theme="@style/Theme.MaterialComponents.DayNight.NoActionBar" />
 
         <activity
             android:name=".post.PostActivity"
@@ -65,7 +65,7 @@
 
         <activity
             android:name=".settings.PreferenceActivity"
-            android:theme="@style/AppTheme.Light.WithActionBar" />
+            android:theme="@style/PreferencesTheme" />
 
         <activity android:name=".LegalNoticeActivity">
             <intent-filter>

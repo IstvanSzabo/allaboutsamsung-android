@@ -6,6 +6,7 @@ import androidx.annotation.StyleRes
 import androidx.appcompat.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
+import androidx.appcompat.app.AppCompatDelegate
 import de.maxisma.allaboutsamsung.settings.PreferenceHolder
 import de.maxisma.allaboutsamsung.settings.newPreferencesActivityIntent
 import kotlinx.coroutines.CoroutineScope
@@ -27,7 +28,7 @@ abstract class BaseActivity(private val useDefaultMenu: Boolean = true) : AppCom
     @Inject
     lateinit var preferenceHolder: PreferenceHolder
 
-    private var wasDarkThemeEnabled = false
+    private var wasDarkThemeAlwaysEnabled = false
 
     private var uiJob = SupervisorJob()
     override val coroutineContext: CoroutineContext
@@ -41,12 +42,12 @@ abstract class BaseActivity(private val useDefaultMenu: Boolean = true) : AppCom
 
     override fun onPause() {
         super.onPause()
-        wasDarkThemeEnabled = preferenceHolder.useDarkTheme
+        wasDarkThemeAlwaysEnabled = preferenceHolder.useDarkThemeAlways
     }
 
     override fun onResume() {
         super.onResume()
-        if (wasDarkThemeEnabled != preferenceHolder.useDarkTheme) {
+        if (wasDarkThemeAlwaysEnabled != preferenceHolder.useDarkThemeAlways) {
             recreate()
         }
     }
@@ -65,13 +66,18 @@ abstract class BaseActivity(private val useDefaultMenu: Boolean = true) : AppCom
     override fun onCreate(savedInstanceState: Bundle?) {
         app.appComponent.inject(this)
 
-        wasDarkThemeEnabled = preferenceHolder.useDarkTheme
-        val darkThemeToUse = darkThemeToUse
-        if (darkThemeToUse != null && preferenceHolder.useDarkTheme) {
-            setTheme(darkThemeToUse)
-        }
+        wasDarkThemeAlwaysEnabled = preferenceHolder.useDarkThemeAlways
+        updateDefaultNightModeSetting()
 
         super.onCreate(savedInstanceState)
+    }
+
+    private fun updateDefaultNightModeSetting() {
+        if (preferenceHolder.useDarkThemeAlways) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+        }
     }
 
     @StyleRes

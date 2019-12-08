@@ -15,7 +15,7 @@ class PreferenceHolder @Inject constructor(context: Context) {
 
     // KEEP DEFAULT VALUES IN SYNC WITH preferences.xml
 
-    var useDarkTheme: Boolean
+    var useDarkThemeAlways: Boolean
         get() = prefs.getBoolean("useDarkTheme", false)
         set(value) = prefs.edit().putBoolean("useDarkTheme", value).apply()
 

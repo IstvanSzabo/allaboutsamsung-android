@@ -30,7 +30,7 @@ fun PreferenceHolder.migrateFromV4(context: Context) {
 
     if (pushDeals != null) this.pushDeals = pushDeals
     if (disableAnalytics != null) this.allowAnalytics = !disableAnalytics
-    if (useDarkTheme != null) this.useDarkTheme = useDarkTheme
+    if (useDarkTheme != null) this.useDarkThemeAlways = useDarkTheme
 
     oldPrefs.edit().putBoolean("migrationComplete", true).apply()
 }
