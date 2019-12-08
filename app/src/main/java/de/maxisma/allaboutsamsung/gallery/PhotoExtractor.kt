@@ -26,6 +26,17 @@ private fun Element.findSmallImgUrl(): String {
     return srcSet()?.minBy { (_, width) -> width }?.first ?: attr("src")
 }
 
+private fun Element.findOtherImgUrls(): List<String> {
+    require(tag() == Tag.valueOf("img")) { "Needs to be an img element!" }
+
+    val parent = parent()
+    return if (parent.tag() == Tag.valueOf("a") && parent.hasAttr("href")) {
+        listOf(parent.attr("href"))
+    } else {
+        emptyList()
+    }
+}
+
 private fun Element.srcSet() = attr("srcset")
     ?.split(',')
     ?.asSequence()
@@ -45,7 +56,8 @@ fun Post.extractPhotos(): List<Photo> {
         .map { img ->
             val small = img.findSmallImgUrl()
             val full = img.findFullImgUrl()
-            Photo(small, full ?: small)
+            val others = img.findOtherImgUrls()
+            Photo(small, full ?: small, others)
         }
         .toList()
 }

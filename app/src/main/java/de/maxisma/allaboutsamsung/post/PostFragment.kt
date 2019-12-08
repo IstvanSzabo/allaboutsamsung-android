@@ -237,7 +237,7 @@ private class PostWebViewClient(private val photos: List<Photo>, allowedHosts: S
                 context.startActivity(postUrlIntent)
             }
             url.endsWith(".jpg") || url.endsWith(".jpeg") || url.endsWith(".png") -> {
-                val selected = photos.firstOrNull { url == it.fullImageUrl || url == it.smallImageUrl }
+                val selected = photos.firstOrNull { it.isContainedByUrl(url) }
                 if (selected != null) {
                     val intent = newGalleryActivityIntent(context, photos, selected)
                     context.startActivity(intent)

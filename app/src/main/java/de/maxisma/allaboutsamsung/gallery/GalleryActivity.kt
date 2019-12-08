@@ -5,13 +5,13 @@ import android.content.Intent
 import android.graphics.PointF
 import android.os.Bundle
 import android.os.Parcelable
-import androidx.viewpager.widget.PagerAdapter
-import androidx.viewpager.widget.ViewPager
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.FrameLayout
 import android.widget.ProgressBar
+import androidx.viewpager.widget.PagerAdapter
+import androidx.viewpager.widget.ViewPager
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import de.maxisma.allaboutsamsung.BaseActivity
@@ -83,7 +83,9 @@ class GalleryActivity : BaseActivity(useDefaultMenu = false) {
 }
 
 @Parcelize
-data class Photo(val smallImageUrl: String, val fullImageUrl: String) : Parcelable
+data class Photo(val smallImageUrl: String, val fullImageUrl: String, val others: List<String> = emptyList()) : Parcelable {
+    fun isContainedByUrl(url: String) = url == smallImageUrl || url == fullImageUrl || url in others
+}
 
 /**
  * Each page is a photo that can be zoomed and clicked.
