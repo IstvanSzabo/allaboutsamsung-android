@@ -20,6 +20,7 @@ import de.maxisma.allaboutsamsung.ad.updateAdHtml
 import de.maxisma.allaboutsamsung.app
 import de.maxisma.allaboutsamsung.categories.categoryActivityResult
 import de.maxisma.allaboutsamsung.categories.newCategoryActivityIntent
+import de.maxisma.allaboutsamsung.databinding.FragmentPostsBinding
 import de.maxisma.allaboutsamsung.db.Db
 import de.maxisma.allaboutsamsung.db.KeyValueStore
 import de.maxisma.allaboutsamsung.db.Post
@@ -35,7 +36,6 @@ import de.maxisma.allaboutsamsung.utils.dpToPx
 import de.maxisma.allaboutsamsung.utils.observe
 import de.maxisma.allaboutsamsung.utils.toStyledTitle
 import de.maxisma.allaboutsamsung.utils.trackLandingLoad
-import kotlinx.android.synthetic.main.fragment_posts.*
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.async
@@ -74,6 +74,8 @@ class PostsFragment : BaseFragment<PostsFragment.Listener>() {
 
     private var currentLoadingJob: Job? = null
     private var currentExecutor: QueryExecutor? = null
+
+    private lateinit var binding: FragmentPostsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -121,25 +123,26 @@ class PostsFragment : BaseFragment<PostsFragment.Listener>() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_posts, container, false)
+        binding = FragmentPostsBinding.inflate(layoutInflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        categoryButton.setOnClickListener {
+        binding.categoryButton.setOnClickListener {
             startActivityForResult(newCategoryActivityIntent(context!!), REQUEST_CODE_CATEGORY)
         }
-        searchButton.setOnClickListener { searchItem.expandActionView() }
+        binding.searchButton.setOnClickListener { searchItem.expandActionView() }
 
-        postsSwipeRefresh.setOnRefreshListener { requestNewerPosts() }
+        binding.postsSwipeRefresh.setOnRefreshListener { requestNewerPosts() }
 
         val showAd = !preferenceHolder.gdprMode && !BuildConfig.DEBUG && getString(R.string.appmobPostListAdId).isNotEmpty()
         val adapter = PostsAdapter(showAd = showAd) { listener.displayPost(it.id) }
         layoutManager = LinearLayoutManager(context!!)
-        postList.adapter = adapter
-        postList.layoutManager = layoutManager
-        postList.addItemDecoration(SpacingItemDecoration(horizontalSpacing = 8.dpToPx(), verticalSpacing = 8.dpToPx()))
+        binding.postList.adapter = adapter
+        binding.postList.layoutManager = layoutManager
+        binding.postList.addItemDecoration(SpacingItemDecoration(horizontalSpacing = 8.dpToPx(), verticalSpacing = 8.dpToPx()))
 
         val infiniteScrollListener = object : InfiniteScrollListener(WORDPRESS_POSTS_PER_PAGE, layoutManager) {
 
@@ -153,7 +156,7 @@ class PostsFragment : BaseFragment<PostsFragment.Listener>() {
                 }
             }
         }
-        postList.addOnScrollListener(infiniteScrollListener)
+        binding.postList.addOnScrollListener(infiniteScrollListener)
 
         val lastListPosition = if (savedInstanceState?.containsKey(STATE_LIST_POSITION) == true) {
             savedInstanceState.getInt(STATE_LIST_POSITION)
@@ -164,11 +167,11 @@ class PostsFragment : BaseFragment<PostsFragment.Listener>() {
         Query.Empty.load(lastListPosition)
         db.postDao.latestActiveBreakingPost().observe(this) { post ->
             if (post == null) {
-                featured.visibility = View.GONE
+                binding.featured.visibility = View.GONE
             } else {
-                featured.visibility = View.VISIBLE
-                featured.setOnClickListener { listener.displayPost(post.id) }
-                featured.text = getString(R.string.breaking_featured_template, post.title)
+                binding.featured.visibility = View.VISIBLE
+                binding.featured.setOnClickListener { listener.displayPost(post.id) }
+                binding.featured.text = getString(R.string.breaking_featured_template, post.title)
             }
         }
     }
@@ -191,7 +194,7 @@ class PostsFragment : BaseFragment<PostsFragment.Listener>() {
         currentExecutor?.data?.removeObservers(this@PostsFragment)
 
         val executor = newExecutor(wordpressApi, db, keyValueStore, coroutineScope = this@PostsFragment, onError = ::displaySupportedError)
-        val adapter = postList.adapter as PostsAdapter
+        val adapter = binding.postList.adapter as PostsAdapter
         executor.data.observe(this@PostsFragment) {
             val displayedPosts = it ?: emptyList()
             adapter.updateWith(displayedPosts, executor)
@@ -201,13 +204,13 @@ class PostsFragment : BaseFragment<PostsFragment.Listener>() {
         currentExecutor = executor
         uiLaunch {
             if (withListPosition != null) {
-                postList.setOnTouchListener { _, _ -> true }
+                binding.postList.setOnTouchListener { _, _ -> true }
             }
             requestNewerPosts(withListPosition).join()
 
             if (withListPosition != null) {
-                layoutManager.scrollToPositionWithOffset(min(withListPosition, postList.adapter?.itemCount ?: error("Adapter not set")), 0)
-                postList.setOnTouchListener(null)
+                layoutManager.scrollToPositionWithOffset(min(withListPosition, binding.postList.adapter?.itemCount ?: error("Adapter not set")), 0)
+                binding.postList.setOnTouchListener(null)
             }
         }
         activity?.title = description.await()
@@ -230,11 +233,11 @@ class PostsFragment : BaseFragment<PostsFragment.Listener>() {
     }
 
     private suspend fun Iterable<Post>.toPostViewModels(executor: QueryExecutor, context: Context) =
-        map {
+        map { post ->
             PostViewModel(
-                it,
-                isBreaking = BuildConfig.BREAKING_CATEGORY_ID in executor.categoriesForPost(it.id).map { it.id },
-                styledTitle = it.title.toStyledTitle(context)
+                post,
+                isBreaking = BuildConfig.BREAKING_CATEGORY_ID in executor.categoriesForPost(post.id).map { it.id },
+                styledTitle = post.title.toStyledTitle(context)
             )
         }
 
@@ -264,18 +267,18 @@ class PostsFragment : BaseFragment<PostsFragment.Listener>() {
 
         lastLoadTimeMs = System.currentTimeMillis()
         return uiLaunch {
-            postsSwipeRefresh.isRefreshing = true
+            binding.postsSwipeRefresh.isRefreshing = true
             executor.requestNewerPosts().join()
 
             var lastCount = -1
-            val adapter = postList.adapter ?: error("Adapter not set")
+            val adapter = binding.postList.adapter ?: error("Adapter not set")
             while (adapter.itemCount <= includingIndex ?: -1 && lastCount != adapter.itemCount) {
                 // Abort loop if item count doesn't change anymore
                 lastCount = adapter.itemCount
 
                 executor.requestOlderPosts().join()
             }
-            postsSwipeRefresh.isRefreshing = false
+            binding.postsSwipeRefresh.isRefreshing = false
         }
     }
 
@@ -286,9 +289,9 @@ class PostsFragment : BaseFragment<PostsFragment.Listener>() {
     private fun requestOlderPosts(): Job {
         lastLoadTimeMs = System.currentTimeMillis()
         return uiLaunch {
-            postsSwipeRefresh.isRefreshing = true
+            binding.postsSwipeRefresh.isRefreshing = true
             currentExecutor?.requestOlderPosts()?.join()
-            postsSwipeRefresh.isRefreshing = false
+            binding.postsSwipeRefresh.isRefreshing = false
         }
     }
 

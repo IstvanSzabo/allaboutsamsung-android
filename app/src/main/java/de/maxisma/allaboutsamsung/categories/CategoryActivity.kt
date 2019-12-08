@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.annotation.StringRes
-import androidx.core.view.updateLayoutParams
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import de.maxisma.allaboutsamsung.BaseActivity
@@ -17,10 +16,10 @@ import de.maxisma.allaboutsamsung.R
 import de.maxisma.allaboutsamsung.app
 import de.maxisma.allaboutsamsung.categories.VirtualCategory.DbCategory
 import de.maxisma.allaboutsamsung.categories.VirtualCategory.SyntheticAllCategory
+import de.maxisma.allaboutsamsung.databinding.ActivityCategoryBinding
 import de.maxisma.allaboutsamsung.db.Category
 import de.maxisma.allaboutsamsung.db.CategoryId
 import de.maxisma.allaboutsamsung.utils.observe
-import kotlinx.android.synthetic.main.activity_category.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -52,20 +51,21 @@ class CategoryActivity : BaseActivity(useDefaultMenu = false) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        window.decorView.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.MATCH_PARENT)
+        window.decorView.layoutParams = ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
         window.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT)
 
-        setContentView(R.layout.activity_category)
+        val binding = ActivityCategoryBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         app.appComponent.inject(this)
 
         setResultOk(null)
 
-        categoryList.layoutManager = LinearLayoutManager(this)
+        binding.categoryList.layoutManager = LinearLayoutManager(this)
 
         categoryCache.categories().observe(this) { categories ->
             categories ?: return@observe
 
-            categoryList.adapter = CategoryAdapter(createVirtualCategoryList(categories), onClick = {
+            binding.categoryList.adapter = CategoryAdapter(createVirtualCategoryList(categories), onClick = {
                 setResultOk(it)
                 finish()
             })
@@ -75,7 +75,7 @@ class CategoryActivity : BaseActivity(useDefaultMenu = false) {
     }
 
     private fun createVirtualCategoryList(dbCategories: List<Category>) =
-        listOf(VirtualCategory.SyntheticAllCategory) + dbCategories.map { VirtualCategory.DbCategory(it.name, it.id) }.sortedBy { it.name }
+        listOf(SyntheticAllCategory) + dbCategories.map { DbCategory(it.name, it.id) }.sortedBy { it.name }
 
     override fun onBackPressed() {
         setResult(RESULT_CANCELED)
@@ -104,10 +104,9 @@ private class CategoryAdapter(
     override fun getItemCount() = categories.size
 
     override fun onBindViewHolder(holder: CategoryViewHolder, position: Int) {
-        val category = categories[position]
-        val name = when (category) {
-            is VirtualCategory.DbCategory -> category.name
-            is VirtualCategory.SyntheticAllCategory -> holder.itemView.context.getString(category.nameRes)
+        val name = when (val category = categories[position]) {
+            is DbCategory -> category.name
+            is SyntheticAllCategory -> holder.itemView.context.getString(category.nameRes)
         }
 
         holder.categoryDescription.text = name

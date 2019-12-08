@@ -10,11 +10,11 @@ import com.squareup.moshi.JsonEncodingException
 import de.maxisma.allaboutsamsung.BaseActivity
 import de.maxisma.allaboutsamsung.R
 import de.maxisma.allaboutsamsung.app
+import de.maxisma.allaboutsamsung.databinding.ActivityPostBinding
 import de.maxisma.allaboutsamsung.db.PostId
 import de.maxisma.allaboutsamsung.rest.AppApi
 import de.maxisma.allaboutsamsung.rest.urlToId
 import de.maxisma.allaboutsamsung.utils.retry
-import kotlinx.android.synthetic.main.activity_post.*
 import kotlinx.coroutines.TimeoutCancellationException
 import retrofit2.HttpException
 import java.io.IOException
@@ -46,12 +46,15 @@ class PostActivity : BaseActivity(), PostFragment.Listener {
     @Inject
     lateinit var appApi: AppApi
 
-    override val fullScreenViewContainer: ViewGroup
-        get() = postActivityFullScreenViewContainer
+    private lateinit var binding: ActivityPostBinding
+
+    override val fullScreenViewContainer: ViewGroup?
+        get() = binding.postActivityFullScreenViewContainer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_post)
+        binding = ActivityPostBinding.inflate(layoutInflater)
+        setContentView(binding.root)
         app.appComponent.inject(this)
 
         uiLaunch {

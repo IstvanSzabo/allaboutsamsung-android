@@ -15,13 +15,12 @@ import androidx.viewpager.widget.ViewPager
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import de.maxisma.allaboutsamsung.BaseActivity
-import de.maxisma.allaboutsamsung.R
+import de.maxisma.allaboutsamsung.databinding.ActivityGalleryBinding
 import de.maxisma.allaboutsamsung.utils.IOPool
 import de.maxisma.allaboutsamsung.utils.asArrayList
 import de.maxisma.allaboutsamsung.utils.glide.GlideApp
 import de.maxisma.allaboutsamsung.utils.toggleVisibility
 import kotlinx.android.parcel.Parcelize
-import kotlinx.android.synthetic.main.activity_gallery.*
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -46,19 +45,20 @@ fun newGalleryActivityIntent(context: Context, photos: List<Photo>, selectedPhot
 class GalleryActivity : BaseActivity(useDefaultMenu = false) {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_gallery)
+        val binding = ActivityGalleryBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         val photos = intent.getParcelableArrayListExtra<Photo>(EXTRA_PHOTOS)
         val selectedPhoto = intent.getParcelableExtra<Photo?>(EXTRA_SELECTED_PHOTO)
         val selectedIndex = max(0, photos.indexOf(selectedPhoto))
 
         uiLaunch {
-            val photoBar = galleryPhotoBar.configurePhotoBar(photos, onPhotoClick = { photo, photoBar ->
-                galleryViewPager.currentItem = photos.indexOf(photo)
+            val photoBar = binding.galleryPhotoBar.configurePhotoBar(photos, onPhotoClick = { photo, photoBar ->
+                binding.galleryViewPager.currentItem = photos.indexOf(photo)
                 photoBar.highlightPhoto(photo)
             })
 
-            galleryViewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+            binding.galleryViewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
                 override fun onPageScrollStateChanged(state: Int) {}
 
                 override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
@@ -68,16 +68,16 @@ class GalleryActivity : BaseActivity(useDefaultMenu = false) {
                 }
             })
 
-            galleryViewPager.adapter = PhotoAdapter(
+            binding.galleryViewPager.adapter = PhotoAdapter(
                 photos,
-                onClick = { galleryPhotoBar.toggleVisibility(disabledState = View.GONE) },
+                onClick = { binding.galleryPhotoBar.toggleVisibility(disabledState = View.GONE) },
                 onZoomedInStateChanged = { zoomedIn ->
-                    galleryPhotoBar.visibility = if (!zoomedIn) View.VISIBLE else View.GONE
-                    galleryViewPager.disableTouchPaging = zoomedIn
+                    binding.galleryPhotoBar.visibility = if (!zoomedIn) View.VISIBLE else View.GONE
+                    binding.galleryViewPager.disableTouchPaging = zoomedIn
                 },
                 coroutineScope = this@GalleryActivity
             )
-            galleryViewPager.currentItem = selectedIndex
+            binding.galleryViewPager.currentItem = selectedIndex
         }
     }
 }

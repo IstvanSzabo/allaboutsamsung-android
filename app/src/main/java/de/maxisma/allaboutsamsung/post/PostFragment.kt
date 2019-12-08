@@ -28,6 +28,7 @@ import de.maxisma.allaboutsamsung.BaseFragment
 import de.maxisma.allaboutsamsung.BuildConfig
 import de.maxisma.allaboutsamsung.R
 import de.maxisma.allaboutsamsung.app
+import de.maxisma.allaboutsamsung.databinding.FragmentPostBinding
 import de.maxisma.allaboutsamsung.db.Db
 import de.maxisma.allaboutsamsung.db.KeyValueStore
 import de.maxisma.allaboutsamsung.db.PostId
@@ -46,7 +47,6 @@ import de.maxisma.allaboutsamsung.utils.ExtendedWebChromeClient
 import de.maxisma.allaboutsamsung.utils.isSystemDarkModeActive
 import de.maxisma.allaboutsamsung.utils.observe
 import de.maxisma.allaboutsamsung.utils.observeUntilFalse
-import kotlinx.android.synthetic.main.fragment_post.*
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import javax.inject.Inject
@@ -65,7 +65,7 @@ private const val POST_DETAIL_EXPIRY_MS = 2 * 60 * 1000L
 class PostFragment @Deprecated("Use factory function.") constructor() : BaseFragment<PostFragment.Listener>() {
 
     interface Listener {
-        val fullScreenViewContainer: ViewGroup
+        val fullScreenViewContainer: ViewGroup?
     }
 
     @Inject
@@ -87,6 +87,8 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
     lateinit var keyValueStore: KeyValueStore
 
     private val postId: PostId by lazy { arguments!!.getLong(ARG_POST_ID) }
+
+    private lateinit var binding: FragmentPostBinding
 
     private val theme
         get() = run {
@@ -114,26 +116,27 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_post, container, false)
+        binding = FragmentPostBinding.inflate(layoutInflater, container, false)
+        return binding.root
     }
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         // Load default HTML to set background color
-        for (webView in arrayOf(postContentWebView, postCommentsWebView)) {
+        for (webView in arrayOf(binding.postContentWebView, binding.postCommentsWebView)) {
             webView.loadData(postHtmlGenerator.generateEmptyHtml(theme), "text/html", Charsets.UTF_8.name())
         }
 
         super.onViewCreated(view, savedInstanceState)
 
-        postContentWebView.apply {
+        binding.postContentWebView.apply {
             settings.apply {
                 loadWithOverviewMode = true
                 useWideViewPort = true
                 javaScriptEnabled = !preferenceHolder.gdprMode
             }
             webChromeClient = ExtendedWebChromeClient(
-                postContentProgressBar,
+                binding.postContentProgressBar,
                 supportWindowCreation = false,
                 fragment = this@PostFragment,
                 customViewContainer = listener.fullScreenViewContainer,
@@ -142,7 +145,7 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
                 }
             )
         }
-        postCommentsWebView.apply {
+        binding.postCommentsWebView.apply {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
                 CookieManager.getInstance().setAcceptThirdPartyCookies(this, true)
             }
@@ -151,17 +154,17 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
                 javaScriptCanOpenWindowsAutomatically = true
                 setSupportMultipleWindows(true)
             }
-            webChromeClient = ExtendedWebChromeClient(postCommentsProgressBar, supportWindowCreation = true, fragment = this@PostFragment)
+            webChromeClient = ExtendedWebChromeClient(binding.postCommentsProgressBar, supportWindowCreation = true, fragment = this@PostFragment)
         }
 
-        postBottomNavigation.setOnNavigationItemSelectedListener(::onBottomNavigation)
-        postViewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
+        binding.postBottomNavigation.setOnNavigationItemSelectedListener(::onBottomNavigation)
+        binding.postViewPager.addOnPageChangeListener(object : ViewPager.OnPageChangeListener {
             override fun onPageScrollStateChanged(state: Int) {}
 
             override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {}
 
             override fun onPageSelected(position: Int) {
-                postBottomNavigation.selectedItemId = postBottomNavigation.menu.getItem(position).itemId
+                binding.postBottomNavigation.selectedItemId = binding.postBottomNavigation.menu.getItem(position).itemId
             }
         })
 
@@ -177,8 +180,8 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
 
             val analyticsJs = if (preferenceHolder.allowAnalytics) post.generateAnalyticsJs() else ""
 
-            postContentWebView.webViewClient = PostWebViewClient(post.extractPhotos(), preferenceHolder.allowedHosts)
-            postContentWebView.loadDataWithBaseURL(
+            binding.postContentWebView.webViewClient = PostWebViewClient(post.extractPhotos(), preferenceHolder.allowedHosts)
+            binding.postContentWebView.loadDataWithBaseURL(
                 BuildConfig.WEBVIEW_BASE_URL,
                 postHtmlGenerator.generateHtml(post, authorName, theme, analyticsJs, keyValueStore.adHtml ?: ""),
                 "text/html",
@@ -187,7 +190,7 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
             )
 
             if (!preferenceHolder.gdprMode) {
-                loadCommentsFor(postCommentsWebView, postId, httpClient, theme, onError = ::displaySupportedError)
+                loadCommentsFor(binding.postCommentsWebView, postId, httpClient, theme, onError = ::displaySupportedError)
             }
         }
     }
@@ -208,8 +211,8 @@ class PostFragment @Deprecated("Use factory function.") constructor() : BaseFrag
 
     private fun onBottomNavigation(menuItem: MenuItem): Boolean {
         when (menuItem.itemId) {
-            R.id.postContent -> postViewPager.currentItem = 0
-            R.id.postComments -> postViewPager.currentItem = 1
+            R.id.postContent -> binding.postViewPager.currentItem = 0
+            R.id.postComments -> binding.postViewPager.currentItem = 1
             else -> throw IllegalArgumentException("Unknown menuItem with id ${menuItem.itemId}!")
         }
         return true

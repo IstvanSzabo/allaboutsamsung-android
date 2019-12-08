@@ -13,8 +13,8 @@ import de.maxisma.allaboutsamsung.BuildConfig
 import de.maxisma.allaboutsamsung.LegalNoticeActivity
 import de.maxisma.allaboutsamsung.MainActivity
 import de.maxisma.allaboutsamsung.R
+import de.maxisma.allaboutsamsung.databinding.ActivityConsentBinding
 import de.maxisma.allaboutsamsung.utils.retry
-import kotlinx.android.synthetic.main.activity_consent.*
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -25,23 +25,24 @@ class ConsentActivity : BaseActivity(useDefaultMenu = false) {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_consent)
+        val binding = ActivityConsentBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         val consentInformation = ConsentInformation.getInstance(this)
         val publisherId = BuildConfig.APPMOB_PUBLISHER_ID
 
-        consentDetails.setOnClickListener {
+        binding.consentDetails.setOnClickListener {
             Toast.makeText(this, R.string.loading_providers, Toast.LENGTH_SHORT).show()
             detailsDialogIsQueued = true
         }
 
-        consentEnablePrivateMode.setOnClickListener {
+        binding.consentEnablePrivateMode.setOnClickListener {
             preferenceHolder.gdprMode = true
             markConsentActivityAsAnswered(this)
             startActivity(Intent(this, MainActivity::class.java))
         }
 
-        consentDisablePrivateMode.setOnClickListener {
+        binding.consentDisablePrivateMode.setOnClickListener {
             preferenceHolder.gdprMode = false
             markConsentActivityAsAnswered(this)
             startActivity(Intent(this, MainActivity::class.java))
@@ -62,7 +63,7 @@ class ConsentActivity : BaseActivity(useDefaultMenu = false) {
                 emptyList()
             }
 
-            consentDetails.setOnClickListener {
+            binding.consentDetails.setOnClickListener {
                 val text = (resources.getStringArray(R.array.thirdPartyServices) + admobServiceNames)
                     .joinToString(separator = "\n") { getString(R.string.third_party_service_ad, it) }
                 AlertDialog.Builder(this@ConsentActivity)
@@ -74,7 +75,7 @@ class ConsentActivity : BaseActivity(useDefaultMenu = false) {
             }
 
             if (detailsDialogIsQueued) {
-                consentDetails.performClick()
+                binding.consentDetails.performClick()
                 detailsDialogIsQueued = false
             }
         }

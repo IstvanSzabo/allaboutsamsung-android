@@ -10,6 +10,7 @@ import androidx.fragment.app.FragmentStatePagerAdapter
 import com.google.android.material.snackbar.Snackbar
 import de.maxisma.allaboutsamsung.consent.ConsentActivity
 import de.maxisma.allaboutsamsung.consent.needsToShowConsentActivity
+import de.maxisma.allaboutsamsung.databinding.ActivityMainBinding
 import de.maxisma.allaboutsamsung.db.Db
 import de.maxisma.allaboutsamsung.db.Post
 import de.maxisma.allaboutsamsung.db.PostId
@@ -19,7 +20,6 @@ import de.maxisma.allaboutsamsung.posts.PostsFragment
 import de.maxisma.allaboutsamsung.settings.updatePushSubscriptionsAccordingly
 import de.maxisma.allaboutsamsung.utils.DbWriteDispatcher
 import de.maxisma.allaboutsamsung.youtube.YouTubeFragment
-import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.plus
@@ -43,8 +43,10 @@ class MainActivity : BaseActivity(), PostsFragment.Listener, YouTubeFragment.Lis
 
     private var displayedPostId: PostId? = null
 
-    override val fullScreenViewContainer: ViewGroup
-        get() = findViewById(R.id.fullScreenViewContainer)
+    private lateinit var binding: ActivityMainBinding
+
+    override val fullScreenViewContainer: ViewGroup?
+        get() = binding.fullScreenViewContainer
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,8 +61,9 @@ class MainActivity : BaseActivity(), PostsFragment.Listener, YouTubeFragment.Lis
             ?.getLong(STATE_POST_ID, -1)
             .let { if (it == -1L) null else it }
 
-        setContentView(R.layout.activity_main)
-        setSupportActionBar(toolbar)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        setSupportActionBar(binding.toolbar)
         supportActionBar?.elevation = 0f
 
         app.appComponent.inject(this)
@@ -69,11 +72,11 @@ class MainActivity : BaseActivity(), PostsFragment.Listener, YouTubeFragment.Lis
             withContext(DbWriteDispatcher) { db.postDao.deleteExpired(oldestAllowedDbPostCreatedDate) }
             preferenceHolder.updatePushSubscriptionsAccordingly(app.appComponent.db)
 
-            mainViewPager.adapter = MainAdapter(this@MainActivity, supportFragmentManager)
-            mainTabLayout.setupWithViewPager(mainViewPager, true)
+            binding.mainViewPager.adapter = MainAdapter(this@MainActivity, supportFragmentManager)
+            binding.mainTabLayout.setupWithViewPager(binding.mainViewPager, true)
 
             val displayedPostId = displayedPostId
-            if (postFragmentContainer != null && savedInstanceState != null && displayedPostId != null) {
+            if (binding.postFragmentContainer != null && savedInstanceState != null && displayedPostId != null) {
                 displayPost(displayedPostId)
             }
         }
@@ -85,7 +88,7 @@ class MainActivity : BaseActivity(), PostsFragment.Listener, YouTubeFragment.Lis
     }
 
     override fun onDisplayedPostsChanged(posts: List<Post>) {
-        if (postFragmentContainer != null && displayedPostId == null && posts.isNotEmpty()) {
+        if (binding.postFragmentContainer != null && displayedPostId == null && posts.isNotEmpty()) {
             displayPost(posts[0].id)
         }
     }
@@ -93,8 +96,8 @@ class MainActivity : BaseActivity(), PostsFragment.Listener, YouTubeFragment.Lis
     override fun displayPost(postId: PostId) {
         displayedPostId = postId
 
-        if (postFragmentContainer != null) {
-            postFragmentContainerProgressBar!!.visibility = View.GONE
+        if (binding.postFragmentContainer != null) {
+            binding.postFragmentContainerProgressBar!!.visibility = View.GONE
             supportFragmentManager.beginTransaction()
                 .replace(R.id.postFragmentContainer, PostFragment(postId))
                 .commit()
@@ -104,11 +107,11 @@ class MainActivity : BaseActivity(), PostsFragment.Listener, YouTubeFragment.Lis
     }
 
     override fun notifyUnseenVideos(howMany: Int) {
-        Snackbar.make(mainRoot, resources.getQuantityString(R.plurals.new_videos, howMany, howMany), Snackbar.LENGTH_LONG).show()
+        Snackbar.make(binding.mainRoot, resources.getQuantityString(R.plurals.new_videos, howMany, howMany), Snackbar.LENGTH_LONG).show()
     }
 }
 
-private class MainAdapter(private val context: Context, fragmentManager: FragmentManager) : FragmentStatePagerAdapter(fragmentManager) {
+private class MainAdapter(private val context: Context, fragmentManager: FragmentManager) : FragmentStatePagerAdapter(fragmentManager, BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT) {
     override fun getItem(position: Int) = when (position) {
         0 -> PostsFragment()
         1 -> YouTubeFragment()
