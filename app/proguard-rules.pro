@@ -23,7 +23,7 @@
 -dontobfuscate
 -keepattributes *Annotation*,SourceFile,LineNumberTable
 
--keep class com.google.api.services.youtube.model.*
+-keep class com.google.api.services.** { *; }
 -keep class com.google.api.client.googleapis.json.* { *; }
 
 # Needed due to https://github.com/Kotlin/kotlinx.coroutines/issues/858
