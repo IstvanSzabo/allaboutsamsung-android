@@ -47,7 +47,7 @@ fun CoroutineScope.updateAdHtml(keyValueStore: KeyValueStore) = launch {
             JsonEncodingException::class,
             TimeoutCancellationException::class
         ) {
-            keyValueStore.adHtml = appApi.adForPostAsync().await().html
+            keyValueStore.adHtml = appApi.adForPost().html
         }
     } catch (e: Exception) {
         e.printStackTrace()

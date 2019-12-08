@@ -1,6 +1,5 @@
 package de.maxisma.allaboutsamsung.rest
 
-import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.squareup.moshi.JsonAdapter
 import com.squareup.moshi.JsonClass
 import com.squareup.moshi.JsonReader
@@ -11,7 +10,6 @@ import de.maxisma.allaboutsamsung.BuildConfig
 import de.maxisma.allaboutsamsung.db.CategoryId
 import de.maxisma.allaboutsamsung.db.PostId
 import de.maxisma.allaboutsamsung.db.TagId
-import kotlinx.coroutines.Deferred
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
@@ -29,7 +27,7 @@ import java.util.concurrent.TimeUnit
 interface WordpressApi {
 
     @GET("posts")
-    fun postsAsync(
+    suspend fun posts(
         @Query("page") page: Int,
         @Query("per_page") postsPerPage: Int,
         @Query("search") search: String?,
@@ -37,57 +35,57 @@ interface WordpressApi {
         @Query("categories") onlyCategories: CategoryIdsDto?,
         @Query("include") onlyIds: PostIdsDto?,
         @Query("before") beforeGmt: Date? = null
-    ): Deferred<List<PostDto>>
+    ): List<PostDto>
 
     /**
      * See [allCategories] to avoid paging
      */
     @GET("categories?per_page=100")
-    fun categoriesAsync(
+    suspend fun categories(
         @Query("page") page: Int,
         @Query("include") onlyIds: CategoryIdsDto?
-    ): Deferred<Response<List<CategoryDto>>>
+    ): Response<List<CategoryDto>>
 
     /**
      * See [allTags] to avoid paging
      */
     @GET("tags?per_page=100")
-    fun tagsAsync(
+    suspend fun tags(
         @Query("page") page: Int,
         @Query("include") onlyIds: TagIdsDto?
-    ): Deferred<Response<List<TagDto>>>
+    ): Response<List<TagDto>>
 
     /**
      * See [allUsers] to avoid paging
      */
     @GET("users")
-    fun usersAsync(
+    suspend fun users(
         @Query("page") page: Int,
         @Query("include") onlyIds: UserIdsDto?
-    ): Deferred<Response<List<UserDto>>>
+    ): Response<List<UserDto>>
 
 }
 
 private const val TOTAL_PAGES_HEADER = "X-WP-TotalPages"
 
 suspend fun WordpressApi.allCategories(onlyIds: CategoryIdsDto?): List<CategoryDto> =
-    fetchAll { page -> categoriesAsync(page, onlyIds) }
+    fetchAll { page -> categories(page, onlyIds) }
 
 suspend fun WordpressApi.allTags(onlyIds: TagIdsDto?): List<TagDto> =
-    fetchAll { page -> tagsAsync(page, onlyIds) }
+    fetchAll { page -> tags(page, onlyIds) }
 
 suspend fun WordpressApi.allUsers(onlyIds: UserIdsDto?): List<UserDto> =
-    fetchAll { page -> usersAsync(page, onlyIds) }
+    fetchAll { page -> users(page, onlyIds) }
 
 /**
  * Go through all pages provided by WordPress and combine them
  */
-private suspend fun <T> fetchAll(pageFetcher: (Int) -> Deferred<Response<List<T>>>): List<T> {
+private suspend fun <T> fetchAll(pageFetcher: suspend (Int) -> Response<List<T>>): List<T> {
     var page = 1
     var pages = 1
     val elements = mutableListOf<T>()
     while (page - 1 < pages) {
-        val resp = pageFetcher(page).await()
+        val resp = pageFetcher(page)
         if (!resp.isSuccessful) throw IOException("Response was not successful: $resp")
 
         pages = resp.headers()[TOTAL_PAGES_HEADER]!!.toInt()
@@ -203,7 +201,6 @@ private val moshi = Moshi.Builder()
 private val wordpressRetrofit = Retrofit.Builder()
     .baseUrl(BuildConfig.REST_BASE_URL)
     .client(httpClient)
-    .addCallAdapterFactory(CoroutineCallAdapterFactory())
     .addConverterFactory(MoshiConverterFactory.create(moshi))
     .addConverterFactory(RetrofitDateStringConverterFactory)
     .build()

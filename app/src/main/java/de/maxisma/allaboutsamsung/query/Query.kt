@@ -283,12 +283,11 @@ private class EmptyQueryExecutor(
 ) : DbQueryExecutor(wordpressApi, db, keyValueStore, onError, coroutineScope) {
     override val query = Query.Empty
     override suspend fun fetchPosts(beforeGmt: Date?, onlyIds: List<PostId>?) = wordpressApi
-        .postsAsync(
+        .posts(
             page = 1, postsPerPage = WORDPRESS_POSTS_PER_PAGE,
             search = null, onlyCategories = null, onlyTags = null,
             onlyIds = onlyIds?.let { PostIdsDto(it.toSet()) }, beforeGmt = beforeGmt
         )
-        .await()
 
 }
 
@@ -307,7 +306,7 @@ private class FilterQueryExecutor(
     override val data: LiveData<List<Post>> = _data
 
     override suspend fun fetchPosts(beforeGmt: Date?, onlyIds: List<PostId>?) = wordpressApi
-        .postsAsync(
+        .posts(
             page = 1,
             postsPerPage = WORDPRESS_POSTS_PER_PAGE,
             search = query.string,
@@ -315,7 +314,7 @@ private class FilterQueryExecutor(
             onlyTags = query.onlyTags?.let { TagIdsDto(it.toSet()) },
             onlyIds = (onlyIds ?: query.onlyIds)?.let { PostIdsDto(it.toSet()) },
             beforeGmt = beforeGmt
-        ).await()
+        )
 
     override suspend fun onInsertedPosts(postIds: Set<PostId>) {
         super.onInsertedPosts(postIds)
