@@ -9,7 +9,7 @@ import androidx.room.TypeConverters
         Post::class, Category::class, Tag::class, PostCategory::class, PostTag::class,
         User::class, CategorySubscription::class, TagSubscription::class, Video::class,
         PlaylistItem::class, SeenVideo::class
-    ], version = 1, exportSchema = false
+    ], version = 2, exportSchema = false
 )
 @TypeConverters(DateConverter::class)
 abstract class Db : RoomDatabase() {

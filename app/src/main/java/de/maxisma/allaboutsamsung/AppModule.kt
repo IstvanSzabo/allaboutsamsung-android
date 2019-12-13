@@ -8,6 +8,7 @@ import com.google.api.services.youtube.YouTube
 import dagger.Module
 import dagger.Provides
 import de.maxisma.allaboutsamsung.db.Db
+import de.maxisma.allaboutsamsung.db.Migration1_2
 import de.maxisma.allaboutsamsung.post.html.AndroidPostHtmlGenerator
 import de.maxisma.allaboutsamsung.post.html.PostHtmlGenerator
 import de.maxisma.allaboutsamsung.rest.AppApi
@@ -26,7 +27,10 @@ class AppModule(private val app: App) {
     fun context(): Context = app
 
     @Provides
-    fun room(): Db = Room.databaseBuilder(app, Db::class.java, "db").build()
+    fun room(): Db = Room
+        .databaseBuilder(app, Db::class.java, "db")
+        .addMigrations(Migration1_2)
+        .build()
 
     @Provides
     fun wordpressApi(): WordpressApi = retrofitWordpressApi
